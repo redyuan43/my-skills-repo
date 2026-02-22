@@ -12,6 +12,15 @@
 - `enable_guest_access.reg` - 注册表修复文件
 - `fix_network_share.ps1` - PowerShell修复脚本
 
+### 2. gh-repo-maintenance
+**功能：** 使用 `gh` CLI 维护 GitHub 仓库（登录检查、仓库盘点、批量筛选、隐藏/删除）
+**用途：** 当需要整理 GitHub 仓库、筛选可删除仓库、批量删除老 fork，或把符合条件的仓库改为私有（隐藏）时使用
+**文件：**
+- `SKILL.md` - 技能说明文档
+- `scripts/repo_cutoff_visibility.py` - 按日期列出/隐藏仓库（改私有）
+- `scripts/repo_bulk_delete_forks.py` - 批量删除老 fork（默认 dry-run，需 `--apply`）
+- `references/gh-github-repo-maintenance-notes.md` - 常见错误与处理说明
+
 ## 使用方法
 
 1. 克隆此仓库到本地
