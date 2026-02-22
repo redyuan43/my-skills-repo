@@ -21,6 +21,14 @@
 - `scripts/repo_bulk_delete_forks.py` - 批量删除老 fork（默认 dry-run，需 `--apply`）
 - `references/gh-github-repo-maintenance-notes.md` - 常见错误与处理说明
 
+### 3. publish-skill-to-my-skills-repo
+**功能：** 将本地 Codex skill 按 `my-skills-repo` 格式发布到 GitHub 技能仓库
+**用途：** 当需要把新建技能同步到 `my-skills-repo`、保持目录结构一致、生成 README 条目模板并完成提交推送时使用
+**文件：**
+- `SKILL.md` - 技能说明文档
+- `scripts/import_skill_to_my_skills_repo.py` - 复制本地技能到仓库并生成 README 条目模板
+- `references/my-skills-repo-format.md` - `my-skills-repo` 的目录与 README 格式说明
+
 ## 使用方法
 
 1. 克隆此仓库到本地
