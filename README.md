@@ -29,6 +29,21 @@
 - `scripts/import_skill_to_my_skills_repo.py` - 复制本地技能到仓库并生成 README 条目模板
 - `references/my-skills-repo-format.md` - `my-skills-repo` 的目录与 README 格式说明
 
+
+### 4. ai-team-skills
+**功能：** 打包的 AI 团队协作技能集合（含多个 skill 与 agent 提示文件）
+**用途：** 当需要一套可直接落地的团队协作技能结构（`ai-team`、`codex-agent`、`gemini-agent` 以及 `agents/`）时使用
+**文件：**
+- `2026-02-22-skill.txt` - 技能说明草稿/整理记录
+- `INSTALLATION_GUIDE.md` - 中文安装说明
+- `INSTALLATION_GUIDE_EN.md` - English installation guide
+- `README.md` - 项目说明（中文）
+- `README_EN.md` - Project README (English)
+- `agents/` - agent worker 提示文件（Codex / Gemini）
+- `ai-team/` - 团队协作 skill（含 `SKILL.md` 与 `references/`）
+- `codex-agent/` - Codex agent skill（含脚本与参考模板）
+- `gemini-agent/` - Gemini agent skill（含脚本与参考模板）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
