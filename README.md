@@ -44,6 +44,22 @@
 - `codex-agent/` - Codex agent skill（含脚本与参考模板）
 - `gemini-agent/` - Gemini agent skill（含脚本与参考模板）
 
+### 5. cli-config-bootstrap
+**功能：** 为 Claude CLI / Codex CLI / Qwen CLI / Kilo CLI 生成和维护可迁移的本地配置模板（脱敏版）
+**用途：** 当需要在新电脑快速恢复 AI CLI 开发环境、统一多台机器配置、备份脱敏配置模板或批量更新 provider endpoint 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档
+- `assets/templates/claude/config.json` - Claude CLI 脱敏配置模板
+- `assets/templates/claude/settings.json` - Claude CLI 设置模板
+- `assets/templates/codex/auth.json` - Codex CLI 认证模板（tokens 置空）
+- `assets/templates/codex/config.toml` - Codex CLI 配置模板
+- `assets/templates/kilo/config.json` - Kilo CLI 配置模板
+- `assets/templates/kilo/opencode.json` - Kilo OpenCode 配置模板
+- `assets/templates/kilo/package.json` - Kilo package 配置模板
+- `assets/templates/qwen/settings.json` - Qwen CLI 设置模板
+- `scripts/export_cli_configs.sh` - 从当前机器导出脱敏模板
+- `scripts/install_cli_configs.sh` - 安装模板并按环境变量替换占位符
+
 ## 使用方法
 
 1. 克隆此仓库到本地

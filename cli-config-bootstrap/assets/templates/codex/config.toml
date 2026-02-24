@@ -1,0 +1,50 @@
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
+personality = "pragmatic"
+[projects."__HOME__/Downloads"]
+trust_level = "trusted"
+
+[projects."__HOME__/github/markets"]
+trust_level = "untrusted"
+
+[projects."__HOME__"]
+trust_level = "trusted"
+
+[projects."__HOME__/github/codex-wrap"]
+trust_level = "trusted"
+
+[projects."__HOME__/github/baoyu-skills-ui"]
+trust_level = "trusted"
+
+[projects."__HOME__/.codex"]
+trust_level = "trusted"
+
+[projects."__HOME__/tests_code/codex_baoyu"]
+trust_level = "trusted"
+
+[projects."__HOME__/github/CapsWriter-Offline-Windows-64bit"]
+trust_level = "trusted"
+
+[projects."__HOME__/github/baoyu-skills-main"]
+trust_level = "trusted"
+
+[projects."__HOME__/Desktop"]
+trust_level = "trusted"
+
+[model_providers.minimax]
+name = "minimax"
+base_url = "https://api.minimaxi.com/v1"
+temp_env_key = "MINIMAX_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 4
+stream_max_retries = 10
+stream_idle_timeout_ms = 300000
+model = "minimax-米"
+[profiles.m21]
+model = "codex-MiniMax-M2.1"
+model_provider = "minimax"
+
+[notice.model_migrations]
+"gpt-5.1-codex-max" = "gpt-5.2-codex"
+"gpt-5.2" = "gpt-5.2-codex"

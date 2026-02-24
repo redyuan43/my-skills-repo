@@ -1,0 +1,84 @@
+{
+  "env": {
+    "BAILIAN_CODING_PLAN_API_KEY": "__BAILIAN_CODING_PLAN_API_KEY__"
+  },
+  "modelProviders": {
+    "openai": [
+      {
+        "id": "qwen3.5-plus",
+        "name": "qwen3.5-plus",
+        "description": "qwen3.5-plus model with thinking enabled from Bailian Coding Plan",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "envKey": "BAILIAN_CODING_PLAN_API_KEY",
+        "generationConfig": {
+          "extra_body": {
+            "enable_thinking": true
+          }
+        }
+      },
+      {
+        "id": "qwen3-coder-plus",
+        "name": "qwen3-coder-plus",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "description": "qwen3-coder-plus model from Bailian Coding Plan",
+        "envKey": "BAILIAN_CODING_PLAN_API_KEY"
+      },
+      {
+        "id": "qwen3-max-2026-01-23",
+        "name": "qwen3-max-2026-01-23",
+        "description": "qwen3-max model with thinking enabled from Bailian Coding Plan",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "envKey": "BAILIAN_CODING_PLAN_API_KEY",
+        "generationConfig": {
+          "extra_body": {
+            "enable_thinking": true
+          }
+        }
+      },
+      {
+        "id": "qwen3-coder-next",
+        "name": "qwen3-coder-next",
+        "description": "qwen3-coder-next model from Bailian Coding Plan",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "envKey": "BAILIAN_CODING_PLAN_API_KEY"
+      },
+      {
+        "id": "glm-4.7",
+        "name": "glm-4.7",
+        "description": "glm-4.7 model with thinking enabled from Bailian Coding Plan",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "envKey": "BAILIAN_CODING_PLAN_API_KEY",
+        "generationConfig": {
+          "extra_body": {
+            "enable_thinking": true
+          }
+        }
+      },
+      {
+        "id": "kimi-k2.5",
+        "name": "kimi-k2.5",
+        "description": "kimi-k2.5 model with thinking enabled from Bailian Coding Plan",
+        "baseUrl": "https://coding.dashscope.aliyuncs.com/v1",
+        "envKey": "BAILIAN_CODING_PLAN_API_KEY",
+        "generationConfig": {
+          "extra_body": {
+            "enable_thinking": true
+          }
+        }
+      }
+    ]
+  },
+  "security": {
+    "auth": {
+      "selectedType": "qwen-oauth"
+    }
+  },
+  "codingPlan": {
+    "region": "china",
+    "version": "86a1dfb52b8a7b374b008874cfd889b237aa99dbd15d0bc65c2b3630354b41a8"
+  },
+  "model": {
+    "name": "coder-model"
+  },
+  "$version": 3
+}
