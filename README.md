@@ -60,6 +60,12 @@
 - `scripts/export_cli_configs.sh` - 从当前机器导出脱敏模板
 - `scripts/install_cli_configs.sh` - 安装模板并按环境变量替换占位符
 
+### 6. claude-aliyun-config-fixer
+**功能：** 配置与排障 Claude Code 对接阿里云百炼 / Coding Plan（含 `403 invalid api-key` 快速定位）
+**用途：** 当按阿里云文档配置 Claude Code 失败、出现 `403 invalid api-key`、或不确定 `sk-` / `sk-sp-` Key 与 Base URL 如何匹配时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（含 Key 前缀与 Base URL 对应关系、冲突项清理、最小验证与排障流程）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
