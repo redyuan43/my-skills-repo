@@ -7,9 +7,9 @@ TEMPLATES_DIR="${SKILL_ROOT}/assets/templates"
 
 mkdir -p \
   "${TEMPLATES_DIR}/claude" \
-  "${TEMPLATES_DIR}/codex" \
   "${TEMPLATES_DIR}/qwen" \
-  "${TEMPLATES_DIR}/kilo"
+  "${TEMPLATES_DIR}/kilo" \
+  "${TEMPLATES_DIR}/opencode"
 
 export SRC_HOME="${HOME}"
 
@@ -55,10 +55,6 @@ if mode == "claude_settings":
 elif mode == "claude_config":
     if "primaryApiKey" in data:
         data["primaryApiKey"] = "__CLAUDE_PRIMARY_API_KEY__"
-elif mode == "codex_auth":
-    data["OPENAI_API_KEY"] = "__OPENAI_API_KEY__"
-    data["tokens"] = None
-    data["last_refresh"] = None
 elif mode == "qwen_settings":
     env = data.setdefault("env", {})
     if "BAILIAN_CODING_PLAN_API_KEY" in env:
@@ -69,6 +65,12 @@ elif mode in {"kilo_config", "kilo_opencode"}:
         opts = cfg.get("options")
         if isinstance(opts, dict) and "apiKey" in opts:
             opts["apiKey"] = "__KILO_API_KEY__"
+elif mode == "opencode":
+    provider = data.get("provider", {})
+    for _, cfg in provider.items():
+        opts = cfg.get("options")
+        if isinstance(opts, dict) and "apiKey" in opts:
+            opts["apiKey"] = "__BAILIAN_CODING_PLAN_API_KEY__"
 else:
     raise SystemExit(f"Unknown mode: {mode}")
 
@@ -80,27 +82,11 @@ PY
   echo "Exported: ${dst}"
 }
 
-toml_sanitize_copy() {
-  local src="$1"
-  local dst="$2"
-  if [[ ! -f "${src}" ]]; then
-    echo "Skip (missing): ${src}"
-    return 0
-  fi
-  mkdir -p "$(dirname "${dst}")"
-  sed "s|${HOME}|__HOME__|g" "${src}" > "${dst}"
-  echo "Exported: ${dst}"
-}
-
 echo "Exporting sanitized CLI config templates from ${HOME} ..."
 
 # Claude
 json_sanitize_to_file "${HOME}/.claude/settings.json" "${TEMPLATES_DIR}/claude/settings.json" "claude_settings"
 json_sanitize_to_file "${HOME}/.claude/config.json" "${TEMPLATES_DIR}/claude/config.json" "claude_config"
-
-# Codex
-toml_sanitize_copy "${HOME}/.codex/config.toml" "${TEMPLATES_DIR}/codex/config.toml"
-json_sanitize_to_file "${HOME}/.codex/auth.json" "${TEMPLATES_DIR}/codex/auth.json" "codex_auth"
 
 # Qwen
 json_sanitize_to_file "${HOME}/.qwen/settings.json" "${TEMPLATES_DIR}/qwen/settings.json" "qwen_settings"
@@ -112,6 +98,9 @@ if [[ -f "${HOME}/.config/kilo/package.json" ]]; then
   cp "${HOME}/.config/kilo/package.json" "${TEMPLATES_DIR}/kilo/package.json"
   echo "Exported: ${TEMPLATES_DIR}/kilo/package.json"
 fi
+
+# OpenCode
+json_sanitize_to_file "${HOME}/.config/opencode/opencode.json" "${TEMPLATES_DIR}/opencode/opencode.json" "opencode"
 
 cat <<'EOF'
 Done.

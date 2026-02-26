@@ -31,11 +31,6 @@ replace_token_if_set "${HOME}/.claude/settings.json" "__ANTHROPIC_AUTH_TOKEN__" 
 replace_token_if_set "${HOME}/.claude/settings.json" "__ANTHROPIC_BASE_URL__" "${ANTHROPIC_BASE_URL:-}"
 replace_token_if_set "${HOME}/.claude/config.json" "__CLAUDE_PRIMARY_API_KEY__" "${CLAUDE_PRIMARY_API_KEY:-}"
 
-# Codex
-copy_with_replace "${TEMPLATES_DIR}/codex/config.toml" "${HOME}/.codex/config.toml"
-copy_with_replace "${TEMPLATES_DIR}/codex/auth.json" "${HOME}/.codex/auth.json"
-replace_token_if_set "${HOME}/.codex/auth.json" "__OPENAI_API_KEY__" "${OPENAI_API_KEY:-}"
-
 # Qwen
 copy_with_replace "${TEMPLATES_DIR}/qwen/settings.json" "${HOME}/.qwen/settings.json"
 replace_token_if_set "${HOME}/.qwen/settings.json" "__BAILIAN_CODING_PLAN_API_KEY__" "${BAILIAN_CODING_PLAN_API_KEY:-}"
@@ -46,6 +41,10 @@ copy_with_replace "${TEMPLATES_DIR}/kilo/opencode.json" "${HOME}/.config/kilo/op
 copy_with_replace "${TEMPLATES_DIR}/kilo/package.json" "${HOME}/.config/kilo/package.json"
 replace_token_if_set "${HOME}/.config/kilo/config.json" "__KILO_API_KEY__" "${KILO_API_KEY:-}"
 replace_token_if_set "${HOME}/.config/kilo/opencode.json" "__KILO_API_KEY__" "${KILO_API_KEY:-}"
+
+# OpenCode
+copy_with_replace "${TEMPLATES_DIR}/opencode/opencode.json" "${HOME}/.config/opencode/opencode.json"
+replace_token_if_set "${HOME}/.config/opencode/opencode.json" "__BAILIAN_CODING_PLAN_API_KEY__" "${BAILIAN_CODING_PLAN_API_KEY:-}"
 
 cat <<'EOF'
 Done.

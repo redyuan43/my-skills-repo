@@ -1,9 +1,9 @@
 ---
 name: cli-config-bootstrap
-description: 为 Claude CLI / Codex CLI / Qwen CLI / Kilo CLI 生成和维护可迁移的本地配置模板（脱敏版），保留模型、权限、常用设置，移除或占位 API Key / OAuth Token。适用于在新电脑快速恢复 CLI 开发环境、统一多台机器配置、备份配置模板、或批量更新 provider endpoint。
+description: 为 Claude CLI / Qwen CLI / Kilo CLI / OpenCode 生成和维护可迁移的本地配置模板（脱敏版），保留模型、权限、常用设置，移除或占位 API Key / OAuth Token。适用于在新电脑快速恢复 CLI 开发环境、统一多台机器配置、备份配置模板、或批量更新 provider endpoint。
 ---
 
-# CLI 配置迁移模板（Claude/Codex/Qwen/Kilo）
+# CLI 配置迁移模板（Claude/Qwen/Kilo/OpenCode）
 
 ## 概览
 
@@ -11,7 +11,7 @@ description: 为 Claude CLI / Codex CLI / Qwen CLI / Kilo CLI 生成和维护可
 
 ## 使用场景
 
-- “把 Claude/Codex/Qwen/Kilo 的配置做成模板”
+- “把 Claude/Qwen/Kilo/OpenCode 的配置做成模板”
 - “新电脑一键恢复 AI CLI 环境”
 - “去掉 API key 后分享配置”
 - “保留模型/权限设置，只替换 token”
@@ -31,15 +31,18 @@ description: 为 Claude CLI / Codex CLI / Qwen CLI / Kilo CLI 生成和维护可
 - `Claude CLI`
   - 保留：`~/.claude/settings.json`、`~/.claude/config.json`
   - 不迁移：`.claude.json`、`~/.claude/.credentials.json`、历史/缓存/遥测
-- `Codex CLI`
-  - 保留：`~/.codex/config.toml`
-  - 提供：`~/.codex/auth.json` 脱敏模板（`tokens` 置空）
 - `Qwen CLI`
   - 保留：`~/.qwen/settings.json`
   - 不默认迁移：`oauth_creds.json` 真实值（建议新机器重登）
 - `Kilo CLI`
   - 保留：`~/.config/kilo/config.json`、`opencode.json`、`package.json`
   - 约束：`provider.npm="@ai-sdk/anthropic"` 必须匹配 Anthropic 风格 `baseURL`
+  - 支持：阿里云 Kilo CLI Coding Plan 文档版完整模型配置模板（`qwen3.5-plus`、`qwen3-coder-plus`、`glm-5`、`kimi-k2.5` 等）
+- `OpenCode`
+  - 保留：`~/.config/opencode/opencode.json`
+  - 支持：阿里云 Coding Plan Anthropic 兼容端点（`https://coding.dashscope.aliyuncs.com/apps/anthropic/v1`）
+  - 支持：使用 `~/.qwen/settings.json` 中的 `BAILIAN_CODING_PLAN_API_KEY` 回填 `apiKey`
+  - 模型：可维护文档版完整模型列表（如 `qwen3.5-plus`、`qwen3-coder-plus`、`glm-5`、`kimi-k2.5` 等）
 
 ## 安装脚本
 
@@ -56,7 +59,6 @@ bash scripts/export_cli_configs.sh
 - `CLAUDE_PRIMARY_API_KEY`
 - `ANTHROPIC_AUTH_TOKEN`
 - `ANTHROPIC_BASE_URL`
-- `OPENAI_API_KEY`
 - `BAILIAN_CODING_PLAN_API_KEY`
 - `KILO_API_KEY`
 
@@ -71,4 +73,6 @@ bash scripts/export_cli_configs.sh
 
 - `scripts/install_cli_configs.sh`：安装模板并按环境变量替换占位符
 - `scripts/export_cli_configs.sh`：从当前机器配置重新生成脱敏模板
-- `assets/templates/*`：四套 CLI 的脱敏模板
+- `assets/templates/*`：三套 CLI 的脱敏模板（Claude/Qwen/Kilo）
+  - 包含 `Kilo` 的 `config.json` 文档版完整模型配置模板（阿里云 Coding Plan）
+  - 包含 `OpenCode` 的 `opencode.json` 模板（阿里云 Coding Plan 完整模型配置示例）
