@@ -66,6 +66,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（含 Key 前缀与 Base URL 对应关系、冲突项清理、最小验证与排障流程）
 
+### 7. ai-cli-suite-installer
+**功能：** 批量安装/升级 `claude`、`kilo`、`codex`、`opencode`、`qwen`、`gemini` 六大 CLI，并处理 npm 全局权限问题
+**用途：** 当需要一键安装或统一升级这六个 AI CLI、修复 `npm -g` 的 `EACCES/EPERM`、切换到 `~/.npm-global`（无需 sudo）、或避免 `kilo/opencode/claude` 升级卡住时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（安装/升级流程、npm 权限处理、常见卡住场景说明）
+- `scripts/install_ai_clis.sh` - 六大 CLI 安装升级脚本（含 npm 用户级前缀自动配置、超时保护、非交互优化）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
