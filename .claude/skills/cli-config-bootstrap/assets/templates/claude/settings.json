@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "MCP_TIMEOUT": "60000"
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash",
+      "BashOutput",
+      "Edit",
+      "Glob",
+      "Grep",
+      "KillShell",
+      "NotebookEdit",
+      "Read",
+      "SlashCommand",
+      "Task",
+      "TodoWrite",
+      "WebFetch",
+      "WebSearch",
+      "Write",
+      "mcp__ide",
+      "mcp__exa",
+      "mcp__context7",
+      "mcp__mcp-deepwiki",
+      "mcp__Playwright",
+      "mcp__spec-workflow",
+      "mcp__open-websearch",
+      "mcp__serena"
+    ],
+    "deny": []
+  },
+  "model": "sonnet",
+  "hooks": {},
+  "statusLine": {
+    "type": "command",
+    "command": "printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m' \"$(whoami)\" \"$(hostname -s)\" \"$(pwd)\""
+  },
+  "effortLevel": "medium"
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://kilo.ai/config.json",
+  "model": "bailian-coding-plan/qwen3-coder-plus",
+  "provider": {
+    "bailian-coding-plan": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Model Studio Coding Plan",
+      "options": {
+        "baseURL": "https://coding.dashscope.aliyuncs.com/apps/anthropic/v1",
+        "apiKey": "__KILO_API_KEY__"
+      },
+      "models": {
+        "qwen3.5-plus": {
+          "name": "Qwen3.5 Plus",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "qwen3-max-2026-01-23": {
+          "name": "Qwen3 Max 0123",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "qwen3-coder-next": {
+          "name": "Qwen3 Coder Next"
+        },
+        "qwen3-coder-plus": {
+          "name": "Qwen3 Coder Plus"
+        },
+        "MiniMax-M2.5": {
+          "name": "MiniMax M2.5",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "glm-5": {
+          "name": "GLM 5",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "glm-4.7": {
+          "name": "GLM 4.7",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        },
+        "kimi-k2.5": {
+          "name": "Kimi K2.5",
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 1024
+            }
+          }
+        }
+      }
+    }
+  },
+  "permission": {
+    "*": "ask",
+    "bash": {
+      "git *": "allow",
+      "npm *": "allow",
+      "yarn *": "allow",
+      "pnpm *": "allow",
+      "cargo *": "allow",
+      "go *": "allow"
+    }
+  },
+  "mode": {
+    "architect": {
+      "model": "bailian-coding-plan/qwen3-max-2026-01-23",
+      "temperature": 0.2
+    },
+    "build": {
+      "model": "bailian-coding-plan/qwen3-coder-plus",
+      "temperature": 0.3
+    },
+    "plan": {
+      "model": "bailian-coding-plan/qwen3-coder-next",
+      "temperature": 0.2
+    },
+    "ask": {
+      "model": "bailian-coding-plan/qwen3.5-plus",
+      "temperature": 0.4
+    },
+    "debug": {
+      "model": "bailian-coding-plan/qwen3-coder-plus",
+      "temperature": 0.2
+    },
+    "docs": {
+      "model": "bailian-coding-plan/qwen3-coder-next",
+      "temperature": 0.4
+    }
+  }
+}
