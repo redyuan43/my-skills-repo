@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ollama Download Monitor"
+  short_description: "Install Ollama and monitor model pull progress"
+  default_prompt: "Install Ollama using official steps, then monitor one or more ollama pull downloads from log files and verify completion."

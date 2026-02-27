@@ -72,6 +72,15 @@
 - `SKILL.md` - 技能说明文档（安装/升级流程、npm 权限处理、常见卡住场景说明）
 - `scripts/install_ai_clis.sh` - 六大 CLI 安装升级脚本（含 npm 用户级前缀自动配置、超时保护、非交互优化）
 
+### 8. ollama-download-monitor
+**功能：** 安装 Ollama 并监控 `ollama pull` 模型下载进度与完成状态
+**用途：** 当需要先按官方流程安装 Ollama（Linux/macOS/Windows），再通过日志实时查看多个模型下载进度并确认是否下载成功时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（安装、下载、监控、校验完整流程）
+- `scripts/monitor_ollama_logs.sh` - 多模型下载日志监控脚本（兼容 `*.log` 与 `ollama_*.log` 命名）
+- `references/install-ollama.md` - Ollama 官方安装路径汇总与命令参考（含来源链接）
+- `agents/openai.yaml` - skill 的 UI 元数据
+
 ## 使用方法
 
 1. 克隆此仓库到本地
