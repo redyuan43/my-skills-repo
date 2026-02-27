@@ -72,6 +72,18 @@
 - `SKILL.md` - 技能说明文档（安装/升级流程、npm 权限处理、常见卡住场景说明）
 - `scripts/install_ai_clis.sh` - 六大 CLI 安装升级脚本（含 npm 用户级前缀自动配置、超时保护、非交互优化）
 
+### 9. meeting-recorder-cli
+**功能：** 通过 CLI 操控本机会议录音服务，驱动 ASR HTTP 转录并生成会议纪要
+**用途：** 当需要启动/停止录音、查看转录结果、生成会议摘要、或排查录音→转录→摘要链路问题时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（含前置条件、标准工作流与诊断流程）
+- `scripts/onekey.sh` - 一键启停录音与生成摘要的主控脚本
+- `scripts/meeting.sh` - 会议 CLI 命令封装（start/stop/status/transcript/summary）
+- `scripts/check.sh` - ASR 服务与录音进程健康检查脚本
+- `scripts/server.sh` - 录音服务器管理脚本
+- `references/runbook.md` - 命令参考与输出说明
+- `agents/openai.yaml` - skill 的 UI 元数据
+
 ### 8. ollama-download-monitor
 **功能：** 安装 Ollama 并监控 `ollama pull` 模型下载进度与完成状态
 **用途：** 当需要先按官方流程安装 Ollama（Linux/macOS/Windows），再通过日志实时查看多个模型下载进度并确认是否下载成功时使用

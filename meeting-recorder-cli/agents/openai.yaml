@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meeting Recorder CLI"
+  short_description: "Run recorder server and ASR meeting workflow from CLI."
+  default_prompt: "Use $meeting-recorder-cli to run status/start/stop/transcript/summary for /home/ivan/github/meetings/meeting-recorder, and diagnose recording or ASR issues."
