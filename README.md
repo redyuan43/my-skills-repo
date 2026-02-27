@@ -70,7 +70,7 @@
 **用途：** 当需要一键安装或统一升级这六个 AI CLI、修复 `npm -g` 的 `EACCES/EPERM`、切换到 `~/.npm-global`（无需 sudo）、或避免 `kilo/opencode/claude` 升级卡住时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（安装/升级流程、npm 权限处理、常见卡住场景说明）
-- `scripts/install_ai_clis.sh` - 六大 CLI 安装升级脚本（含 npm 用户级前缀自动配置、超时保护、非交互优化）
+- `ai-cli-suite-installer/scripts/install_ai_clis.sh` - 六大 CLI 安装升级脚本（含 npm 用户级前缀自动配置、超时保护、非交互优化；该路径为唯一入口）
 
 ### 9. meeting-recorder-cli
 **功能：** 通过 CLI 操控本机会议录音服务，驱动 ASR HTTP 转录并生成会议纪要

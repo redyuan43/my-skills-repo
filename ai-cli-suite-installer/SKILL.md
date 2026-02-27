@@ -16,17 +16,20 @@ Use this skill when the user wants a single workflow to manage these CLIs:
 
 ## Primary workflow (bundled script)
 
-Prefer the bundled script:
+Prefer the bundled script inside this skill folder:
 
-- `ai-cli-suite-installer/scripts/install_ai_clis.sh`
+- `scripts/install_ai_clis.sh`
 
-Typical usage:
+From repository root, use:
 
 ```bash
 bash ai-cli-suite-installer/scripts/install_ai_clis.sh --check
 bash ai-cli-suite-installer/scripts/install_ai_clis.sh
 bash ai-cli-suite-installer/scripts/install_ai_clis.sh -y
 ```
+
+This is the only supported script entry for this skill. Do not use a repo-root
+`scripts/install_ai_clis.sh` copy.
 
 What the script does:
 
@@ -51,6 +54,22 @@ If npm global installs fail with permission errors:
 
 The bundled script already automates this in most cases.
 
+## Field notes from real troubleshooting
+
+- `gemini --version` can hang in some environments. Prefer:
+  - `timeout 8s gemini --version`
+  - In `--check`, `Installed: version unavailable` is an acceptable fallback.
+- `codex` version mismatch after upgrade is usually PATH/binary precedence:
+  - `which -a codex`
+  - Ensure `~/.npm-global/bin` comes before `/usr/local/bin` in PATH.
+- npm `EACCES/EPERM` and user-prefix setup failures:
+  - Check prefix: `npm config get prefix`
+  - If needed, repair ownership:
+    - `sudo chown -R $(id -u):$(id -g) "$HOME/.npm" "$HOME/.npmrc"`
+  - If `~/.npm-global` cannot be created due to home dir ownership:
+    - `sudo chown $(id -u):$(id -g) "$HOME"`
+  - Then rerun the script.
+
 ## CLI-specific notes
 
 - `kilo`: do not rely on `kilo upgrade` in automation if it shows TUI confirmation; prefer `npm update -g @kilocode/cli`
@@ -66,6 +85,7 @@ After install/upgrade, verify:
 
 ```bash
 command -v claude kilo codex opencode qwen gemini
+which -a codex
 claude --version
 kilo --version
 codex --version

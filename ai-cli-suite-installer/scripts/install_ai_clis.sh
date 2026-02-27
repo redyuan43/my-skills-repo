@@ -8,6 +8,7 @@ SCRIPT_NAME="$(basename "$0")"
 ASSUME_YES=0
 ONLY_CHECK=0
 DEFAULT_UPGRADE_TIMEOUT_SEC=120
+DEFAULT_VERSION_TIMEOUT_SEC=8
 AUTO_FIX_NPM_PERMS=1
 
 # Some shells/tools export npm_config_prefix=/usr, which overrides ~/.npmrc and
@@ -123,8 +124,18 @@ need_npm_prereqs() {
 
 show_version() {
   local bin="$1"
+  local out
   if has_cmd "$bin"; then
-    "$bin" --version 2>/dev/null | head -n 1 || true
+    if has_cmd timeout; then
+      out="$(timeout --foreground "${DEFAULT_VERSION_TIMEOUT_SEC}s" "$bin" --version 2>/dev/null | head -n 1 || true)"
+    else
+      out="$("$bin" --version 2>/dev/null | head -n 1 || true)"
+    fi
+    if [[ -n "$out" ]]; then
+      printf '%s\n' "$out"
+    else
+      printf 'version unavailable\n'
+    fi
   fi
 }
 
@@ -141,6 +152,7 @@ append_unique_line() {
 ensure_npm_user_prefix() {
   local target_prefix="$HOME/.npm-global"
   local current_prefix
+  local npm_set_out
 
   has_cmd npm || return 1
 
@@ -161,9 +173,21 @@ ensure_npm_user_prefix() {
     if [[ "$current_prefix" == "/usr"* ]] || [[ "$current_prefix" == "/opt/"* ]] || [[ "$current_prefix" == "/usr/local"* ]]; then
       if [[ "$ASSUME_YES" -eq 1 ]] || prompt_yes_no "Switch npm global installs to user path ($target_prefix)?"; then
         info "Configuring npm user-level global prefix"
-        mkdir -p "$target_prefix/bin"
-        if ! npm config set prefix "$target_prefix"; then
+        if ! mkdir -p "$target_prefix/bin" 2>/dev/null; then
+          warn "Cannot create $target_prefix/bin (permission denied)."
+          warn "Try: sudo chown $(id -u):$(id -g) \"$HOME\""
+          return 1
+        fi
+        npm_set_out="$(npm config set prefix "$target_prefix" 2>&1)" || true
+        if [[ "$(npm config get prefix 2>/dev/null || true)" != "$target_prefix" ]]; then
           err "Failed to set npm prefix to $target_prefix"
+          if [[ -n "$npm_set_out" ]]; then
+            printf '%s\n' "$npm_set_out" | sed -n '1,12p' >&2
+          fi
+          if is_permission_error "$npm_set_out"; then
+            err "Detected npm permissions issue in your home config/cache."
+            err "Try: sudo chown -R $(id -u):$(id -g) \"$HOME/.npm\" \"$HOME/.npmrc\""
+          fi
           return 1
         fi
       else
