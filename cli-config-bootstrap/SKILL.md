@@ -1,3 +1,8 @@
+---
+name: cli-config-bootstrap
+description: Create portable, sanitized configuration templates for AI CLIs (Claude, Qwen, Kilo, OpenCode), including export/install workflows with placeholder-based secret redaction and environment variable injection.
+---
+
 # CLI Configuration Bootstrap Skill
 
 The `cli-config-bootstrap` skill creates portable, sanitized configuration templates for multiple AI CLI tools (Claude, Qwen, Kilo, OpenCode). It allows users to generate de-identified configuration files that preserve settings, model configurations, and permissions while removing sensitive API keys and tokens. This enables easy setup of AI CLI environments on new machines and secure sharing of configurations without exposing credentials.
