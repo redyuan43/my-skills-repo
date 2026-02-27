@@ -1,0 +1,4 @@
+interface:
+  display_name: "CPU Process Watchflow"
+  short_description: "Find high-CPU apps, then monitor selected ones"
+  default_prompt: "First list currently high-CPU running programs, ask me which ones to watch, then start continuous monitoring and alert when selected processes stop or stay below the CPU threshold."
