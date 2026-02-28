@@ -116,6 +116,24 @@
 - `scripts/analyze_video.py` - 本地视频分析脚本，生成 `ffprobe.json`、`summary.json`、`report.md` 等产物
 - `references/report_fields.md` - 输出文件字段及阅读顺序说明
 
+### 13. tts
+**功能：** 文字转语音（Text-to-Speech），将文字合成为语音并播放
+**用途：** 当需要将文字转换为语音（使用本地 Qwen3-TTS 模型）、自动检测模型加载状态并触发加载后播放时使用。用法：`/tts 你好世界`
+**文件：**
+- `SKILL.md` - 技能说明文档（参数解析、模型加载检测、合成与播放流程）
+
+### 14. asr
+**功能：** 语音识别（Speech-to-Text），将音频文件转录为文字
+**用途：** 当需要将本地音频文件（WAV 等）通过本地 Qwen3-ASR 模型转录为文字时使用。用法：`/asr /path/to/audio.wav`
+**文件：**
+- `SKILL.md` - 技能说明文档（转录流程、响应字段说明与错误处理）
+
+### 15. translate
+**功能：** 语义翻译（Semantic Translation），使用本地 AI 模型进行中英文互译
+**用途：** 当需要通过本地 Ollama 大语言模型翻译文字、支持中英互译时使用。用法：`/translate Hello World [to:zh|to:en]`
+**文件：**
+- `SKILL.md` - 技能说明文档（参数解析、API 调用、响应展示与 fallback 处理）
+
 ## 使用方法
 
 1. 克隆此仓库到本地

@@ -1,0 +1,46 @@
+---
+name: translate
+description: 语义翻译（Semantic Translation）：使用本地 AI 模型（Ollama）理解并翻译文本，支持中英文互译。用法：/translate Hello World [to:zh|to:en]
+disable-model-invocation: true
+allowed-tools: Bash(curl:*)
+argument-hint: [text] [to:zh|to:en]
+---
+
+# 语义翻译 (Translate)
+
+使用本地 Ollama 大语言模型进行语义翻译。参数：`$ARGUMENTS`
+
+## 参数解析
+
+从 `$ARGUMENTS` 中提取：
+- **text**：要翻译的文字（必填）
+- **target**：目标语言（可选，默认 `zh`）
+  - `to:zh` 或不指定 → 翻译为中文
+  - `to:en` → 翻译为英文
+
+例如：
+- `/translate Hello World` → 翻译为中文
+- `/translate 你好世界 to:en` → 翻译为英文
+
+## 步骤
+
+1. 先检查翻译服务：
+   ```
+   curl -s http://127.0.0.1:8001/api/health
+   ```
+   如果连接失败，提示用户先运行 `./start_all.sh` 或 `./start_http_api.sh`。
+
+2. 调用翻译 API：
+   ```
+   curl -s -X POST http://127.0.0.1:8001/api/text/translate \
+     -H "Content-Type: application/json" \
+     -d '{"text": "要翻译的文字", "target": "zh"}'
+   ```
+
+3. 解析 JSON 响应，向用户展示：
+   - 原文（`source_text`）
+   - 译文（`translated_text`）
+   - 目标语言（`target`）
+
+4. 如果 `fallback: true`，说明 Ollama 翻译失败（模型未加载或服务未运行），
+   提示用户检查 Ollama 服务（运行 `ollama serve` 或检查配置）。
