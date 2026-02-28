@@ -93,6 +93,13 @@
 - `references/install-ollama.md` - Ollama 官方安装路径汇总与命令参考（含来源链接）
 - `agents/openai.yaml` - skill 的 UI 元数据
 
+### 10. sudo-nopasswd-toggle
+**功能：** 为本地 Linux 用户开启 `sudo` 免密、查看当前状态，或恢复为需要密码验证
+**用途：** 当用户要求配置 `sudo NOPASSWD`、`sudo 免密`、`sudo 不用输密码`，或要求撤销该配置并恢复密码校验时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（启用、关闭、状态检查与安全注意事项）
+- `scripts/manage_sudo_nopasswd.sh` - 托管 `/etc/sudoers.d/90-<user>-nopasswd` 的操作脚本，支持 `enable`、`disable`、`status`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
