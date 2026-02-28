@@ -108,6 +108,14 @@
 - `scripts/download_youtube.py` - 基于 `yt-dlp` 的下载包装脚本，支持 video/audio/subtitles/metadata 模式
 - `references/yt_dlp_presets.md` - 常用下载参数和操作规则参考
 
+### 12. analyze-video-file
+**功能：** 使用 `ffprobe` 和 `ffmpeg` 分析本地视频文件，导出结构化报告、抽帧、音频和字幕相关产物
+**用途：** 当用户想知道一个视频文件讲了什么、需要抽取关键帧和转录前置材料、或只想检查编码、时长、分辨率与流信息时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（分析模式、解释规则和失败处理）
+- `scripts/analyze_video.py` - 本地视频分析脚本，生成 `ffprobe.json`、`summary.json`、`report.md` 等产物
+- `references/report_fields.md` - 输出文件字段及阅读顺序说明
+
 ## 使用方法
 
 1. 克隆此仓库到本地
