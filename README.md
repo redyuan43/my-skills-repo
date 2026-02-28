@@ -135,6 +135,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（参数解析、API 调用、响应展示与 fallback 处理）
 
+### 16. download-bilibili-video
+**功能：** 使用 `yt-dlp` 下载 Bilibili 视频、音频、字幕、弹幕和元数据，并处理 `b23.tv` 短链与浏览器 cookie
+**用途：** 当用户提供 `bilibili.com` 或 `b23.tv` 链接，希望保存本地视频或音频、抓取字幕/自动字幕/弹幕、保留描述与 `.info.json` 元数据，或在遇到 `412 Precondition Failed` 时需要借助 Chromium cookie 完成下载时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（B 站下载工作流、短链解析、cookie 使用和失败处理）
+- `scripts/download_bilibili.py` - Bilibili 下载包装脚本，支持 `video`/`audio`/`subtitles`/`metadata` 模式，并自动探测 Chromium/Snap Chromium 配置
+
 ## 使用方法
 
 1. 克隆此仓库到本地
