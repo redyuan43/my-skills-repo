@@ -11,8 +11,9 @@ Use this skill to set up Ollama and monitor model download success from terminal
 
 1. Install Ollama first.
 2. Start model downloads with log files.
-3. Run the monitor script to track progress and completion.
-4. Verify final state with `ollama list`.
+3. Optionally use the bundled starter script to launch pulls with per-model logs.
+4. Run the monitor script to track progress and completion.
+5. Verify final state with `ollama list`.
 
 For installation steps, read:
 - `ollama-download-monitor/references/install-ollama.md`
@@ -32,6 +33,22 @@ ollama pull qwen3-vl 2>&1 | tee "$LOG_DIR/qwen3-vl.log"
 For parallel pulls, run each command in a separate terminal session.
 
 ## Monitor Progress
+
+If you want one command that starts missing downloads and then tails progress, use:
+
+```bash
+bash ollama-download-monitor/scripts/download_and_monitor_ollama.sh \
+  --models "gpt-oss:20b,qwen3-vl,glm-4.7-flash" \
+  --interval 20
+```
+
+Behavior:
+- Skip models that already exist in `ollama list`
+- Skip models that are already being pulled by another terminal
+- Create one log file per model under `--log-dir`
+- Enter monitor mode automatically unless `--no-watch` is set
+
+You can still run the monitor directly:
 
 Run the bundled script:
 

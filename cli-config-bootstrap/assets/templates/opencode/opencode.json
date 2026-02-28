@@ -38,6 +38,15 @@
         },
         "MiniMax-M2.5": {
           "name": "MiniMax M2.5",
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
           "options": {
             "thinking": {
               "type": "enabled",

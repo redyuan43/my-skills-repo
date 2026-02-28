@@ -89,6 +89,7 @@
 **用途：** 当需要先按官方流程安装 Ollama（Linux/macOS/Windows），再通过日志实时查看多个模型下载进度并确认是否下载成功时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（安装、下载、监控、校验完整流程）
+- `scripts/download_and_monitor_ollama.sh` - 一键启动缺失模型下载并自动进入监控
 - `scripts/monitor_ollama_logs.sh` - 多模型下载日志监控脚本（兼容 `*.log` 与 `ollama_*.log` 命名）
 - `references/install-ollama.md` - Ollama 官方安装路径汇总与命令参考（含来源链接）
 - `agents/openai.yaml` - skill 的 UI 元数据

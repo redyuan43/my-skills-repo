@@ -1,9 +1,9 @@
 ---
 name: translate
-description: 语义翻译（Semantic Translation）：使用本地 AI 模型（Ollama）理解并翻译文本，支持中英文互译。用法：/translate Hello World [to:zh|to:en]
+description: "语义翻译（Semantic Translation）：使用本地 AI 模型（Ollama）理解并翻译文本，支持中英文互译。用法：/translate Hello World [to:zh|to:en]"
 disable-model-invocation: true
-allowed-tools: Bash(curl:*)
-argument-hint: [text] [to:zh|to:en]
+allowed-tools: "Bash(curl:*)"
+argument-hint: "[text] [to:zh|to:en]"
 ---
 
 # 语义翻译 (Translate)
