@@ -100,6 +100,14 @@
 - `SKILL.md` - 技能说明文档（启用、关闭、状态检查与安全注意事项）
 - `scripts/manage_sudo_nopasswd.sh` - 托管 `/etc/sudoers.d/90-<user>-nopasswd` 的操作脚本，支持 `enable`、`disable`、`status`
 
+### 11. download-youtube-video
+**功能：** 使用 `yt-dlp` 下载 YouTube 视频、音频、字幕、缩略图和元数据
+**用途：** 当用户提供 YouTube 链接，希望保存本地视频或音频、抓取字幕/自动字幕、保留描述与 `.info.json` 元数据，或网页抓取失败后需要切换到实际媒体下载流程时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（下载模式、失败处理和工作流说明）
+- `scripts/download_youtube.py` - 基于 `yt-dlp` 的下载包装脚本，支持 video/audio/subtitles/metadata 模式
+- `references/yt_dlp_presets.md` - 常用下载参数和操作规则参考
+
 ## 使用方法
 
 1. 克隆此仓库到本地
