@@ -142,6 +142,22 @@
 - `SKILL.md` - 技能说明文档（B 站下载工作流、短链解析、cookie 使用和失败处理）
 - `scripts/download_bilibili.py` - Bilibili 下载包装脚本，支持 `video`/`audio`/`subtitles`/`metadata` 模式，并自动探测 Chromium/Snap Chromium 配置
 
+### 17. qwen3-omni-multimodal-client
+**功能：** 调用本地 `Qwen3-Omni` 服务，统一覆盖文本、音频、图片、视频输入，以及文本/音频输出
+**用途：** 当本地 `Qwen3-Omni` wrapper 服务已经启动，用户需要快速执行 `ping`、文本问答、文本转语音、图片理解、音频理解或视频理解命令时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（何时使用、工作流、已知限制）
+- `references/examples.md` - 多模态命令速查示例
+- `scripts/run_qwen3_omni_infer.sh` - 本地 CLI 调用包装脚本
+
+### 18. qwen3-omni-bundle-manager
+**功能：** 安全隔离不可用模型缓存、生成只包含可用 `gptq4` 路径的部署压缩包，并校验压缩包内容
+**用途：** 当需要清理 `Qwen3-Omni` 项目里的失败模型分支、保留可用 `gptq4` 模型、导出可迁移 bundle，或验证归档是否排除了失败模型时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（清理、打包、校验工作流）
+- `references/bundle-layout.md` - bundle 内部布局说明
+- `scripts/prune_and_bundle.sh` - 串联清理与打包的入口脚本
+
 ## 使用方法
 
 1. 克隆此仓库到本地
