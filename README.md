@@ -158,6 +158,13 @@
 - `references/bundle-layout.md` - bundle 内部布局说明
 - `scripts/prune_and_bundle.sh` - 串联清理与打包的入口脚本
 
+### 19. deskflow-linux-setup
+**功能：** 在 Linux 上安装、运行并排障 Deskflow，覆盖 Flatpak、原生包、AppImage 和源码编译
+**用途：** 当需要安装 Deskflow 键鼠共享工具、验证下载的安装包是否可用、修复 `.deb` 依赖冲突，或按官方方法从源码构建 Deskflow 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（安装路径选择、Flatpak 工作流、损坏包修复、验证步骤）
+- `references/install-methods.md` - 程序摘要、安装方式对比、Linux 依赖列表与源码编译命令
+
 ## 使用方法
 
 1. 克隆此仓库到本地
