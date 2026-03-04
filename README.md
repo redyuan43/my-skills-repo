@@ -164,6 +164,7 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（安装路径选择、Flatpak 工作流、损坏包修复、验证步骤）
 - `references/install-methods.md` - 程序摘要、安装方式对比、Linux 依赖列表与源码编译命令
+- `assets/deskflow-1.26.0-linux-x86_64.flatpak` - 已验证可安装的 Deskflow Flatpak 原始安装包
 
 ## 使用方法
 
