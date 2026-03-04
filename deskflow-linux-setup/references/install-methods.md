@@ -109,6 +109,50 @@ cmake --build build -j"$(nproc)"
 
 Run the built binary from the build output directory after the build completes.
 
+## Ubuntu GNOME Shortcut Setup
+
+If Deskflow is installed via Flatpak and the user wants one-key launch:
+
+1. Create a local launcher:
+
+```ini
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Deskflow
+Exec=flatpak run org.deskflow.deskflow
+Icon=org.deskflow.deskflow
+Terminal=false
+Categories=Network;RemoteAccess;
+StartupNotify=true
+```
+
+Save it as:
+
+```bash
+~/.local/share/applications/deskflow-flatpak.desktop
+```
+
+2. Register a GNOME custom shortcut:
+
+```bash
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
+  "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ \
+  name 'Deskflow'
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ \
+  command 'flatpak run org.deskflow.deskflow'
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ \
+  binding '<Primary><Alt>d'
+```
+
+3. Verify:
+
+```bash
+gtk-launch deskflow-flatpak
+gsettings list-recursively org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+```
+
 ## Practical Notes
 
 - If the user only wants a working Linux install, prefer Flatpak over chasing distro library mismatches.

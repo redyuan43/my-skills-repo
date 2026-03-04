@@ -24,6 +24,7 @@ For installation details and source builds, read:
 2. Prefer Flatpak on Linux desktops when dependency drift or distro package compatibility is uncertain.
 3. If a `.deb` install left APT in a broken state, remove the half-installed `deskflow` package before installing anything else.
 4. After installation, launch and verify with the method matching the package type.
+5. If the user wants one-key launch on Ubuntu GNOME, create a local `.desktop` launcher and bind a GNOME custom shortcut.
 
 ## Flatpak Workflow
 
@@ -47,6 +48,48 @@ flatpak run org.deskflow.deskflow
 ```
 
 5. Expect the first install to pull required runtimes from Flathub.
+
+## One-Key Launch on Ubuntu GNOME
+
+Create a launcher at:
+
+```bash
+~/.local/share/applications/deskflow-flatpak.desktop
+```
+
+Use:
+
+```ini
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Deskflow
+Exec=flatpak run org.deskflow.deskflow
+Icon=org.deskflow.deskflow
+Terminal=false
+Categories=Network;RemoteAccess;
+StartupNotify=true
+```
+
+Bind a custom shortcut with `gsettings`:
+
+```bash
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
+  "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ \
+  name 'Deskflow'
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ \
+  command 'flatpak run org.deskflow.deskflow'
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ \
+  binding '<Primary><Alt>d'
+```
+
+Validate with:
+
+```bash
+gtk-launch deskflow-flatpak
+gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings
+```
 
 ## Recover Broken `.deb` Installs
 
