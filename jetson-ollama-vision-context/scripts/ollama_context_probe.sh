@@ -3,7 +3,7 @@ set -euo pipefail
 
 HOST="http://127.0.0.1:11434"
 MODEL="qwen3.5:latest"
-CTX_LIST="4096,8192,16384,24576,32768,65536,100000"
+CTX_LIST="4096,8192,16384,24576,32768"
 PROMPT="只回复OK"
 
 usage() {

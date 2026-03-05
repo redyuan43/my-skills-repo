@@ -5,7 +5,7 @@ HOST="http://127.0.0.1:11434"
 MODEL="qwen3.5:latest"
 IMAGE=""
 PROMPT="请描述这张图片里有什么"
-NUM_CTX="100000"
+NUM_CTX="32768"
 KEEP_ALIVE="0s"
 REPEAT=1
 

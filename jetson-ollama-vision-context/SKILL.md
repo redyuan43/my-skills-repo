@@ -17,13 +17,13 @@ ollama ps
 2. 使用脚本验证图片识别与性能。
 
 ```bash
-scripts/ollama_vision_perf.sh --image "/abs/path/test.png" --model "qwen3.5:latest" --ctx 100000 --repeat 1
+scripts/ollama_vision_perf.sh --image "/abs/path/test.png" --model "qwen3.5:latest" --ctx 32768 --repeat 1
 ```
 
 3. 使用脚本探测可用上下文区间。
 
 ```bash
-scripts/ollama_context_probe.sh --model "qwen3.5:latest" --ctx-list "4096,8192,16384,24576,32768,65536,100000"
+scripts/ollama_context_probe.sh --model "qwen3.5:latest" --ctx-list "4096,8192,16384,24576,32768"
 ```
 
 ## Workflow
