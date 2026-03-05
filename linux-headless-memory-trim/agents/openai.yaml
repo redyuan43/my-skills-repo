@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Headless Memory Trim"
+  short_description: "面向推理设备的可回滚内存精简与服务裁剪方案"
+  default_prompt: "使用 $linux-headless-memory-trim 为当前 Linux 设备执行基线审计、内存精简和回滚验证。"
