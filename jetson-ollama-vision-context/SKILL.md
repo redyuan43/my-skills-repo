@@ -49,6 +49,6 @@ scripts/ollama_context_probe.sh --model "qwen3.5:latest" --ctx-list "4096,8192,1
 
 ## Resources
 
-- `scripts/ollama_vision_perf.sh`: 单图识别 + 性能统计（load/total/prompt/eval/token/s）+ 内存快照。
+- `scripts/ollama_vision_perf.sh`: 单图识别 + 实时流式输出（thinking/content）+ 性能统计（load/total/prompt/eval/token/s）+ 内存快照。
 - `scripts/ollama_context_probe.sh`: 批量探测不同 `num_ctx` 的可用性。
 - `references/jetson-findings.md`: Jetson 16G 的已验证参数与故障特征。
