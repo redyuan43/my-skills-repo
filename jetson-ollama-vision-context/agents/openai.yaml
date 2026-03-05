@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jetson Ollama Vision Context"
+  short_description: "在Jetson设备上配置Ollama上下文并验证Qwen3.5图片识别与性能"
+  default_prompt: "在Jetson上排查Ollama上下文限制、验证qwen3.5读图并输出性能指标"
