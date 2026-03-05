@@ -166,6 +166,12 @@
 - `references/install-methods.md` - 程序摘要、安装方式对比、Linux 依赖列表、源码编译命令和 Ubuntu GNOME 快捷键配置
 - `assets/deskflow-1.26.0-linux-x86_64.flatpak` - 已验证可安装的 Deskflow Flatpak 原始安装包
 
+### 20. openclaw-setup
+**功能：** 安装 OpenClaw 并配置 API 模型 provider
+**用途：** 当需要全新安装 OpenClaw、配置 GLM/Ollama/OpenAI/OpenRouter 等模型 provider、启动 Gateway 或排查常见问题时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（含安装、onboarding、provider 配置、Gateway 启动、常见排障全流程）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
