@@ -8,7 +8,7 @@
 
 ## Context Observations
 
-- `num_ctx=32768`：可成功，返回正常。
+- `num_ctx=100000`：可成功，返回正常。
 - `num_ctx=200000`：触发 OOM，`ollama.service` 被系统杀死并重启。
 - 200K 失败日志特征：
   - `KvSize:200000`
