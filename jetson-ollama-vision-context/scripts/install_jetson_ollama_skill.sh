@@ -4,7 +4,7 @@ set -euo pipefail
 SKILL_NAME="jetson-ollama-vision-context"
 SKILL_ROOT="${HOME}/.codex/skills"
 MODEL="qwen3.5:latest"
-CTX="100000"
+CTX="32768"
 KEEP_ALIVE="4h"
 NUM_PARALLEL="1"
 HOST_BIND="0.0.0.0:11434"
@@ -20,7 +20,7 @@ usage() {
 选项:
   --skill-root <dir>      skill 安装目录 (默认: ~/.codex/skills)
   --model <name>          模型名 (默认: qwen3.5:latest)
-  --ctx <num>             默认上下文 (默认: 100000)
+  --ctx <num>             默认上下文 (默认: 32768)
   --keep-alive <dur>      模型保活时长 (默认: 4h)
   --num-parallel <num>    并发数 (默认: 1)
   --host-bind <addr>      Ollama 绑定地址 (默认: 0.0.0.0:11434)
@@ -93,13 +93,13 @@ ollama ps
 2. 使用脚本验证图片识别与性能。
 
 ```bash
-scripts/ollama_vision_perf.sh --image "/abs/path/test.png" --model "qwen3.5:latest" --ctx 100000 --repeat 1
+scripts/ollama_vision_perf.sh --image "/abs/path/test.png" --model "qwen3.5:latest" --ctx 32768 --repeat 1
 ```
 
 3. 使用脚本探测可用上下文区间。
 
 ```bash
-scripts/ollama_context_probe.sh --model "qwen3.5:latest" --ctx-list "4096,8192,16384,24576,32768,65536,100000"
+scripts/ollama_context_probe.sh --model "qwen3.5:latest" --ctx-list "4096,8192,16384,24576,32768"
 ```
 
 ## Workflow
@@ -148,7 +148,7 @@ EOF
 
 ## Context Observations
 
-- `num_ctx=100000`：可成功，返回正常。
+- `num_ctx=32768`：可成功，返回正常。
 - `num_ctx=200000`：触发 OOM，`ollama.service` 被系统杀死并重启。
 - 200K 失败日志特征：
   - `KvSize:200000`
@@ -167,7 +167,7 @@ EOF
 [Service]
 Environment="OLLAMA_CONTEXT_LENGTH=24576"
 Environment="OLLAMA_NUM_PARALLEL=1"
-Environment="OLLAMA_KEEP_ALIVE=5m"
+Environment="OLLAMA_KEEP_ALIVE=4h"
 ```
 
 说明：
@@ -183,8 +183,8 @@ HOST="http://127.0.0.1:11434"
 MODEL="qwen3.5:latest"
 IMAGE=""
 PROMPT="请描述这张图片里有什么"
-NUM_CTX="100000"
-KEEP_ALIVE="0s"
+NUM_CTX="32768"
+KEEP_ALIVE="4h"
 REPEAT=1
 
 usage() {
@@ -359,7 +359,7 @@ set -euo pipefail
 
 HOST="http://127.0.0.1:11434"
 MODEL="qwen3.5:latest"
-CTX_LIST="4096,8192,16384,24576,32768,65536,100000"
+CTX_LIST="4096,8192,16384,24576,32768"
 PROMPT="只回复OK"
 
 usage() {
@@ -399,7 +399,7 @@ for C in "${LIST[@]}"; do
   [[ -z "$C" ]] && continue
   [[ "$C" =~ ^[0-9]+$ ]] || { echo "skip invalid ctx: $C"; continue; }
 
-  PAYLOAD=$(printf '{"model":"%s","stream":false,"keep_alive":"0s","options":{"num_ctx":%s},"messages":[{"role":"user","content":"%s"}]}' "$MODEL" "$C" "$PROMPT")
+  PAYLOAD=$(printf '{"model":"%s","stream":false,"keep_alive":"4h","options":{"num_ctx":%s},"messages":[{"role":"user","content":"%s"}]}' "$MODEL" "$C" "$PROMPT")
   RESP_FILE=$(mktemp)
   HTTP_CODE=$(curl -sS "$HOST/api/chat" \
     -H "Content-Type: application/json" \

@@ -6,7 +6,7 @@ MODEL="qwen3.5:latest"
 IMAGE=""
 PROMPT="请描述这张图片里有什么"
 NUM_CTX="32768"
-KEEP_ALIVE="0s"
+KEEP_ALIVE="4h"
 REPEAT=1
 
 usage() {

@@ -43,7 +43,7 @@ for C in "${LIST[@]}"; do
   [[ -z "$C" ]] && continue
   [[ "$C" =~ ^[0-9]+$ ]] || { echo "skip invalid ctx: $C"; continue; }
 
-  PAYLOAD=$(printf '{"model":"%s","stream":false,"keep_alive":"0s","options":{"num_ctx":%s},"messages":[{"role":"user","content":"%s"}]}' "$MODEL" "$C" "$PROMPT")
+  PAYLOAD=$(printf '{"model":"%s","stream":false,"keep_alive":"4h","options":{"num_ctx":%s},"messages":[{"role":"user","content":"%s"}]}' "$MODEL" "$C" "$PROMPT")
   RESP_FILE=$(mktemp)
   HTTP_CODE=$(curl -sS "$HOST/api/chat" \
     -H "Content-Type: application/json" \

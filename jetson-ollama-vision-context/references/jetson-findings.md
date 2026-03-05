@@ -8,7 +8,7 @@
 
 ## Context Observations
 
-- `num_ctx=100000`：可成功，返回正常。
+- `num_ctx=32768`：可成功，返回正常。
 - `num_ctx=200000`：触发 OOM，`ollama.service` 被系统杀死并重启。
 - 200K 失败日志特征：
   - `KvSize:200000`
@@ -27,7 +27,7 @@
 [Service]
 Environment="OLLAMA_CONTEXT_LENGTH=24576"
 Environment="OLLAMA_NUM_PARALLEL=1"
-Environment="OLLAMA_KEEP_ALIVE=5m"
+Environment="OLLAMA_KEEP_ALIVE=4h"
 ```
 
 说明：
