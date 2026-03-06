@@ -1,0 +1,4 @@
+interface:
+  display_name: "EMEET Record Toggle"
+  short_description: "Start, stop, or inspect live PIXY face-track recording"
+  default_prompt: "Use $emeet-record-av-toggle to start a background EMEET PIXY face-tracking recording, stop it on request, or check its current recording status."
