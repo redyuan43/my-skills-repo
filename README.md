@@ -172,8 +172,17 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（含安装、onboarding、provider 配置、Gateway 启动、常见排障全流程）
 
+### 21. cpu-process-watchflow
+**功能：** 先发现当前高 CPU 进程，再持续监控指定进程并在退出或持续低负载时告警
+**用途：** 当需要先筛出正在高负载运行的程序，再对选定 PID 或进程名做持续监控，及时发现进程停止或进入异常空转状态时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（两阶段工作流、默认阈值与监控规则）
+- `scripts/find_high_cpu_processes.py` - 列出当前高 CPU 进程，输出 PID、CPU%、进程名和命令行
+- `scripts/watch_processes.py` - 按 PID 或进程名持续监控，并在退出或连续低于 CPU 阈值时告警
+- `agents/openai.yaml` - skill 的 UI 元数据
 
-### 21. diarization
+
+### 22. diarization
 **功能：** 说话人分离（Speaker Diarization），对本地音频或视频文件生成 speaker turns、RTTM 和 speaker transcript
 **用途：** 当需要对本地音频或视频做说话人分离，并输出 `diarization.json`、`diarization.rttm`、`speaker_transcript.md` 和 `run_manifest.json` 时使用
 **文件：**
