@@ -172,6 +172,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（含安装、onboarding、provider 配置、Gateway 启动、常见排障全流程）
 
+
+### 21. diarization
+**功能：** 说话人分离（Speaker Diarization），对本地音频或视频文件生成 speaker turns、RTTM 和 speaker transcript
+**用途：** 当需要对本地音频或视频做说话人分离，并输出 `diarization.json`、`diarization.rttm`、`speaker_transcript.md` 和 `run_manifest.json` 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（输入检查、音频预处理、ASR 健康检查与 diarization 执行流程）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
