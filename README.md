@@ -218,7 +218,14 @@
 - `SKILL.md` - 技能说明文档（触发条件、工作流、约束和命令示例）
 - `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、默认排除 JPEG 和 `--print-only`
 
-### 27. wechat-screenshot-send
+### 27. wechat-send-camera-roll
+**功能：** 把相机卡或 `DCIM` 目录下的照片按文件名顺序批量发送到已经单独打开的微信聊天窗口
+**用途：** 当需要把挂载相机卡里的照片一张张发给某个微信联系人、要求纯控件发送而不依赖视觉识别、或需要通过 `--limit` / `--start-after` 做试发和断点续传时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、工作流、约束和命令示例）
+- `scripts/send_wechat_camera_roll.py` - 批量发送脚本，支持目录遍历、发送间隔、试发和断点续传
+
+### 28. wechat-screenshot-send
 **功能：** 在 Ubuntu X11 上截取当前桌面，并立即把截图发送到指定微信聊天窗口
 **用途：** 当需要“一次性完成”桌面截图并发给某个微信联系人或群聊、不希望中间再询问确认，或希望把截图自动保存到 `~/Pictures/Screenshots/` 后立刻发送时使用
 **文件：**
