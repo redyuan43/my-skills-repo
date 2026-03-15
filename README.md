@@ -203,6 +203,14 @@
 - `agents/openai.yaml` - skill 的 UI 元数据
 - `scripts/toggle_record.sh` - 后台启动/停止录制、状态查询与音视频封装脚本
 
+### 25. ollama-gpu-pinning
+**功能：** 将 Ollama 固定到指定 NVIDIA GPU，并提供 systemd 场景下的回滚脚本
+**用途：** 当机器上有多张 NVIDIA 显卡，需要让 Ollama 只在指定 GPU 上加载模型、验证实际落卡结果，并在需要时恢复默认配置时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（GPU 选择、systemd/临时测试、验证与回滚流程）
+- `scripts/rollback_ollama_gpu_selection.sh` - 删除 `CUDA_VISIBLE_DEVICES` 的 systemd drop-in 并重启服务
+- `scripts/set_ollama_gpu.sh` - 为 `ollama.service` 写入 GPU 绑定配置并重启服务
+
 ## 使用方法
 
 1. 克隆此仓库到本地
