@@ -211,6 +211,13 @@
 - `scripts/rollback_ollama_gpu_selection.sh` - 删除 `CUDA_VISIBLE_DEVICES` 的 systemd drop-in 并重启服务
 - `scripts/set_ollama_gpu.sh` - 为 `ollama.service` 写入 GPU 绑定配置并重启服务
 
+### 26. wechat-send-file
+**功能：** 使用本地 `wechat-auto-reply` 工具把本地文件发送到指定微信聊天窗口，并支持从 `~/Documents` 自动挑选文件
+**用途：** 当需要把本地文件发到某个微信联系人或群聊、只给出聊天标题而不想手拼发送命令、或希望默认避开 `jpg/jpeg` 自动选文件时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、工作流、约束和命令示例）
+- `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、默认排除 JPEG 和 `--print-only`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
