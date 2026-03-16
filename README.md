@@ -239,6 +239,41 @@
 - `SKILL.md` - 技能说明文档（判断规则、标准工作流和使用经验）
 - `scripts/tailscale_login_helper.sh` - 状态检查与登录恢复脚本，支持 `status` 和 `login`
 
+### 30. linux-wx-decrypt
+**功能：** 通过 PyWxDump 导出和解密 Linux 微信本地数据库，串联 key 提取与数据库批量解密流程
+**用途：** 当需要把当前机器上运行中的 Linux 微信 `db_storage` 转成可读数据库，用于本地分析、归档或后续聊天处理时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（流程、约束和触发场景）
+- `scripts/run_linux_wx_decrypt.sh` - 包装 `linux_get_wx_key.py` 与 `linux_decrypt_wx_db.py` 的入口脚本，支持全流程、仅提 key、仅解密
+
+### 31. wechat-chat-watch
+**功能：** 通过 PyWxDump 监听指定微信会话或全部会话的新消息，并输出文本、JSON 或 webhook 事件
+**用途：** 当需要持续监控某个聊天、把增量消息接到下游系统、或在监听阶段启用媒体/链接增强时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（监控工作流、参数边界和适用场景）
+- `scripts/watch_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py watch` 的监控入口脚本
+
+### 32. wechat-chat-summary
+**功能：** 通过 PyWxDump 导出指定微信会话的历史消息并生成 Markdown 总结，支持时间范围和可选回发
+**用途：** 当需要总结某个群聊或联系人最近一段时间讨论内容、导出全量聊天摘要、或把精简版总结发回原会话时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（总结流程、时间范围和发送回写约束）
+- `scripts/summarize_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py summarize-chat` 的总结入口脚本
+
+### 33. wechat-link-to-doc
+**功能：** 通过 PyWxDump 把微信里分享的 URL，尤其是公众号文章，转成包含 `document.md` 和资源目录的本地文档包
+**用途：** 当需要把一条公众号链接或普通网页固化为本地 Markdown 文档，用于后续总结、归档或知识库输入时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（链接文档化流程、文档类型选择和输出说明）
+- `scripts/wechat_link_to_doc.sh` - 包装 `tools/link_doc_hook.py` 的单 URL 文档化入口脚本
+
+### 34. wechat-auto-assistant
+**功能：** 通过 PyWxDump 运行“监听消息 -> 丰富上下文 -> 调用外部 Agent webhook -> 执行结构化动作”的微信自动助理闭环
+**用途：** 当需要对白名单微信会话启用真实自动化流程，并让外部 Agent 返回 `send_text`、`send_file`、`send_image`、`summarize_chat` 等动作由本机执行时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（Assistant 动作协议、白名单约束和适用场景）
+- `scripts/run_wechat_auto_assistant.sh` - 包装 `linux_wx_chat_daemon.py watch` Assistant 模式的入口脚本
+- `wechat-send-file` / `wechat-screenshot-send` / `wechat-send-camera-roll` - 配套发送类 skill，继续承担独立发送场景
 ## 使用方法
 
 1. 克隆此仓库到本地
