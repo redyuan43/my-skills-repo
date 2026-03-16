@@ -232,6 +232,13 @@
 - `SKILL.md` - 技能说明文档（触发条件、一键工作流、约束和命令示例）
 - `scripts/screenshot_send_wechat.sh` - 一键截图并发送脚本，支持 `--delay` 和 `--print-only`
 
+### 29. tailscale-login-helper
+**功能：** 检查 Linux 机器在重启后是否仍保持 Tailscale 登录，并在需要时触发重新登录流程
+**用途：** 当需要确认“重启后还要不要重新登录 Tailscale”、排查 `tailscaled` 服务状态、恢复 Tailnet 登录，或快速判断为何看不到另一台 Tailscale 主机时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（判断规则、标准工作流和使用经验）
+- `scripts/tailscale_login_helper.sh` - 状态检查与登录恢复脚本，支持 `status` 和 `login`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
