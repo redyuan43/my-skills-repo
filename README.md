@@ -274,6 +274,13 @@
 - `SKILL.md` - 技能说明文档（Assistant 动作协议、白名单约束和适用场景）
 - `scripts/run_wechat_auto_assistant.sh` - 包装 `linux_wx_chat_daemon.py watch` Assistant 模式的入口脚本
 - `wechat-send-file` / `wechat-screenshot-send` / `wechat-send-camera-roll` - 配套发送类 skill，继续承担独立发送场景
+
+### 35. baidunetdisk-upload
+**功能：** 通过已安装的 Linux 百度网盘桌面客户端上传本地文件，并用远端目录回读验证上传结果
+**用途：** 当需要把本地文件快速上传到百度网盘、只提供精确路径或大概文件名、并希望上传后能直接给出网盘目录供人工审核时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（工作流、约束、危险操作确认要求）
+- `scripts/upload_to_baidunetdisk.py` - 上传执行脚本，负责本地路径解析、临时打包、调用百度网盘客户端上传并回读远端目录
 ## 使用方法
 
 1. 克隆此仓库到本地
