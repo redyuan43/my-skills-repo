@@ -4,17 +4,84 @@ set -euo pipefail
 CHAT=""
 DELAY_SECONDS=0
 PRINT_ONLY=0
+CAPTURE_MODE="desktop"
+HOVER_X=""
+HOVER_Y=""
 SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
-SEND_SCRIPT="/home/dgx/github/DevToolbox/skills/wechat-send-file/scripts/send_wechat_file.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILLS_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+SEND_SCRIPT="${WECHAT_SEND_FILE_SCRIPT:-${SKILLS_ROOT}/wechat-send-file/scripts/send_wechat_file.sh}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+SEND_CONFIG="${WECHAT_SEND_CONFIG:-}"
+DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
+XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
+WINDOW_MODE="${WECHAT_SEND_WINDOW_MODE:-standalone}"
+SEND_STEP_DELAY_MS="${WECHAT_SEND_STEP_DELAY_MS:-220}"
+SEND_PASTE_SETTLE_MS="${WECHAT_SEND_PASTE_SETTLE_MS:-320}"
+POST_SEND_DELAY_MS="${WECHAT_SEND_POST_DELAY_MS:-1800}"
+SEND_TIMEOUT="${WECHAT_SEND_TIMEOUT:-30}"
+SEND_GUI_COUNTDOWN_SECONDS="${WECHAT_SEND_GUI_COUNTDOWN_SECONDS:-1}"
+SEND_GUI_NOTIFY_TIMEOUT_MS="${WECHAT_SEND_GUI_NOTIFY_TIMEOUT_MS:-4000}"
+NO_SEND_GUI_PROMPTS=0
+
+latest_png() {
+  python3 - "$1" <<'PY'
+import os
+import sys
+
+root = sys.argv[1]
+latest_path = ""
+latest_mtime = -1.0
+for name in os.listdir(root):
+    if not name.lower().endswith(".png"):
+        continue
+    path = os.path.join(root, name)
+    if not os.path.isfile(path):
+        continue
+    mtime = os.path.getmtime(path)
+    if mtime > latest_mtime:
+        latest_mtime = mtime
+        latest_path = path
+print(latest_path)
+PY
+}
+
+activate_chat_window() {
+  local title="$1"
+  local window_id=""
+  window_id="$(
+    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" xdotool search --name "^${title}$" 2>/dev/null | tail -n1 || true
+  )"
+  if [[ -z "${window_id}" ]]; then
+    echo "Standalone WeChat window not found: ${title}" >&2
+    return 1
+  fi
+  DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" xdotool windowactivate --sync "${window_id}"
+}
 
 usage() {
   cat <<'EOF'
 Usage:
-  screenshot_send_wechat.sh --chat CHAT [--delay SECONDS] [--print-only]
+  screenshot_send_wechat.sh --chat CHAT [--delay SECONDS] [--mode MODE] [--hover-x X --hover-y Y] [--print-only]
 
 Options:
-  --chat CHAT         Standalone WeChat window title to send to.
+  --chat CHAT         WeChat chat title to send to.
   --delay SECONDS     Wait before capture. Default: 0
+  --mode MODE         Capture mode: desktop | ui-window. Default: desktop
+  --hover-x X         Move mouse to absolute X before ui-window capture.
+  --hover-y Y         Move mouse to absolute Y before ui-window capture.
+  --window-mode MODE  Send mode: standalone | main | auto. Default: standalone
+  --send-gui-countdown-seconds N
+                     Countdown seconds before GUI control. Default: 1
+  --send-gui-notify-timeout-ms N
+                     GUI result prompt timeout in milliseconds. Default: 4000
+  --no-send-gui-prompts
+                     Disable GUI countdown/result prompts.
+  --send-script PATH  Override the downstream send script.
+  --send-config PATH  Pass a config file to the downstream send script.
+  --pywxdump-root D   Override the local PyWxDump project path for image send.
+  --display VALUE     Override the X11 DISPLAY used for capture and send.
+  --xauthority PATH   Override the XAUTHORITY used for capture and send.
   --print-only        Print the resolved commands without executing them.
   -h, --help          Show this help.
 EOF
@@ -28,6 +95,54 @@ while [[ $# -gt 0 ]]; do
       ;;
     --delay)
       DELAY_SECONDS="${2:-}"
+      shift 2
+      ;;
+    --mode)
+      CAPTURE_MODE="${2:-}"
+      shift 2
+      ;;
+    --hover-x)
+      HOVER_X="${2:-}"
+      shift 2
+      ;;
+    --hover-y)
+      HOVER_Y="${2:-}"
+      shift 2
+      ;;
+    --window-mode)
+      WINDOW_MODE="${2:-}"
+      shift 2
+      ;;
+    --send-gui-countdown-seconds)
+      SEND_GUI_COUNTDOWN_SECONDS="${2:-}"
+      shift 2
+      ;;
+    --send-gui-notify-timeout-ms)
+      SEND_GUI_NOTIFY_TIMEOUT_MS="${2:-}"
+      shift 2
+      ;;
+    --no-send-gui-prompts)
+      NO_SEND_GUI_PROMPTS=1
+      shift
+      ;;
+    --send-script)
+      SEND_SCRIPT="${2:-}"
+      shift 2
+      ;;
+    --send-config)
+      SEND_CONFIG="${2:-}"
+      shift 2
+      ;;
+    --pywxdump-root)
+      PYWXDUMP_ROOT="${2:-}"
+      shift 2
+      ;;
+    --display)
+      DISPLAY_VALUE="${2:-}"
+      shift 2
+      ;;
+    --xauthority)
+      XAUTHORITY_VALUE="${2:-}"
       shift 2
       ;;
     --print-only)
@@ -51,19 +166,49 @@ if [[ -z "${CHAT}" ]]; then
   exit 2
 fi
 
+if [[ "${WINDOW_MODE}" != "standalone" && "${WINDOW_MODE}" != "main" && "${WINDOW_MODE}" != "auto" ]]; then
+  echo "--window-mode must be one of: standalone, main, auto" >&2
+  exit 2
+fi
+
 if ! [[ "${DELAY_SECONDS}" =~ ^[0-9]+$ ]]; then
   echo "--delay must be a non-negative integer" >&2
   exit 2
 fi
 
-if [[ ! -x "${SEND_SCRIPT}" ]]; then
-  echo "Send script not found or not executable: ${SEND_SCRIPT}" >&2
-  exit 1
+if ! [[ "${SEND_GUI_COUNTDOWN_SECONDS}" =~ ^[0-9]+$ ]]; then
+  echo "--send-gui-countdown-seconds must be a non-negative integer" >&2
+  exit 2
 fi
 
-if ! command -v gnome-screenshot >/dev/null 2>&1; then
-  echo "gnome-screenshot is required but not found" >&2
-  exit 1
+if ! [[ "${SEND_GUI_NOTIFY_TIMEOUT_MS}" =~ ^[0-9]+$ ]]; then
+  echo "--send-gui-notify-timeout-ms must be a non-negative integer" >&2
+  exit 2
+fi
+
+if [[ "${CAPTURE_MODE}" != "desktop" && "${CAPTURE_MODE}" != "ui-window" ]]; then
+  echo "--mode must be one of: desktop, ui-window" >&2
+  exit 2
+fi
+
+if [[ -n "${HOVER_X}" && ! "${HOVER_X}" =~ ^[0-9]+$ ]]; then
+  echo "--hover-x must be a non-negative integer" >&2
+  exit 2
+fi
+
+if [[ -n "${HOVER_Y}" && ! "${HOVER_Y}" =~ ^[0-9]+$ ]]; then
+  echo "--hover-y must be a non-negative integer" >&2
+  exit 2
+fi
+
+if [[ "${CAPTURE_MODE}" != "ui-window" && ( -n "${HOVER_X}" || -n "${HOVER_Y}" ) ]]; then
+  echo "--hover-x/--hover-y are only valid with --mode ui-window" >&2
+  exit 2
+fi
+
+if [[ -n "${HOVER_X}" && -z "${HOVER_Y}" ]] || [[ -z "${HOVER_X}" && -n "${HOVER_Y}" ]]; then
+  echo "--hover-x and --hover-y must be provided together" >&2
+  exit 2
 fi
 
 mkdir -p "${SCREENSHOT_DIR}"
@@ -72,16 +217,156 @@ SHOT_PATH="${SCREENSHOT_DIR}/desktop-${STAMP}.png"
 
 echo "Resolved chat: ${CHAT}"
 echo "Resolved screenshot: ${SHOT_PATH}"
+echo "Resolved mode: ${CAPTURE_MODE}"
+echo "Resolved window mode: ${WINDOW_MODE}"
+if [[ -n "${HOVER_X}" ]]; then
+  echo "Resolved hover point: ${HOVER_X},${HOVER_Y}"
+fi
+if [[ -n "${SEND_CONFIG}" ]]; then
+  echo "Resolved send config: ${SEND_CONFIG}"
+fi
+echo "Resolved display: ${DISPLAY_VALUE}"
+echo "Resolved xauthority: ${XAUTHORITY_VALUE}"
+echo "Resolved GUI countdown seconds: ${SEND_GUI_COUNTDOWN_SECONDS}"
+echo "Resolved GUI notify timeout ms: ${SEND_GUI_NOTIFY_TIMEOUT_MS}"
+if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
+  echo "Resolved GUI prompts: disabled"
+fi
 
 if [[ "${PRINT_ONLY}" -eq 1 ]]; then
-  echo "Resolved capture: DISPLAY=:1 XAUTHORITY=/run/user/1000/gdm/Xauthority gnome-screenshot -f ${SHOT_PATH}"
-  echo "Resolved send: ${SEND_SCRIPT} --chat ${CHAT} --path ${SHOT_PATH}"
+  if [[ "${CAPTURE_MODE}" == "desktop" ]]; then
+    printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q gnome-screenshot -f %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SHOT_PATH}"
+  else
+    if [[ -n "${HOVER_X}" ]]; then
+      printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q xdotool mousemove --sync %q %q ; xdotool key --clearmodifiers shift+ctrl+super+s ; wait for new PNG under %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${HOVER_X}" "${HOVER_Y}" "${SCREENSHOT_DIR}"
+    else
+      printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q xdotool key --clearmodifiers shift+ctrl+super+s ; wait for new PNG under %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}"
+    fi
+  fi
+  printf 'Resolved send:'
+  printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode "${WINDOW_MODE}" --path "${SHOT_PATH}" --post-send-delay-ms "${POST_SEND_DELAY_MS}" --send-timeout "${SEND_TIMEOUT}" --send-step-delay-ms "${SEND_STEP_DELAY_MS}" --send-paste-settle-ms "${SEND_PASTE_SETTLE_MS}" --send-gui-countdown-seconds "${SEND_GUI_COUNTDOWN_SECONDS}" --send-gui-notify-timeout-ms "${SEND_GUI_NOTIFY_TIMEOUT_MS}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
+    printf ' %q' --no-send-gui-prompts
+  fi
+  printf '\n'
   exit 0
+fi
+
+if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
+  echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
+  exit 1
 fi
 
 if [[ "${DELAY_SECONDS}" -gt 0 ]]; then
   sleep "${DELAY_SECONDS}"
 fi
 
-DISPLAY=:1 XAUTHORITY=/run/user/1000/gdm/Xauthority gnome-screenshot -f "${SHOT_PATH}"
-"${SEND_SCRIPT}" --chat "${CHAT}" --path "${SHOT_PATH}"
+latest_png_before="$(latest_png "${SCREENSHOT_DIR}")"
+
+if [[ "${CAPTURE_MODE}" == "desktop" ]]; then
+  if command -v gnome-screenshot >/dev/null 2>&1; then
+    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" gnome-screenshot -f "${SHOT_PATH}"
+  else
+    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" python3 - "${SHOT_PATH}" <<'PY'
+import sys
+from PIL import ImageGrab
+
+target = sys.argv[1]
+image = ImageGrab.grab()
+image.save(target)
+PY
+  fi
+else
+  activate_chat_window "${CHAT}"
+  sleep 0.2
+  if [[ -n "${HOVER_X}" ]]; then
+    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" xdotool mousemove --sync "${HOVER_X}" "${HOVER_Y}"
+    sleep 0.15
+  fi
+  DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" xdotool key --clearmodifiers "shift+ctrl+super+s"
+  found_path=""
+  for _ in $(seq 1 120); do
+    latest_png_after="$(latest_png "${SCREENSHOT_DIR}")"
+    if [[ -n "${latest_png_after}" && "${latest_png_after}" != "${latest_png_before}" ]]; then
+      found_path="${latest_png_after}"
+      break
+    fi
+    sleep 0.25
+  done
+  if [[ -z "${found_path}" ]]; then
+    echo "Timed out waiting for interactive screenshot output under ${SCREENSHOT_DIR}" >&2
+    exit 1
+  fi
+  SHOT_PATH="${found_path}"
+fi
+
+CMD=(
+  python3
+  "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
+  send-image
+  --target
+  "${CHAT}"
+  --window-mode
+  "${WINDOW_MODE}"
+  --path
+  "${SHOT_PATH}"
+  --post-send-delay-ms
+  "${POST_SEND_DELAY_MS}"
+  --send-timeout
+  "${SEND_TIMEOUT}"
+  --send-step-delay-ms
+  "${SEND_STEP_DELAY_MS}"
+  --send-paste-settle-ms
+  "${SEND_PASTE_SETTLE_MS}"
+  --send-gui-countdown-seconds
+  "${SEND_GUI_COUNTDOWN_SECONDS}"
+  --send-gui-notify-timeout-ms
+  "${SEND_GUI_NOTIFY_TIMEOUT_MS}"
+  --display
+  "${DISPLAY_VALUE}"
+  --xauthority
+  "${XAUTHORITY_VALUE}"
+)
+
+if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
+  CMD+=(--no-send-gui-prompts)
+fi
+
+OUTPUT_FILE="$(mktemp -t wechat-screenshot-send-output.XXXXXX)"
+cleanup_output() {
+  rm -f "${OUTPUT_FILE}"
+}
+trap cleanup_output EXIT
+
+set +e
+"${CMD[@]}" | tee "${OUTPUT_FILE}"
+STATUS=${PIPESTATUS[0]}
+set -e
+
+python3 - "${OUTPUT_FILE}" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+payload = None
+with open(path, "r", encoding="utf-8") as fp:
+    lines = [line.rstrip("\n") for line in fp]
+
+for line in reversed(lines):
+    text = line.strip()
+    if not text.startswith("{") or not text.endswith("}"):
+        continue
+    try:
+        payload = json.loads(text)
+        break
+    except json.JSONDecodeError:
+        continue
+
+if payload is not None:
+    restore_action = payload.get("restore_action", "none")
+    status = payload.get("status", "")
+    matched_local_id = payload.get("matched_local_id")
+    print(f"[skill][wechat-screenshot-send] status={status} restore_action={restore_action} matched_local_id={matched_local_id}")
+PY
+
+exit "${STATUS}"

@@ -212,11 +212,12 @@
 - `scripts/set_ollama_gpu.sh` - 为 `ollama.service` 写入 GPU 绑定配置并重启服务
 
 ### 26. wechat-send-file
-**功能：** 使用本地 `wechat-auto-reply` 工具把本地文件发送到指定微信聊天窗口，并支持从 `~/Documents` 自动挑选文件
-**用途：** 当需要把本地文件发到某个微信联系人或群聊、只给出聊天标题而不想手拼发送命令、或希望默认避开 `jpg/jpeg` 自动选文件时使用
+**功能：** 使用本地 `PyWxDump` 发送链路把文件发到指定微信会话，并支持 `standalone/main/auto` 窗口模式、GUI 倒计时参数和 `restore_action` 输出
+**用途：** 当需要把本地文件发到某个微信联系人或群聊、希望从 `~/Documents` 自动挑选文件、需要直接走主界面搜索发送，或想在发送结束后看到窗口恢复结果时使用
 **文件：**
-- `SKILL.md` - 技能说明文档（触发条件、工作流、约束和命令示例）
-- `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、默认排除 JPEG 和 `--print-only`
+- `SKILL.md` - 技能说明文档（触发条件、工作流、窗口模式、`restore_action` 说明和命令示例）
+- `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、`--window-mode`、GUI 提示参数和包装层结果摘要
+- `scripts/selftest.sh` - 真实/无副作用自检脚本，用于验证下游命令拼装与 live send 链路
 
 ### 27. wechat-send-camera-roll
 **功能：** 把相机卡或 `DCIM` 目录下的照片按文件名顺序批量发送到已经单独打开的微信聊天窗口
@@ -226,11 +227,13 @@
 - `scripts/send_wechat_camera_roll.py` - 批量发送脚本，支持目录遍历、发送间隔、试发和断点续传
 
 ### 28. wechat-screenshot-send
-**功能：** 在 Ubuntu X11 上截取当前桌面，并立即把截图发送到指定微信聊天窗口
-**用途：** 当需要“一次性完成”桌面截图并发给某个微信联系人或群聊、不希望中间再询问确认，或希望把截图自动保存到 `~/Pictures/Screenshots/` 后立刻发送时使用
+**功能：** 在 Ubuntu X11 上截取当前桌面或交互式截图，并通过本地 `PyWxDump` 图片发送链路立即发到指定微信会话
+**用途：** 当需要“一次性完成”桌面截图并发给某个微信联系人或群聊、希望直接走主界面搜索发送、想调节 GUI 倒计时/通知参数，或在截图发送后看到窗口恢复结果时使用
 **文件：**
-- `SKILL.md` - 技能说明文档（触发条件、一键工作流、约束和命令示例）
-- `scripts/screenshot_send_wechat.sh` - 一键截图并发送脚本，支持 `--delay` 和 `--print-only`
+- `SKILL.md` - 技能说明文档（触发条件、一键工作流、窗口模式、诊断场景和命令示例）
+- `scripts/screenshot_send_wechat.sh` - 一键截图并发送脚本，支持 `--window-mode`、GUI 提示参数、`--delay` 和 `--print-only`
+- `scripts/diagnose_control_wechat.sh` - 控件级诊断截图、发送和 Markdown 分析回发脚本
+- `scripts/selftest.sh` - 真实/无副作用自检脚本，用于验证截图与发送命令链路
 
 ### 29. tailscale-login-helper
 **功能：** 检查 Linux 机器在重启后是否仍保持 Tailscale 登录，并在需要时触发重新登录流程

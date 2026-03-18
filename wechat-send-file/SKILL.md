@@ -1,21 +1,23 @@
 ---
 name: wechat-send-file
-description: Send a local file to a specified WeChat chat or group on Ubuntu X11 through the existing `wechat-auto-reply` project. Use when the user asks to send a file to a WeChat conversation, wants a file auto-picked from `~/Documents`, wants to avoid JPEGs by default, or wants the existing GUI send flow wrapped into a reusable command.
+description: Send a local file to a specified WeChat chat or group on Ubuntu X11 through the local `PyWxDump` send pipeline. Use when the user asks to send a file to a WeChat conversation, wants a file auto-picked from `~/Documents`, wants to avoid JPEGs by default, or wants the GUI send flow wrapped into a reusable command.
 ---
 
 # Wechat Send File
 
 ## Overview
 
-Use `scripts/send_wechat_file.sh` to send a local file to a WeChat chat window that is already open. Prefer an explicit file path when the user gives one; otherwise, auto-pick from `~/Documents`, excluding JPEG files unless the user explicitly allows them.
+Use `scripts/send_wechat_file.sh` to send a local file through `PyWxDump tools/linux_wx_chat_daemon.py send-file`. Prefer an explicit file path when the user gives one; otherwise, auto-pick from `~/Documents`, excluding JPEG files unless the user explicitly allows them. The wrapper now supports both `standalone` and `main` window modes, exposes GUI prompt timing, and prints the final `restore_action`.
 
 ## Workflow
 
-1. Determine the target chat title exactly as shown in the WeChat standalone window.
+1. Determine the target chat title.
 2. If the user provided a file path, use it directly.
 3. If the user only said “随便找个文件”, let the script auto-pick from `~/Documents`.
 4. Exclude `jpg/jpeg` by default. Only include them when the user explicitly allows JPEG.
-5. Run the send script. The script delegates to `wechat-auto-reply/main.py send-file`.
+5. Choose `--window-mode standalone|main|auto` depending on whether the chat is already open as an independent window.
+6. Run the send script. The wrapper delegates to `PyWxDump tools/linux_wx_chat_daemon.py send-file`.
+7. Read the final JSON and the extra wrapper summary line to inspect `post_send_check`, `matched_local_id`, and `restore_action`.
 
 ## Quick Use
 
@@ -24,7 +26,16 @@ Explicit file path:
 ```bash
 skills/wechat-send-file/scripts/send_wechat_file.sh \
   --chat "新技术讨论" \
-  --path /home/dgx/Documents/videos/IMG_9069.MOV
+  --path /home/ivan/Documents/videos/IMG_9069.MOV
+```
+
+Use the main WeChat window instead of a standalone chat window:
+
+```bash
+skills/wechat-send-file/scripts/send_wechat_file.sh \
+  --chat "新技术讨论" \
+  --window-mode main \
+  --path /home/ivan/Documents/demo.txt
 ```
 
 Auto-pick a non-JPEG file from `~/Documents`:
@@ -52,11 +63,27 @@ skills/wechat-send-file/scripts/send_wechat_file.sh \
 
 ## Constraints
 
-- The target chat window must already be open as a standalone WeChat window.
-- This skill assumes Ubuntu X11 and the existing `wechat-auto-reply` project layout under `/home/dgx/github/DevToolbox/wechat-auto-reply`.
-- The script does not browse the main WeChat conversation list; it only delegates to the existing standalone-window send flow.
+- This skill assumes Ubuntu X11 and a local `PyWxDump` clone under `/home/ivan/github/PyWxDump` unless `--pywxdump-root` overrides it.
+- `--window-mode standalone` requires the target chat to already be open as an independent WeChat window.
+- `--window-mode main` relies on WeChat main-window search and post-send database verification.
 - JPEG is excluded by default because the current workflow often needs “send anything except JPEG”.
+- The wrapper surfaces `restore_action`, but the actual restore behavior is still determined by the underlying `PyWxDump` send pipeline.
+
+## Selftest
+
+真实验收默认会生成一个带 `[SELFTEST]` 标识的本地 Markdown 文件，并把它发送到 `新技术讨论`。
+
+```bash
+skills/wechat-send-file/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/wechat-send-file/scripts/selftest.sh --safe
+```
 
 ## Resources
 
-- `scripts/send_wechat_file.sh`: choose a file and call the existing `send-file` command.
+- `scripts/send_wechat_file.sh`: choose a file, expose `window_mode` / GUI timing parameters, and call `PyWxDump send-file`.
+- `scripts/selftest.sh`: real selftest for file generation, live send, and dry-run inspection
