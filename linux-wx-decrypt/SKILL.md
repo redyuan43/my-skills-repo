@@ -58,6 +58,25 @@ skills/linux-wx-decrypt/scripts/run_linux_wx_decrypt.sh \
 - This skill assumes PyWxDump exists at `/home/ivan/github/PyWxDump`.
 - This skill is for the current machine and the current logged-in WeChat client.
 
+## Selftest
+
+真实验收默认会：
+
+1. 向 `新技术讨论` 发送开始回执
+2. 执行提 key 与全量解密
+3. 向 `新技术讨论` 发送完成回执
+
+```bash
+skills/linux-wx-decrypt/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/linux-wx-decrypt/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - `scripts/run_linux_wx_decrypt.sh`: wrap `linux_get_wx_key.py` and `linux_decrypt_wx_db.py`
+- `scripts/selftest.sh`: real selftest for key extraction, decrypt flow, and visible WeChat receipts

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import tempfile
 import time
@@ -15,7 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--app-root",
         type=Path,
-        default=Path("/home/ivan/github/DevToolbox/wechat-auto-reply"),
+        default=Path(os.environ.get("WECHAT_AUTO_REPLY_ROOT", "/home/ivan/github/DevToolbox/wechat-auto-reply")),
         help="Path to the local wechat-auto-reply project",
     )
     parser.add_argument("--display", default=":0", help="X11 DISPLAY value")
@@ -38,6 +39,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--limit",
         type=int,
         help="Only send the first N resolved files",
+    )
+    parser.add_argument(
+        "--print-only",
+        action="store_true",
+        help="Print the resolved files and command context without sending",
     )
     return parser
 
@@ -121,6 +127,14 @@ def main() -> int:
     print(f"chat={args.chat}")
     print(f"dir={args.dir.expanduser().resolve()}")
     print(f"total={len(files)}")
+    if args.print_only:
+        for index, image in enumerate(files, start=1):
+            print(f"[{index}/{len(files)}] would_send {image}")
+        print(f"app_root={app_root}")
+        print(f"display={args.display}")
+        print(f"xauthority={args.xauthority}")
+        return 0
+
     for index, image in enumerate(files, start=1):
         service.send_file(args.chat, image)
         print(f"[{index}/{len(files)}] sent {image.name}", flush=True)

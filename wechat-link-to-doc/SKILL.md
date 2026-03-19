@@ -47,6 +47,21 @@ skills/wechat-link-to-doc/scripts/wechat_link_to_doc.sh \
 - The hook can depend on external tooling or crawlers that PyWxDump already expects on this machine.
 - The output directory is created or reused locally.
 
+## Selftest
+
+真实验收默认会启动一个本地网页，把该链接发送到 `新技术讨论`，执行文档化，并再向群里发送结果回执。
+
+```bash
+skills/wechat-link-to-doc/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/wechat-link-to-doc/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - `scripts/wechat_link_to_doc.sh`: wrapper around `tools/link_doc_hook.py`
+- `scripts/selftest.sh`: real selftest for local URL serving, doc generation, and WeChat receipts

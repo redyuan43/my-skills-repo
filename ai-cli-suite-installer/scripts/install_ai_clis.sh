@@ -46,6 +46,48 @@ err() { printf '[ERROR] %s\n' "$*" >&2; }
 
 has_cmd() { command -v "$1" >/dev/null 2>&1; }
 
+version_cmd_for() {
+  local bin="$1"
+  case "$bin" in
+    kilo)
+      printf 'KILO_DISABLE_MODELS_FETCH=1 %q --version' "$bin"
+      ;;
+    opencode)
+      printf 'OPENCODE_DISABLE_MODELS_FETCH=1 %q --version' "$bin"
+      ;;
+    *)
+      printf '%q --version' "$bin"
+      ;;
+  esac
+}
+
+package_name_for_bin() {
+  local bin="$1"
+  case "$bin" in
+    kilo) printf '%s\n' '@kilocode/cli' ;;
+    codex) printf '%s\n' '@openai/codex' ;;
+    qwen) printf '%s\n' '@qwen-code/qwen-code' ;;
+    gemini) printf '%s\n' '@google/gemini-cli' ;;
+    *) return 1 ;;
+  esac
+}
+
+show_npm_package_version() {
+  local bin="$1"
+  local package_name
+  local line
+
+  package_name="$(package_name_for_bin "$bin" 2>/dev/null || true)"
+  [[ -n "$package_name" ]] || return 1
+  has_cmd npm || return 1
+
+  line="$(npm list -g "$package_name" --depth=0 2>/dev/null | grep -E "@[0-9]" | tail -n 1 || true)"
+  [[ -n "$line" ]] || return 1
+
+  printf '%s\n' "$line" | sed -E 's/.*'"$package_name"'@([^[:space:]]+).*/\1/'
+  return 0
+}
+
 is_permission_error() {
   local text="$1"
   printf '%s' "$text" | grep -Eiq '(permission denied|eacces|eperm|operation not permitted)'
@@ -124,15 +166,19 @@ need_npm_prereqs() {
 
 show_version() {
   local bin="$1"
+  local version_cmd
   local out
   if has_cmd "$bin"; then
+    version_cmd="$(version_cmd_for "$bin")"
     if has_cmd timeout; then
-      out="$(timeout --foreground "${DEFAULT_VERSION_TIMEOUT_SEC}s" "$bin" --version 2>/dev/null | head -n 1 || true)"
+      out="$(timeout --foreground "${DEFAULT_VERSION_TIMEOUT_SEC}s" bash -lc "$version_cmd" 2>/dev/null | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' | sed '/^[[:space:]]*$/d' | tail -n 1 || true)"
     else
-      out="$("$bin" --version 2>/dev/null | head -n 1 || true)"
+      out="$(bash -lc "$version_cmd" 2>/dev/null | sed -E 's/\x1B\[[0-9;]*[A-Za-z]//g' | sed '/^[[:space:]]*$/d' | tail -n 1 || true)"
     fi
     if [[ -n "$out" ]]; then
       printf '%s\n' "$out"
+    elif show_npm_package_version "$bin" >/dev/null 2>&1; then
+      show_npm_package_version "$bin"
     else
       printf 'version unavailable\n'
     fi

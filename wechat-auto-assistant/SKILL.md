@@ -53,6 +53,21 @@ skills/wechat-auto-assistant/scripts/run_wechat_auto_assistant.sh \
 - The external webhook must return the structured JSON action contract expected by PyWxDump.
 - This skill does not replace one-off send skills; it coordinates a continuous assistant loop.
 
+## Selftest
+
+真实验收默认会启动本地 stub webhook，后台启动 assistant watcher，自动向 `新技术讨论` 注入触发消息，并验证 assistant 已真实执行自动回复。
+
+```bash
+skills/wechat-auto-assistant/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/wechat-auto-assistant/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - `scripts/run_wechat_auto_assistant.sh`: wrapper around `linux_wx_chat_daemon.py watch` with assistant parameters
+- `scripts/selftest.sh`: real selftest for local assistant webhook, trigger injection, and auto-reply execution

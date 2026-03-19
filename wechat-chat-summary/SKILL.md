@@ -58,6 +58,21 @@ skills/wechat-chat-summary/scripts/summarize_wechat_chat.sh \
 - Summary quality depends on the configured summary model and available local chat history.
 - `--send-back` writes to the live WeChat chat window, so use it only when the user clearly wants that action.
 
+## Selftest
+
+真实验收默认会向 `新技术讨论` 注入测试消息，启动本地 stub summary server，执行总结，并把精简总结真实回发到群里。
+
+```bash
+skills/wechat-chat-summary/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/wechat-chat-summary/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - `scripts/summarize_wechat_chat.sh`: wrapper for `linux_wx_chat_daemon.py summarize-chat`
+- `scripts/selftest.sh`: real selftest for trigger-message injection, local summary stub, and send-back flow

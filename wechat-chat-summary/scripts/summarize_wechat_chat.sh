@@ -2,11 +2,12 @@
 set -euo pipefail
 
 REPO_ROOT="/home/ivan/github/PyWxDump"
+PRINT_ONLY=0
 
 usage() {
   cat <<'EOF'
 用法:
-  summarize_wechat_chat.sh --target "群名" [--since "YYYY-MM-DD"] [--until "YYYY-MM-DD"] [--limit N | --all] [--send-back]
+  summarize_wechat_chat.sh --target "群名" [--since "YYYY-MM-DD"] [--until "YYYY-MM-DD"] [--limit N | --all] [--send-back] [--print-only]
 
 说明:
   其余参数会原样透传给 tools/linux_wx_chat_daemon.py summarize-chat。
@@ -29,4 +30,20 @@ if [[ ! -d "${REPO_ROOT}" ]]; then
 fi
 
 cd "${REPO_ROOT}"
-python3 "tools/linux_wx_chat_daemon.py" summarize-chat "$@"
+forwarded_args=()
+for arg in "$@"; do
+  if [[ "${arg}" == "--print-only" ]]; then
+    PRINT_ONLY=1
+    continue
+  fi
+  forwarded_args+=("${arg}")
+done
+
+cmd=(python3 "tools/linux_wx_chat_daemon.py" summarize-chat "${forwarded_args[@]}")
+printf 'Resolved command:'
+printf ' %q' "${cmd[@]}"
+printf '\n'
+if [[ "${PRINT_ONLY}" -eq 1 ]]; then
+  exit 0
+fi
+"${cmd[@]}"

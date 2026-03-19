@@ -7,11 +7,12 @@ OUTPUT_DIR=""
 DOC_TYPE=""
 CHAT_NAME=""
 CHAT_ID=""
+PRINT_ONLY=0
 
 usage() {
   cat <<'EOF'
 用法:
-  wechat_link_to_doc.sh --url URL --output-dir DIR [--doc-type wechat_article|generic_web] [--chat-name NAME] [--chat-id ID]
+  wechat_link_to_doc.sh --url URL --output-dir DIR [--doc-type wechat_article|generic_web] [--chat-name NAME] [--chat-id ID] [--print-only]
 EOF
 }
 
@@ -22,6 +23,7 @@ while [[ $# -gt 0 ]]; do
     --doc-type) DOC_TYPE="$2"; shift 2 ;;
     --chat-name) CHAT_NAME="$2"; shift 2 ;;
     --chat-id) CHAT_ID="$2"; shift 2 ;;
+    --print-only) PRINT_ONLY=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "未知参数: $1" >&2; usage; exit 2 ;;
   esac
@@ -48,7 +50,8 @@ fi
 mkdir -p "${OUTPUT_DIR}"
 cd "${REPO_ROOT}"
 
-python3 - "${URL}" "${OUTPUT_DIR}" "${DOC_TYPE}" "${CHAT_NAME}" "${CHAT_ID}" <<'PY' | python3 "tools/link_doc_hook.py"
+payload="$(
+python3 - "${URL}" "${OUTPUT_DIR}" "${DOC_TYPE}" "${CHAT_NAME}" "${CHAT_ID}" <<'PY'
 import json
 import sys
 
@@ -64,3 +67,14 @@ payload = {
 }
 print(json.dumps(payload, ensure_ascii=False))
 PY
+)"
+
+echo "Resolved doc type: ${DOC_TYPE}"
+echo "Resolved output dir: ${OUTPUT_DIR}"
+echo "Resolved payload: ${payload}"
+echo "Resolved command: python3 tools/link_doc_hook.py"
+if [[ "${PRINT_ONLY}" -eq 1 ]]; then
+  exit 0
+fi
+
+printf '%s\n' "${payload}" | python3 "tools/link_doc_hook.py"

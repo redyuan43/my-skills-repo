@@ -63,6 +63,21 @@ python3 skills/wechat-send-camera-roll/scripts/send_wechat_camera_roll.py \
 - The chooser title is currently expected to be `Open`.
 - The script depends on the local `wechat-auto-reply` project and its current pure-control `send_file` flow.
 
+## Selftest
+
+真实验收默认会生成两张临时测试图片，并把其中一张真实发送到 `新技术讨论`。
+
+```bash
+skills/wechat-send-camera-roll/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/wechat-send-camera-roll/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - `scripts/send_wechat_camera_roll.py`: batch-send photos from a directory with optional resume and limit controls.
+- `scripts/selftest.sh`: real selftest for local image generation, batch-send flow, and print-only validation

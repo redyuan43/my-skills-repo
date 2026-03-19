@@ -8,11 +8,12 @@ DB_DIR=""
 PID=""
 KEY_ONLY=0
 DECRYPT_ONLY=0
+PRINT_ONLY=0
 
 usage() {
   cat <<'EOF'
 用法:
-  run_linux_wx_decrypt.sh [--db-dir PATH] [--key-file PATH] [--output DIR] [--pid PID] [--key-only] [--decrypt-only]
+  run_linux_wx_decrypt.sh [--db-dir PATH] [--key-file PATH] [--output DIR] [--pid PID] [--key-only] [--decrypt-only] [--print-only]
 
 说明:
   默认先提取 key，再批量解密数据库。
@@ -28,6 +29,7 @@ while [[ $# -gt 0 ]]; do
     --pid) PID="$2"; shift 2 ;;
     --key-only) KEY_ONLY=1; shift ;;
     --decrypt-only) DECRYPT_ONLY=1; shift ;;
+    --print-only) PRINT_ONLY=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "未知参数: $1" >&2; usage; exit 2 ;;
   esac
@@ -48,7 +50,13 @@ if [[ "${DECRYPT_ONLY}" -eq 0 ]]; then
   if [[ -n "${PID}" ]]; then
     cmd+=("--pid" "${PID}")
   fi
-  "${cmd[@]}"
+  echo "Resolved key file: ${KEY_FILE}"
+  printf 'Resolved key command:'
+  printf ' %q' "${cmd[@]}"
+  printf '\n'
+  if [[ "${PRINT_ONLY}" -eq 0 ]]; then
+    "${cmd[@]}"
+  fi
 fi
 
 if [[ "${KEY_ONLY}" -eq 1 ]]; then
@@ -58,5 +66,12 @@ fi
 cmd=(python3 "tools/linux_decrypt_wx_db.py" "--key-file" "${KEY_FILE}" "--output" "${OUTPUT_DIR}")
 if [[ -n "${DB_DIR}" ]]; then
   cmd+=("--db-dir" "${DB_DIR}")
+fi
+echo "Resolved output dir: ${OUTPUT_DIR}"
+printf 'Resolved decrypt command:'
+printf ' %q' "${cmd[@]}"
+printf '\n'
+if [[ "${PRINT_ONLY}" -eq 1 ]]; then
+  exit 0
 fi
 "${cmd[@]}"

@@ -54,6 +54,21 @@ skills/wechat-chat-watch/scripts/watch_wechat_chat.sh \
 - `--all-chats` disables some enrichments in the current PyWxDump implementation.
 - The underlying watcher is event-driven and depends on local WeChat database updates.
 
+## Selftest
+
+真实验收默认会后台启动 watcher，自行向 `新技术讨论` 注入一条带 `[SELFTEST]` 标记的消息，并验证 watcher 输出确实捕获到该消息。
+
+```bash
+skills/wechat-chat-watch/scripts/selftest.sh
+```
+
+只做无副作用检查：
+
+```bash
+skills/wechat-chat-watch/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - `scripts/watch_wechat_chat.sh`: wrapper for `linux_wx_chat_daemon.py watch`
+- `scripts/selftest.sh`: real selftest for watcher startup, event injection, and capture verification
