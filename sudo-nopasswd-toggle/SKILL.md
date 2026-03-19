@@ -41,11 +41,14 @@ Do not delete or rewrite unrelated sudoers entries.
 
 Prefer normal `sudo` prompting when possible.
 
+If `sudo -n true` fails and there is no cached sudo credential, explicitly ask the user for their sudo password before running the managed script. This applies to `status` as well, because the script authenticates before checking the managed file.
+
 If the user explicitly provides a password and expects non-interactive execution, pass it once on stdin:
 
 ```bash
 printf '%s\n' "$PASSWORD" | bash scripts/manage_sudo_nopasswd.sh enable --user <user> --password-stdin
 printf '%s\n' "$PASSWORD" | bash scripts/manage_sudo_nopasswd.sh disable --user <user> --password-stdin
+printf '%s\n' "$PASSWORD" | bash scripts/manage_sudo_nopasswd.sh status --user <user> --password-stdin
 ```
 
 Never store the password in files, shell init, or the skill itself.
