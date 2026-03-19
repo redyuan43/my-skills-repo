@@ -296,7 +296,6 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、默认本地优先策略、云端视觉使用边界）
 - `scripts/search_baidunetdisk_images.py` - 搜索脚本，负责调用现有 harness 执行 `remote image search` 并输出稳定结果
-
 ### 37. jetson-display-stack-repair
 **功能：** 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑屏或登录界面不显示
 **用途：** 当 `graphical.target` 已启用但屏幕仍不亮、`gdm3` 没有拉起、`nvweston` 抢占 DRM、`display-manager.service` 缺失或 Xorg 报 `drmSetMaster failed` 时使用
@@ -318,6 +317,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（客户端定位、viewer 选择顺序、目标格式和使用示例）
 - `scripts/connect_vnc.sh` - Linux 客户端连接脚本，自动选择可用 viewer 并发起 VNC 连接
+
+### 40. wechat-linux-official-setup
+**功能：** 按 Tencent 官方 Linux 版下载页安装 ARM 架构微信，并完成启动、GNOME 固定和手动扫码登录的标准流程
+**用途：** 当需要在 ARM Linux 上安装官方微信客户端、验证 `wechat` 可启动、把启动器固定到 GNOME Dock，或想把“下载 -> 安装 -> 启动 -> 登录”整理成可复用流程时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（官方来源、安装启动工作流、登录约束和使用场景）
+- `scripts/install_wechat_official.sh` - 官方 ARM 包下载、安装、启动和 GNOME 固定脚本
 
 ## 使用方法
 
