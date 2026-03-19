@@ -296,8 +296,8 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、默认本地优先策略、云端视觉使用边界）
 - `scripts/search_baidunetdisk_images.py` - 搜索脚本，负责调用现有 harness 执行 `remote image search` 并输出稳定结果
-=======
-### 21. jetson-display-stack-repair
+
+### 37. jetson-display-stack-repair
 **功能：** 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑屏或登录界面不显示
 **用途：** 当 `graphical.target` 已启用但屏幕仍不亮、`gdm3` 没有拉起、`nvweston` 抢占 DRM、`display-manager.service` 缺失或 Xorg 报 `drmSetMaster failed` 时使用
 **文件：**
@@ -305,7 +305,12 @@
 - `agents/openai.yaml` - skill 的 UI 元数据
 - `references/jetson-display-stack-repair.md` - Jetson 图形栈排障参考与命令清单
 
->>>>>>> 1795705 (Add Jetson display stack repair skill)
+### 38. headless-vnc-chromium-fix
+**功能：** 在无显示器的 Ubuntu/Linux 机器上安装 TigerVNC + XFCE，并修复 Chromium 因缺少图形会话或 Snap 权限异常而无法启动的问题
+**用途：** 当用户说“没接显示器”“想装 VNC”“Chromium 打不开”“`chromium-browser` 起不来”“`snap-confine` 权限不对”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（headless 检测、VNC 安装、XFCE 启动、Chromium/Snap 排障流程）
+- `scripts/repair_snap_confine.sh` - 将 `/usr/lib/snapd/snap-confine` 修回 `root:root 4755` 并重启 `snapd`
 ## 使用方法
 
 1. 克隆此仓库到本地
