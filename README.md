@@ -341,6 +341,14 @@
 - `SKILL.md` - 技能说明文档（判定条件、Flatpak 回退流程与验证标准）
 - `scripts/chromium_flatpak_fallback.sh` - 诊断、安装、启动与进程检查脚本
 
+### 42. linux-wechat-send-bootstrap
+**功能：** 为 PyWxDump 的 Linux 微信文本发送链路做一键引导，自动补齐 `.venv` 最小依赖、提取 key、解密数据库，并走“搜索 + 视觉验标题 + 数据库回读”的稳妥发送流程
+**用途：** 当新用户第一次在 Linux 上使用 PyWxDump 发送微信消息，遇到 `.venv` 缺 `Pillow` / `pycryptodomex`、`~/.wx_db_keys.json` 为空、`ptrace_scope` 阻止提 key、`OPENAI_API_KEY` 只在 `~/.bashrc` 中，或默认 `send-text` 无法稳定命中目标会话时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（前置条件、工作流、风险点和命令示例）
+- `scripts/send_text_with_setup.sh` - 引导脚本，负责定位 PyWxDump、准备 `.venv`、提 key、解密数据库并切到交互式 bash
+- `scripts/send_text_with_setup.py` - 发送执行脚本，负责主界面搜索、视觉验标题、发送文本和数据库回读确认
+
 ## 使用方法
 
 1. 克隆此仓库到本地
