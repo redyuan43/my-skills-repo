@@ -171,7 +171,6 @@
 **用途：** 当需要全新安装 OpenClaw、配置 GLM/Ollama/OpenAI/OpenRouter 等模型 provider、启动 Gateway 或排查常见问题时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（含安装、onboarding、provider 配置、Gateway 启动、常见排障全流程）
-
 ### 21. cpu-process-watchflow
 **功能：** 先发现当前高 CPU 进程，再持续监控指定进程并在退出或持续低负载时告警
 **用途：** 当需要先筛出正在高负载运行的程序，再对选定 PID 或进程名做持续监控，及时发现进程停止或进入异常空转状态时使用
@@ -181,13 +180,11 @@
 - `scripts/watch_processes.py` - 按 PID 或进程名持续监控，并在退出或连续低于 CPU 阈值时告警
 - `agents/openai.yaml` - skill 的 UI 元数据
 
-
 ### 22. diarization
 **功能：** 说话人分离（Speaker Diarization），对本地音频或视频文件生成 speaker turns、RTTM 和 speaker transcript
 **用途：** 当需要对本地音频或视频做说话人分离，并输出 `diarization.json`、`diarization.rttm`、`speaker_transcript.md` 和 `run_manifest.json` 时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（输入检查、音频预处理、ASR 健康检查与 diarization 执行流程）
-
 
 ### 23. meeting-room
 **功能：** 在 Ubuntu 上执行会议室会议纪要脚本，统一支持 start、stop、status，并在 stop 后自动等待 diarization 和生成 summary
@@ -217,6 +214,14 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（触发条件、工作流、窗口模式、`restore_action` 说明和命令示例）
 - `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、`--window-mode`、GUI 提示参数和包装层结果摘要
+
+### 27. jetson-display-stack-repair
+**功能：** 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑屏或登录界面不显示
+**用途：** 当 `graphical.target` 已启用但屏幕仍不亮、`gdm3` 没有拉起、`nvweston` 抢占 DRM、`display-manager.service` 缺失或 Xorg 报 `drmSetMaster failed` 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（启动链检查、冲突排除和验证流程）
+- `agents/openai.yaml` - skill 的 UI 元数据
+- `references/jetson-display-stack-repair.md` - Jetson 图形栈排障参考与命令清单
 - `scripts/selftest.sh` - 真实/无副作用自检脚本，用于验证下游命令拼装与 live send 链路
 
 ### 27. wechat-send-camera-roll
@@ -291,6 +296,16 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、默认本地优先策略、云端视觉使用边界）
 - `scripts/search_baidunetdisk_images.py` - 搜索脚本，负责调用现有 harness 执行 `remote image search` 并输出稳定结果
+=======
+### 21. jetson-display-stack-repair
+**功能：** 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑屏或登录界面不显示
+**用途：** 当 `graphical.target` 已启用但屏幕仍不亮、`gdm3` 没有拉起、`nvweston` 抢占 DRM、`display-manager.service` 缺失或 Xorg 报 `drmSetMaster failed` 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（启动链检查、冲突排除和验证流程）
+- `agents/openai.yaml` - skill 的 UI 元数据
+- `references/jetson-display-stack-repair.md` - Jetson 图形栈排障参考与命令清单
+
+>>>>>>> 1795705 (Add Jetson display stack repair skill)
 ## 使用方法
 
 1. 克隆此仓库到本地

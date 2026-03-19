@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jetson Display Stack Repair"
+  short_description: "排查 Jetson 黑屏、gdm3/Weston 冲突与登录失败"
+  default_prompt: "Use -display-stack-repair to diagnose and repair a Jetson display stack that boots to a black screen or fails to show the GNOME login screen."
