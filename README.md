@@ -261,21 +261,30 @@
 - `SKILL.md` - 技能说明文档（监控工作流、参数边界和适用场景）
 - `scripts/watch_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py watch` 的监控入口脚本
 
-### 32. wechat-chat-summary
+### 32. codex-persona-manager
+**功能：** 为 Codex、Claude Code 和 OpenCode 安装、迁移和切换猫系人格模板，支持交互式列出人格并让用户自己选择
+**用途：** 当需要在新电脑上恢复 AI CLI 的人格配置、避免手动改 `AGENTS.md` / `settings.json`、查看有哪些人格可选，或切换当前工具的说话风格与自称名字时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、交互式工作流、三端安装与切换方式）
+- `assets/personas/` - 10 份打包的人格模板，会安装到目标机器的 Codex / Claude Code / OpenCode 对应目录
+- `scripts/manage_codex_personas.sh` - 交互式安装与切换脚本，支持 `--list`、`--install-only`、`--target`、`--activate`
+- `references/persona-table.md` - 人格 ID、自称名字、风格关键词与适用场景对照表
+
+### 33. wechat-chat-summary
 **功能：** 通过 PyWxDump 导出指定微信会话的历史消息并生成 Markdown 总结，支持时间范围和可选回发
 **用途：** 当需要总结某个群聊或联系人最近一段时间讨论内容、导出全量聊天摘要、或把精简版总结发回原会话时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（总结流程、时间范围和发送回写约束）
 - `scripts/summarize_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py summarize-chat` 的总结入口脚本
 
-### 33. wechat-link-to-doc
+### 34. wechat-link-to-doc
 **功能：** 通过 PyWxDump 把微信里分享的 URL，尤其是公众号文章，转成包含 `document.md` 和资源目录的本地文档包
 **用途：** 当需要把一条公众号链接或普通网页固化为本地 Markdown 文档，用于后续总结、归档或知识库输入时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（链接文档化流程、文档类型选择和输出说明）
 - `scripts/wechat_link_to_doc.sh` - 包装 `tools/link_doc_hook.py` 的单 URL 文档化入口脚本
 
-### 34. wechat-auto-assistant
+### 35. wechat-auto-assistant
 **功能：** 通过 PyWxDump 运行“监听消息 -> 丰富上下文 -> 调用外部 Agent webhook -> 执行结构化动作”的微信自动助理闭环
 **用途：** 当需要对白名单微信会话启用真实自动化流程，并让外部 Agent 返回 `send_text`、`send_file`、`send_image`、`summarize_chat` 等动作由本机执行时使用
 **文件：**
@@ -283,20 +292,20 @@
 - `scripts/run_wechat_auto_assistant.sh` - 包装 `linux_wx_chat_daemon.py watch` Assistant 模式的入口脚本
 - `wechat-send-file` / `wechat-screenshot-send` / `wechat-send-camera-roll` - 配套发送类 skill，继续承担独立发送场景
 
-### 35. baidunetdisk-upload
+### 36. baidunetdisk-upload
 **功能：** 通过已安装的 Linux 百度网盘桌面客户端上传本地文件，并用远端目录回读验证上传结果
 **用途：** 当需要把本地文件快速上传到百度网盘、只提供精确路径或大概文件名、并希望上传后能直接给出网盘目录供人工审核时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、约束、危险操作确认要求）
 - `scripts/upload_to_baidunetdisk.py` - 上传执行脚本，负责本地路径解析、临时打包、调用百度网盘客户端上传并回读远端目录
 
-### 36. baidunetdisk-remote-image-search
+### 37. baidunetdisk-remote-image-search
 **功能：** 只针对百度网盘指定目录搜索图片内容，串联远端目录同步、本地缓存、独立 ZBox 索引和 OCR/图片摘要检索
 **用途：** 当需要在百度网盘某个目录里查“图片里有什么文字或内容”、希望结果限定在百度网盘范围内，并返回远端路径、命中来源和片段供人工判断时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、默认本地优先策略、云端视觉使用边界）
 - `scripts/search_baidunetdisk_images.py` - 搜索脚本，负责调用现有 harness 执行 `remote image search` 并输出稳定结果
-### 37. jetson-display-stack-repair
+### 38. jetson-display-stack-repair
 **功能：** 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑屏或登录界面不显示
 **用途：** 当 `graphical.target` 已启用但屏幕仍不亮、`gdm3` 没有拉起、`nvweston` 抢占 DRM、`display-manager.service` 缺失或 Xorg 报 `drmSetMaster failed` 时使用
 **文件：**
@@ -304,14 +313,14 @@
 - `agents/openai.yaml` - skill 的 UI 元数据
 - `references/jetson-display-stack-repair.md` - Jetson 图形栈排障参考与命令清单
 
-### 38. headless-vnc-chromium-fix
+### 39. headless-vnc-chromium-fix
 **功能：** 在无显示器的 Ubuntu/Linux 机器上安装 TigerVNC + XFCE，并修复 Chromium 因缺少图形会话或 Snap 权限异常而无法启动的问题
 **用途：** 当用户说“没接显示器”“想装 VNC”“Chromium 打不开”“`chromium-browser` 起不来”“`snap-confine` 权限不对”时使用；这是服务端技能，不是客户端连接脚本
 **文件：**
 - `SKILL.md` - 技能说明文档（服务端 headless 检测、VNC 安装、XFCE 启动、Chromium/Snap 排障流程）
 - `scripts/repair_snap_confine.sh` - 将 `/usr/lib/snapd/snap-confine` 修回 `root:root 4755` 并重启 `snapd`
 
-### 39. vnc-client-connect
+### 40. vnc-client-connect
 **功能：** 在 Linux 客户端上一键连接远端 VNC 服务，支持 `host`、`host:display` 和 `host:port` 三种输入
 **用途：** 当需要“给客户端一个连接脚本”“从另一台 Linux 电脑连接 VNC”“不想手工敲 viewer 参数”时使用；这是客户端技能，不修改服务端配置
 **文件：**
