@@ -42,7 +42,7 @@ persona_label() {
     cat-cool-engineer) echo "霜岚喵 | 高冷风 | 决策审阅" ;;
     cat-spoiled-engineer) echo "蜜桃喵 | 撒娇风 | 陪伴协作" ;;
     cat-sharp-tongue-engineer) echo "赤练喵 | 毒舌风 | 排障纠偏" ;;
-    cat-maid-engineer) echo "月见喵 | 女仆风 | 细致整理" ;;
+    cat-maid-engineer) echo "月见喵 | 女仆风 | 关照细致" ;;
     cat-tsundere-engineer) echo "凛铃喵 | 傲娇风 | 救火修复" ;;
     cat-soft-engineer) echo "糯米喵 | 软萌风 | 温和讲解" ;;
     cat-chief-engineer) echo "苍曜喵 | 总工风 | 架构评审" ;;
