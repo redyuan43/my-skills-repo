@@ -10,6 +10,8 @@ description: Capture the current desktop on Ubuntu X11 and immediately send the 
 Use `scripts/screenshot_send_wechat.sh` for a one-shot workflow: capture the desktop, save the screenshot under `~/Pictures/Screenshots/`, and immediately send it through `PyWxDump tools/linux_wx_chat_daemon.py send-image`.
 If the goal is排障，不是普通截图转发，优先用 `scripts/diagnose_control_wechat.sh`：先把鼠标悬停到目标控件，再触发交互式截图，把截图发到群里，并把诊断 Markdown 回发到同一会话。
 
+When `--window-mode main` is used for a target that has not been warmed before, the underlying `PyWxDump` flow may need a vision model to pick the correct search result row. In practice, `qwen3.5-plus` is the stable choice for this step. If you use 阿里云 Coding Plan, prefer the native Anthropic-compatible endpoint `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1`. Do not assume `qwen3-coder-plus` is reliable for main-window search-result selection.
+
 ## Workflow
 
 1. Determine the target chat title.
@@ -46,6 +48,17 @@ skills/wechat-screenshot-send/scripts/screenshot_send_wechat.sh \
   --window-mode main
 ```
 
+通过主界面搜索并显式配置 Coding Plan 视觉参数：
+
+```bash
+skills/wechat-screenshot-send/scripts/screenshot_send_wechat.sh \
+  --chat "丁国华" \
+  --window-mode main \
+  --main-window-vision-base-url "https://coding.dashscope.aliyuncs.com/apps/anthropic/v1" \
+  --main-window-vision-model "qwen3.5-plus" \
+  --main-window-vision-thinking-budget-tokens 1024
+```
+
 Resolve the final command without capturing or sending:
 
 ```bash
@@ -69,6 +82,10 @@ skills/wechat-screenshot-send/scripts/diagnose_control_wechat.sh \
 - This skill assumes Ubuntu X11 and `gnome-screenshot` is available.
 - `--window-mode standalone` requires the target chat to already be open as an independent WeChat window.
 - `--window-mode main` relies on WeChat main-window search and post-send database verification.
+- For `--window-mode main`, the first successful send to a target warms that target. Later sends can reuse the lighter `warm_search_enter_refocus` path.
+- For `--window-mode main`, prefer `qwen3.5-plus` as the search-result vision model if you explicitly configure `PyWxDump` main-window vision options.
+- For `--window-mode main` with Coding Plan, prefer `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1` instead of the older OpenAI-compatible `/v1` endpoint.
+- The underlying CLI now supports `--main-window-vision-timeout-seconds`, `--main-window-vision-thinking-budget-tokens`, and `--main-window-vision-disable-thinking`.
 - `--mode ui-window` 仍然更适合配合独立窗口使用；主界面模式下更推荐 `--mode desktop`。
 - 诊断脚本依赖本地视觉模型可用；若模型失败，脚本会把失败说明回发，而不是静默退出。
 

@@ -9,6 +9,8 @@ description: Send a local file to a specified WeChat chat or group on Ubuntu X11
 
 Use `scripts/send_wechat_file.sh` to send a local file through `PyWxDump tools/linux_wx_chat_daemon.py send-file`. Prefer an explicit file path when the user gives one; otherwise, auto-pick from `~/Documents`, excluding JPEG files unless the user explicitly allows them. The wrapper now supports both `standalone` and `main` window modes, exposes GUI prompt timing, and prints the final `restore_action`.
 
+When `--window-mode main` is used for a target that has not been warmed before, the underlying `PyWxDump` flow may need a vision model to click the correct search result row. In practice, `qwen3.5-plus` is the stable choice for this step. If you use 阿里云 Coding Plan, prefer the native Anthropic-compatible endpoint `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1`. Do not assume `qwen3-coder-plus` is reliable for main-window search-result selection.
+
 ## Workflow
 
 1. Determine the target chat title.
@@ -36,6 +38,18 @@ skills/wechat-send-file/scripts/send_wechat_file.sh \
   --chat "新技术讨论" \
   --window-mode main \
   --path /home/ivan/Documents/demo.txt
+```
+
+Use explicit main-window vision settings for a new target:
+
+```bash
+skills/wechat-send-file/scripts/send_wechat_file.sh \
+  --chat "丁国华" \
+  --window-mode main \
+  --path /home/ivan/Documents/demo.txt \
+  --main-window-vision-base-url "https://coding.dashscope.aliyuncs.com/apps/anthropic/v1" \
+  --main-window-vision-model "qwen3.5-plus" \
+  --main-window-vision-thinking-budget-tokens 1024
 ```
 
 Auto-pick a non-JPEG file from `~/Documents`:
@@ -66,6 +80,10 @@ skills/wechat-send-file/scripts/send_wechat_file.sh \
 - This skill assumes Ubuntu X11 and a local `PyWxDump` clone under `/home/ivan/github/PyWxDump` unless `--pywxdump-root` overrides it.
 - `--window-mode standalone` requires the target chat to already be open as an independent WeChat window.
 - `--window-mode main` relies on WeChat main-window search and post-send database verification.
+- For `--window-mode main`, the first successful send to a target warms that target. Later sends can reuse the lighter `warm_search_enter_refocus` path.
+- For `--window-mode main`, prefer `qwen3.5-plus` as the search-result vision model if you explicitly configure `PyWxDump` main-window vision options.
+- For `--window-mode main` with Coding Plan, prefer `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1` instead of the older OpenAI-compatible `/v1` endpoint.
+- The underlying CLI now supports `--main-window-vision-timeout-seconds`, `--main-window-vision-thinking-budget-tokens`, and `--main-window-vision-disable-thinking`.
 - JPEG is excluded by default because the current workflow often needs “send anything except JPEG”.
 - The wrapper surfaces `restore_action`, but the actual restore behavior is still determined by the underlying `PyWxDump` send pipeline.
 
