@@ -307,10 +307,18 @@
 
 ### 38. headless-vnc-chromium-fix
 **功能：** 在无显示器的 Ubuntu/Linux 机器上安装 TigerVNC + XFCE，并修复 Chromium 因缺少图形会话或 Snap 权限异常而无法启动的问题
-**用途：** 当用户说“没接显示器”“想装 VNC”“Chromium 打不开”“`chromium-browser` 起不来”“`snap-confine` 权限不对”时使用
+**用途：** 当用户说“没接显示器”“想装 VNC”“Chromium 打不开”“`chromium-browser` 起不来”“`snap-confine` 权限不对”时使用；这是服务端技能，不是客户端连接脚本
 **文件：**
-- `SKILL.md` - 技能说明文档（headless 检测、VNC 安装、XFCE 启动、Chromium/Snap 排障流程）
+- `SKILL.md` - 技能说明文档（服务端 headless 检测、VNC 安装、XFCE 启动、Chromium/Snap 排障流程）
 - `scripts/repair_snap_confine.sh` - 将 `/usr/lib/snapd/snap-confine` 修回 `root:root 4755` 并重启 `snapd`
+
+### 39. vnc-client-connect
+**功能：** 在 Linux 客户端上一键连接远端 VNC 服务，支持 `host`、`host:display` 和 `host:port` 三种输入
+**用途：** 当需要“给客户端一个连接脚本”“从另一台 Linux 电脑连接 VNC”“不想手工敲 viewer 参数”时使用；这是客户端技能，不修改服务端配置
+**文件：**
+- `SKILL.md` - 技能说明文档（客户端定位、viewer 选择顺序、目标格式和使用示例）
+- `scripts/connect_vnc.sh` - Linux 客户端连接脚本，自动选择可用 viewer 并发起 VNC 连接
+
 ## 使用方法
 
 1. 克隆此仓库到本地

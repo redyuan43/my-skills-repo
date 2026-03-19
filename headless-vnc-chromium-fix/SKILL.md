@@ -7,6 +7,15 @@ description: 在无显示器的 Ubuntu/Linux 机器上安装 TigerVNC + XFCE，�
 
 Use this skill when a Linux machine has no monitor attached, the user needs a remote desktop, and Chromium will not launch from a tty or headless session.
 
+This is the server-side skill:
+
+- install and start VNC on the remote Linux host
+- repair server-side Chromium and Snap issues
+- tell the user which address the client should connect to
+
+It is not the client connector. For a client-side launcher script, use:
+- `vnc-client-connect`
+
 ## What This Skill Covers
 
 - Detect whether the current session is headless (`DISPLAY` empty, `XDG_SESSION_TYPE=tty`)
