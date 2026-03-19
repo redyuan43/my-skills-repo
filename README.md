@@ -325,6 +325,13 @@
 - `SKILL.md` - 技能说明文档（官方来源、安装启动工作流、登录约束和使用场景）
 - `scripts/install_wechat_official.sh` - 官方 ARM 包下载、安装、启动和 GNOME 固定脚本
 
+### 41. chromium-flatpak-fallback
+**功能：** 当 Ubuntu 上的 `chromium-browser` 实际走 Snap 包装器且反复失败时，改用 Flatpak 安装并启动真正可用的 Chromium
+**用途：** 当用户明确需要 Chromium、`snap run chromium` 因 `snap-confine`/namespace/容器环境报错或卡住、而机器本身已有图形桌面时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（判定条件、Flatpak 回退流程与验证标准）
+- `scripts/chromium_flatpak_fallback.sh` - 诊断、安装、启动与进程检查脚本
+
 ## 使用方法
 
 1. 克隆此仓库到本地
