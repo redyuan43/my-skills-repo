@@ -11,8 +11,10 @@ SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 SEND_SCRIPT="${WECHAT_SEND_FILE_SCRIPT:-${SKILLS_ROOT}/wechat-send-file/scripts/send_wechat_file.sh}"
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-${HOME}/github/PyWxDump}"
+WINDOW_CLASS="${WECHAT_WINDOW_CLASS:-wechat}"
 SEND_CONFIG="${WECHAT_SEND_CONFIG:-}"
+PYTHON_BIN="${WECHAT_PYTHON_BIN:-${PYWXDUMP_ROOT}/.venv/bin/python}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
 WINDOW_MODE="${WECHAT_SEND_WINDOW_MODE:-standalone}"
@@ -31,7 +33,7 @@ MAIN_WINDOW_VISION_DISABLE_THINKING=0
 NO_SEND_GUI_PROMPTS=0
 
 latest_png() {
-  python3 - "$1" <<'PY'
+  "${PYTHON_BIN:-python3}" - "$1" <<'PY'
 import os
 import sys
 
@@ -76,6 +78,7 @@ Options:
   --mode MODE         Capture mode: desktop | ui-window. Default: desktop
   --hover-x X         Move mouse to absolute X before ui-window capture.
   --hover-y Y         Move mouse to absolute Y before ui-window capture.
+  --window-class CLS  X11 微信窗口 class（默认: wechat）
   --window-mode MODE  Send mode: standalone | main | auto. Default: standalone
   --send-gui-countdown-seconds N
                      Countdown seconds before GUI control. Default: 1
@@ -125,6 +128,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --hover-y)
       HOVER_Y="${2:-}"
+      shift 2
+      ;;
+    --window-class)
+      WINDOW_CLASS="${2:-}"
       shift 2
       ;;
     --window-mode)
@@ -208,6 +215,158 @@ if [[ -z "${CHAT}" ]]; then
   exit 2
 fi
 
+if [[ -z "${WINDOW_CLASS}" ]]; then
+  echo "--window-class is required" >&2
+  exit 2
+fi
+
+if [[ -n "${WECHAT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="${WECHAT_PYTHON_BIN}"
+elif [[ -z "${WECHAT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="${PYWXDUMP_ROOT}/.venv/bin/python"
+fi
+
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="$(command -v python3 || true)"
+fi
+if [[ -z "${PYTHON_BIN}" || ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="python3"
+fi
+if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+  echo "Python not found" >&2
+  exit 1
+fi
+
+resolve_chat_target() {
+  local query="$1"
+  local output
+  local status
+
+  output="$(
+    "${PYTHON_BIN}" - "${query}" "${PYWXDUMP_ROOT}" "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${WINDOW_CLASS}" <<'PY'
+import os
+import sys
+
+sys.path.insert(0, os.path.join(sys.argv[2], "tools"))
+from linux_wx_x11_send import MAIN_WINDOW_TITLES, list_wechat_windows, normalize_window_title
+
+query = (sys.argv[1] or "").strip()
+if not query:
+    sys.exit(2)
+
+query_lower = query.lower()
+display = sys.argv[3]
+xauthority = sys.argv[4]
+class_name = sys.argv[5]
+
+try:
+    windows = list_wechat_windows(class_name=class_name, display=display, xauthority=xauthority)
+except Exception:
+    sys.exit(1)
+main_titles = {normalize_window_title(item) for item in MAIN_WINDOW_TITLES}
+
+
+def _norm_title(title):
+    return (normalize_window_title(title or "").strip())
+
+
+exact_matches = []
+fuzzy_matches = []
+
+for item in windows:
+    raw_title = item.title or ""
+    norm_title = _norm_title(raw_title)
+    if not norm_title:
+        continue
+    if norm_title in main_titles:
+        continue
+    lower_title = norm_title.lower()
+    if lower_title == query_lower:
+        exact_matches.append(raw_title)
+    elif query_lower in lower_title:
+        fuzzy_matches.append(raw_title)
+
+
+def dedup(items):
+    seen = set()
+    out = []
+    for value in items:
+        if value in seen:
+            continue
+        seen.add(value)
+        out.append(value)
+    return out
+
+
+exact_unique = dedup(exact_matches)
+if len(exact_unique) == 1:
+    print(exact_unique[0])
+    sys.exit(0)
+if len(exact_unique) > 1:
+    print("\n".join(exact_unique))
+    sys.exit(3)
+
+fuzzy_unique = dedup(fuzzy_matches)
+if len(fuzzy_unique) == 1:
+    print(fuzzy_unique[0])
+    sys.exit(0)
+if len(fuzzy_unique) > 1:
+    print("\n".join(fuzzy_unique))
+    sys.exit(4)
+
+sys.exit(1)
+PY
+  )"
+  status=$?
+  if [[ "${status}" -eq 0 ]]; then
+    printf '%s\n' "${output}"
+    return 0
+  fi
+
+  if [[ "${status}" -eq 3 || "${status}" -eq 4 ]]; then
+    first_match="$(printf '%s\n' "${output}" | awk 'NF {print; exit}')"
+    if [[ -n "${first_match}" ]]; then
+      echo "chat title is ambiguous for query: ${query}, auto choose: ${first_match}" >&2
+      printf '%s\n' "${first_match}"
+      return 0
+    fi
+    return 1
+  fi
+
+  if [[ "${status}" -ne 1 ]]; then
+    echo "chat title matching failed with code=${status} query=${query}" >&2
+    return 2
+  fi
+
+  return 1
+}
+
+RESOLVED_CHAT="${CHAT}"
+if [[ "${WINDOW_MODE}" == "standalone" || "${WINDOW_MODE}" == "auto" ]]; then
+  status=0
+  if resolved="$(resolve_chat_target "${CHAT}")"; then
+    RESOLVED_CHAT="${resolved}"
+  else
+    status=$?
+    if [[ "${status}" -ne 1 ]]; then
+      exit 2
+    fi
+  fi
+fi
+
+if [[ "${CAPTURE_MODE}" == "ui-window" ]]; then
+  if ui_resolved="$(resolve_chat_target "${CHAT}")"; then
+    RESOLVED_CHAT="${ui_resolved}"
+  else
+    echo "ui-window capture requires a resolvable standalone chat window title" >&2
+    exit 2
+  fi
+fi
+
+if [[ "${RESOLVED_CHAT}" != "${CHAT}" ]]; then
+  echo "Fuzzy matched chat: ${CHAT} -> ${RESOLVED_CHAT}"
+fi
+
 if [[ "${WINDOW_MODE}" != "standalone" && "${WINDOW_MODE}" != "main" && "${WINDOW_MODE}" != "auto" ]]; then
   echo "--window-mode must be one of: standalone, main, auto" >&2
   exit 2
@@ -267,7 +426,10 @@ mkdir -p "${SCREENSHOT_DIR}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 SHOT_PATH="${SCREENSHOT_DIR}/desktop-${STAMP}.png"
 
-echo "Resolved chat: ${CHAT}"
+echo "Resolved chat: ${RESOLVED_CHAT}"
+if [[ "${RESOLVED_CHAT}" == "${CHAT}" ]]; then
+  echo "Original chat query: ${CHAT}"
+fi
 echo "Resolved screenshot: ${SHOT_PATH}"
 echo "Resolved mode: ${CAPTURE_MODE}"
 echo "Resolved window mode: ${WINDOW_MODE}"
@@ -314,7 +476,8 @@ if [[ "${PRINT_ONLY}" -eq 1 ]]; then
     fi
   fi
   printf 'Resolved send:'
-  printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode "${WINDOW_MODE}" --path "${SHOT_PATH}" --post-send-delay-ms "${POST_SEND_DELAY_MS}" --send-timeout "${SEND_TIMEOUT}" --send-step-delay-ms "${SEND_STEP_DELAY_MS}" --send-paste-settle-ms "${SEND_PASTE_SETTLE_MS}" --send-gui-countdown-seconds "${SEND_GUI_COUNTDOWN_SECONDS}" --send-gui-notify-timeout-ms "${SEND_GUI_NOTIFY_TIMEOUT_MS}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  printf ' %q' "${PYTHON_BIN}" "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${RESOLVED_CHAT}" --window-class "${WINDOW_CLASS}" --window-mode "${WINDOW_MODE}" --path "${SHOT_PATH}" --post-send-delay-ms "${POST_SEND_DELAY_MS}" --send-timeout "${SEND_TIMEOUT}" --send-step-delay-ms "${SEND_STEP_DELAY_MS}" --send-paste-settle-ms "${SEND_PASTE_SETTLE_MS}" --send-gui-countdown-seconds "${SEND_GUI_COUNTDOWN_SECONDS}" --send-gui-notify-timeout-ms "${SEND_GUI_NOTIFY_TIMEOUT_MS}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  printf ' %q' --no-image-analysis
   if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
     printf ' %q %q' --main-window-vision-base-url "${MAIN_WINDOW_VISION_BASE_URL}"
   fi
@@ -336,6 +499,8 @@ if [[ "${PRINT_ONLY}" -eq 1 ]]; then
   if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
     printf ' %q' --no-send-gui-prompts
   fi
+  printf ' %q' --auto-resolve-target
+  printf ' %q' --post-send-force-minimize
   printf '\n'
   exit 0
 fi
@@ -355,7 +520,7 @@ if [[ "${CAPTURE_MODE}" == "desktop" ]]; then
   if command -v gnome-screenshot >/dev/null 2>&1; then
     DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" gnome-screenshot -f "${SHOT_PATH}"
   else
-    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" python3 - "${SHOT_PATH}" <<'PY'
+    "${PYTHON_BIN}" - "${SHOT_PATH}" <<'PY'
 import sys
 from PIL import ImageGrab
 
@@ -365,7 +530,7 @@ image.save(target)
 PY
   fi
 else
-  activate_chat_window "${CHAT}"
+  activate_chat_window "${RESOLVED_CHAT}"
   sleep 0.2
   if [[ -n "${HOVER_X}" ]]; then
     DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" xdotool mousemove --sync "${HOVER_X}" "${HOVER_Y}"
@@ -389,11 +554,13 @@ else
 fi
 
 CMD=(
-  python3
+  "${PYTHON_BIN}"
   "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
   send-image
   --target
-  "${CHAT}"
+  "${RESOLVED_CHAT}"
+  --window-class
+  "${WINDOW_CLASS}"
   --window-mode
   "${WINDOW_MODE}"
   --path
@@ -414,6 +581,9 @@ CMD=(
   "${DISPLAY_VALUE}"
   --xauthority
   "${XAUTHORITY_VALUE}"
+  --no-image-analysis
+  --auto-resolve-target
+  --post-send-force-minimize
 )
 
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
@@ -455,7 +625,7 @@ set +e
 STATUS=${PIPESTATUS[0]}
 set -e
 
-python3 - "${OUTPUT_FILE}" <<'PY'
+"${PYTHON_BIN}" - "${OUTPUT_FILE}" <<'PY'
 import json
 import sys
 

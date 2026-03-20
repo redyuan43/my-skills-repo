@@ -4,10 +4,12 @@ set -euo pipefail
 CHAT=""
 TEXT=""
 PRINT_ONLY=0
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-${HOME}/github/PyWxDump}"
+WINDOW_CLASS="${WECHAT_WINDOW_CLASS:-wechat}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
 WINDOW_MODE="${WECHAT_SEND_WINDOW_MODE:-standalone}"
+PYTHON_BIN="${WECHAT_PYTHON_BIN:-${PYWXDUMP_ROOT}/.venv/bin/python}"
 SEND_STEP_DELAY_MS="${WECHAT_SEND_STEP_DELAY_MS:-220}"
 SEND_PASTE_SETTLE_MS="${WECHAT_SEND_PASTE_SETTLE_MS:-320}"
 POST_SEND_DELAY_MS="${WECHAT_SEND_POST_DELAY_MS:-1800}"
@@ -30,6 +32,7 @@ Usage:
 Options:
   --chat CHAT         WeChat chat title to send to.
   --text TEXT         Text content to send.
+  --window-class CLS  X11 微信窗口 class（默认: wechat）
   --window-mode MODE  Window mode: standalone | main | auto. Default: standalone
   --send-gui-countdown-seconds N
                      Countdown seconds before GUI control. Default: 1
@@ -69,6 +72,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --window-mode)
       WINDOW_MODE="${2:-}"
+      shift 2
+      ;;
+    --window-class)
+      WINDOW_CLASS="${2:-}"
       shift 2
       ;;
     --send-gui-countdown-seconds)
@@ -160,6 +167,30 @@ if ! [[ "${SEND_GUI_NOTIFY_TIMEOUT_MS}" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
+if [[ -z "${WINDOW_CLASS}" ]]; then
+  echo "--window-class is required" >&2
+  exit 2
+fi
+
+if [[ -n "${WECHAT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="${WECHAT_PYTHON_BIN}"
+else
+  PYTHON_BIN="${PYWXDUMP_ROOT}/.venv/bin/python"
+fi
+
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="$(command -v python3 || true)"
+fi
+if [[ -z "${PYTHON_BIN}" || ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="python3"
+fi
+if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+  echo "Python not found" >&2
+  exit 1
+fi
+
+RESOLVED_CHAT="${CHAT}"
+
 if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]] && ! [[ "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" =~ ^[0-9]+$ ]]; then
   echo "--main-window-vision-timeout-seconds must be a non-negative integer" >&2
   exit 2
@@ -176,13 +207,15 @@ if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
 fi
 
 CMD=(
-  python3
+  "${PYTHON_BIN}"
   "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
   send-text
   --target
-  "${CHAT}"
+  "${RESOLVED_CHAT}"
   --window-mode
   "${WINDOW_MODE}"
+  --window-class
+  "${WINDOW_CLASS}"
   --text
   "${TEXT}"
   --post-send-delay-ms
@@ -201,6 +234,8 @@ CMD=(
   "${DISPLAY_VALUE}"
   --xauthority
   "${XAUTHORITY_VALUE}"
+  --auto-resolve-target
+  --post-send-force-minimize
 )
 
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
@@ -231,7 +266,10 @@ if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
   CMD+=(--main-window-vision-disable-thinking)
 fi
 
-echo "Resolved chat: ${CHAT}"
+echo "Resolved chat: ${RESOLVED_CHAT}"
+if [[ "${RESOLVED_CHAT}" == "${CHAT}" ]]; then
+  echo "Original chat query: ${CHAT}"
+fi
 echo "Resolved text length: ${#TEXT}"
 echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
 echo "Resolved window mode: ${WINDOW_MODE}"
@@ -279,7 +317,7 @@ set +e
 STATUS=${PIPESTATUS[0]}
 set -e
 
-python3 - "${OUTPUT_FILE}" <<'PY'
+"${PYTHON_BIN}" - "${OUTPUT_FILE}" <<'PY'
 import json
 import sys
 

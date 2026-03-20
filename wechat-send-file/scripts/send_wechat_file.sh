@@ -8,9 +8,11 @@ PRINT_ONLY=0
 DOCS_ROOT="${HOME}/Documents"
 LEGACY_CONFIG_PATH=""
 LEGACY_APP_ROOT=""
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-${HOME}/github/PyWxDump}"
+WINDOW_CLASS="${WECHAT_WINDOW_CLASS:-wechat}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
+PYTHON_BIN="${WECHAT_PYTHON_BIN:-${PYWXDUMP_ROOT}/.venv/bin/python}"
 WINDOW_MODE="${WECHAT_SEND_WINDOW_MODE:-standalone}"
 SEND_STEP_DELAY_MS="${WECHAT_SEND_STEP_DELAY_MS:-220}"
 SEND_PASTE_SETTLE_MS="${WECHAT_SEND_PASTE_SETTLE_MS:-320}"
@@ -18,6 +20,7 @@ POST_SEND_DELAY_MS="${WECHAT_SEND_POST_DELAY_MS:-1800}"
 SEND_TIMEOUT="${WECHAT_SEND_TIMEOUT:-30}"
 SEND_GUI_COUNTDOWN_SECONDS="${WECHAT_SEND_GUI_COUNTDOWN_SECONDS:-1}"
 SEND_GUI_NOTIFY_TIMEOUT_MS="${WECHAT_SEND_GUI_NOTIFY_TIMEOUT_MS:-4000}"
+POSITIONALS=()
 MAIN_WINDOW_VISION_BASE_URL="${WECHAT_MAIN_WINDOW_VISION_BASE_URL:-}"
 MAIN_WINDOW_VISION_MODEL="${WECHAT_MAIN_WINDOW_VISION_MODEL:-}"
 MAIN_WINDOW_VISION_API_KEY_ENV="${WECHAT_MAIN_WINDOW_VISION_API_KEY_ENV:-}"
@@ -29,14 +32,18 @@ NO_SEND_GUI_PROMPTS=0
 usage() {
   cat <<'EOF'
 Usage:
+  send_wechat_file.sh CHAT [PATH]
   send_wechat_file.sh --chat CHAT [--path FILE]
   send_wechat_file.sh --chat CHAT [--allow-jpeg] [--print-only]
 
 Options:
+  CHAT                Chat title (positional shorthand for --chat).
+  PATH                Absolute path of a local file (positional shorthand for --path).
   --chat CHAT         WeChat chat title to send to.
   --path FILE         Absolute path of a local file to send.
   --allow-jpeg        Allow jpg/jpeg when auto-picking from Documents.
   --documents-root D  Override the search root. Default: ~/Documents
+  --window-class CLS  X11 微信窗口 class（默认: wechat）
   --window-mode MODE  Window mode: standalone | main | auto. Default: standalone
   --send-gui-countdown-seconds N
                      Countdown seconds before GUI control. Default: 1
@@ -79,6 +86,10 @@ while [[ $# -gt 0 ]]; do
     --allow-jpeg)
       ALLOW_JPEG=1
       shift
+      ;;
+    --window-class)
+      WINDOW_CLASS="${2:-}"
+      shift 2
       ;;
     --documents-root)
       DOCS_ROOT="${2:-}"
@@ -153,12 +164,30 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     *)
-      echo "Unknown argument: $1" >&2
-      usage >&2
-      exit 2
+      if [[ "$1" == --* ]]; then
+        echo "Unknown argument: $1" >&2
+        usage >&2
+        exit 2
+      fi
+      POSITIONALS+=("$1")
+      shift
       ;;
   esac
 done
+
+if [[ -z "${CHAT}" && ${#POSITIONALS[@]} -ge 1 ]]; then
+  CHAT="${POSITIONALS[0]}"
+fi
+
+if [[ -z "${FILE_PATH}" && ${#POSITIONALS[@]} -ge 2 ]]; then
+  FILE_PATH="${POSITIONALS[1]}"
+fi
+
+if [[ ${#POSITIONALS[@]} -gt 2 ]]; then
+  echo "Too many positional arguments" >&2
+  usage >&2
+  exit 2
+fi
 
 if [[ -z "${CHAT}" ]]; then
   echo "--chat is required" >&2
@@ -179,6 +208,30 @@ if ! [[ "${SEND_GUI_NOTIFY_TIMEOUT_MS}" =~ ^[0-9]+$ ]]; then
   echo "--send-gui-notify-timeout-ms must be a non-negative integer" >&2
   exit 2
 fi
+
+if [[ -z "${WINDOW_CLASS}" ]]; then
+  echo "--window-class is required" >&2
+  exit 2
+fi
+
+if [[ -n "${WECHAT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="${WECHAT_PYTHON_BIN}"
+elif [[ -z "${WECHAT_PYTHON_BIN:-}" ]]; then
+  PYTHON_BIN="${PYWXDUMP_ROOT}/.venv/bin/python"
+fi
+
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="$(command -v python3 || true)"
+fi
+if [[ -z "${PYTHON_BIN}" || ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="python3"
+fi
+if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+  echo "Python not found" >&2
+  exit 1
+fi
+
+RESOLVED_CHAT="${CHAT}"
 
 if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]] && ! [[ "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" =~ ^[0-9]+$ ]]; then
   echo "--main-window-vision-timeout-seconds must be a non-negative integer" >&2
@@ -234,13 +287,15 @@ if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
 fi
 
 CMD=(
-  python3
+  "${PYTHON_BIN}"
   "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
   send-file
   --target
-  "${CHAT}"
+  "${RESOLVED_CHAT}"
   --window-mode
   "${WINDOW_MODE}"
+  --window-class
+  "${WINDOW_CLASS}"
   --path
   "${FILE_PATH}"
   --post-send-delay-ms
@@ -255,10 +310,14 @@ CMD=(
   "${SEND_GUI_COUNTDOWN_SECONDS}"
   --send-gui-notify-timeout-ms
   "${SEND_GUI_NOTIFY_TIMEOUT_MS}"
+  --allow-missing-msg-table
   --display
   "${DISPLAY_VALUE}"
   --xauthority
   "${XAUTHORITY_VALUE}"
+  --no-image-analysis
+  --auto-resolve-target
+  --post-send-force-minimize
 )
 
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
@@ -289,7 +348,10 @@ if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
   CMD+=(--main-window-vision-disable-thinking)
 fi
 
-echo "Resolved chat: ${CHAT}"
+echo "Resolved chat: ${RESOLVED_CHAT}"
+if [[ "${RESOLVED_CHAT}" == "${CHAT}" ]]; then
+  echo "Original chat query: ${CHAT}"
+fi
 echo "Resolved file: ${FILE_PATH}"
 echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
 echo "Resolved window mode: ${WINDOW_MODE}"
@@ -343,7 +405,7 @@ set +e
 STATUS=${PIPESTATUS[0]}
 set -e
 
-python3 - "${OUTPUT_FILE}" <<'PY'
+"${PYTHON_BIN}" - "${OUTPUT_FILE}" <<'PY'
 import json
 import sys
 

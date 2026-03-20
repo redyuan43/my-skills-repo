@@ -9,7 +9,7 @@ PRINT_ONLY=0
 SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-${HOME}/github/PyWxDump}"
 OLLAMA_URL="${WECHAT_VISION_BASE_URL:-http://127.0.0.1:1234}"
 VISION_MODEL="${WECHAT_VISION_MODEL:-qwen/qwen3.5-35b-a3b}"
 VISION_API_KEY_ENV="${WECHAT_VISION_API_KEY_ENV:-OPENAI_API_KEY}"
@@ -144,10 +144,14 @@ if [[ "${PRINT_ONLY}" -eq 1 ]]; then
     "${PYWXDUMP_ROOT}" "${CHAT}" "${HOVER_X}" "${HOVER_Y}" "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}"
   printf 'Resolved send image:'
   printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode standalone --path "<captured-png>" --post-send-delay-ms 1800 --send-timeout 30 --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  printf ' %q' --auto-resolve-target
+  printf ' %q' --post-send-force-minimize
   printf '\n'
   printf 'Resolved diagnose: python3 <inline> %q %q %q %q %q\n' "${PYWXDUMP_ROOT}" "${OLLAMA_URL}" "${VISION_MODEL}" "${VISION_API_KEY_ENV}" "<captured-png>"
   printf 'Resolved send text:'
   printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-text --target "${CHAT}" --window-mode standalone --text "<diagnosis-md>" --post-send-delay-ms 1200 --send-timeout 30 --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  printf ' %q' --auto-resolve-target
+  printf ' %q' --post-send-force-minimize
   printf '\n'
   exit 0
 fi
@@ -199,6 +203,8 @@ python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
   --path "${captured_png}" \
   --post-send-delay-ms 1800 \
   --send-timeout 30 \
+  --auto-resolve-target \
+  --post-send-force-minimize \
   --display "${DISPLAY_VALUE}" \
   --xauthority "${XAUTHORITY_VALUE}"
 
@@ -310,6 +316,8 @@ python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
   --text "${diagnosis_md}" \
   --post-send-delay-ms 1200 \
   --send-timeout 30 \
+  --auto-resolve-target \
+  --post-send-force-minimize \
   --display "${DISPLAY_VALUE}" \
   --xauthority "${XAUTHORITY_VALUE}"
 
