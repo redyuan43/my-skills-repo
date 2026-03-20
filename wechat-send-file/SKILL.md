@@ -7,7 +7,7 @@ description: Send a local file to a specified WeChat chat or group on Ubuntu X11
 
 ## Overview
 
-Use `scripts/send_wechat_file.sh` to send a local file through `PyWxDump tools/linux_wx_chat_daemon.py send-file`. Prefer an explicit file path when the user gives one; otherwise, auto-pick from `~/Documents`, excluding JPEG files unless the user explicitly allows them. The wrapper now supports both `standalone` and `main` window modes, exposes GUI prompt timing, and prints the final `restore_action`.
+Use `scripts/send_wechat_file.sh` to send a local file through `PyWxDump tools/linux_wx_chat_daemon.py send-file`. Prefer an explicit file path when the user gives one; otherwise, auto-pick from `~/Documents`, excluding JPEG files unless the user explicitly allows them. The wrapper now supports both `standalone` and `main` window modes, auto-resolves the local `PyWxDump` clone, exposes GUI prompt timing, prints the final `restore_action`, and by default force-minimizes the chat window after sending.
 
 When `--window-mode main` is used for a target that has not been warmed before, the underlying `PyWxDump` flow may need a vision model to click the correct search result row. In practice, `qwen3.5-plus` is the stable choice for this step. If you use 阿里云 Coding Plan, prefer the native Anthropic-compatible endpoint `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1`. Do not assume `qwen3-coder-plus` is reliable for main-window search-result selection.
 
@@ -18,8 +18,9 @@ When `--window-mode main` is used for a target that has not been warmed before, 
 3. If the user only said “随便找个文件”, let the script auto-pick from `~/Documents`.
 4. Exclude `jpg/jpeg` by default. Only include them when the user explicitly allows JPEG.
 5. Choose `--window-mode standalone|main|auto` depending on whether the chat is already open as an independent window.
-6. Run the send script. The wrapper delegates to `PyWxDump tools/linux_wx_chat_daemon.py send-file`.
-7. Read the final JSON and the extra wrapper summary line to inspect `post_send_check`, `matched_local_id`, and `restore_action`.
+6. By default the wrapper force-minimizes the chat window after sending; if needed, add `--post-send-minimize` or `--post-send-force-minimize` explicitly for clarity.
+7. Run the send script. The wrapper delegates to `PyWxDump tools/linux_wx_chat_daemon.py send-file`.
+8. Read the final JSON and the extra wrapper summary line to inspect `post_send_check`, `matched_local_id`, and `restore_action`.
 
 ## Quick Use
 
@@ -75,9 +76,18 @@ skills/wechat-send-file/scripts/send_wechat_file.sh \
   --print-only
 ```
 
+Explicitly force-minimize the chat window after sending:
+
+```bash
+skills/wechat-send-file/scripts/send_wechat_file.sh \
+  --chat "新技术讨论" \
+  --path /home/ivan/Documents/demo.txt \
+  --post-send-force-minimize
+```
+
 ## Constraints
 
-- This skill assumes Ubuntu X11 and a local `PyWxDump` clone under `/home/ivan/github/PyWxDump` unless `--pywxdump-root` overrides it.
+- This skill assumes Ubuntu X11. By default the wrapper auto-resolves the local `PyWxDump` clone; use `--pywxdump-root` to override it when needed.
 - `--window-mode standalone` requires the target chat to already be open as an independent WeChat window.
 - `--window-mode main` relies on WeChat main-window search and post-send database verification.
 - For `--window-mode main`, the first successful send to a target warms that target. Later sends can reuse the lighter `warm_search_enter_refocus` path.
@@ -85,7 +95,9 @@ skills/wechat-send-file/scripts/send_wechat_file.sh \
 - For `--window-mode main` with Coding Plan, prefer `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1` instead of the older OpenAI-compatible `/v1` endpoint.
 - The underlying CLI now supports `--main-window-vision-timeout-seconds`, `--main-window-vision-thinking-budget-tokens`, and `--main-window-vision-disable-thinking`.
 - JPEG is excluded by default because the current workflow often needs “send anything except JPEG”.
-- The wrapper surfaces `restore_action`, but the actual restore behavior is still determined by the underlying `PyWxDump` send pipeline.
+- By default the wrapper enables `--post-send-force-minimize`, so the send target window is minimized after a successful send instead of restoring focus.
+- `--post-send-minimize` minimizes the target window only when there is no previous window to restore.
+- `--post-send-force-minimize` always minimizes the target window after sending and takes priority over restore behavior.
 
 ## Selftest
 

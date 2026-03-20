@@ -11,7 +11,7 @@ SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 SEND_SCRIPT="${WECHAT_SEND_FILE_SCRIPT:-${SKILLS_ROOT}/wechat-send-file/scripts/send_wechat_file.sh}"
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-}"
 SEND_CONFIG="${WECHAT_SEND_CONFIG:-}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
@@ -29,9 +29,48 @@ MAIN_WINDOW_VISION_TIMEOUT_SECONDS="${WECHAT_MAIN_WINDOW_VISION_TIMEOUT_SECONDS:
 MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS="${WECHAT_MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS:-}"
 MAIN_WINDOW_VISION_DISABLE_THINKING=0
 NO_SEND_GUI_PROMPTS=0
+POST_SEND_MINIMIZE=0
+POST_SEND_FORCE_MINIMIZE=1
+PYTHON_BIN=""
+
+resolve_pywxdump_root() {
+  local candidates=()
+  local candidate=""
+
+  if [[ -n "${PYWXDUMP_ROOT}" ]]; then
+    candidates+=("${PYWXDUMP_ROOT}")
+  fi
+  if [[ -n "${PWD:-}" ]]; then
+    candidates+=("${PWD}")
+  fi
+  candidates+=("${HOME}/github/PyWxDump")
+  candidates+=("${HOME}/PyWxDump")
+  candidates+=("/home/ivan/github/PyWxDump")
+
+  for candidate in "${candidates[@]}"; do
+    [[ -n "${candidate}" ]] || continue
+    if [[ -f "${candidate}/tools/linux_wx_chat_daemon.py" ]]; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+resolve_python_bin() {
+  if [[ -x "${PYWXDUMP_ROOT}/.venv/bin/python" ]]; then
+    printf '%s\n' "${PYWXDUMP_ROOT}/.venv/bin/python"
+    return 0
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    command -v python3
+    return 0
+  fi
+  return 1
+}
 
 latest_png() {
-  python3 - "$1" <<'PY'
+  "${PYTHON_BIN}" - "$1" <<'PY'
 import os
 import sys
 
@@ -95,6 +134,10 @@ Options:
                      Disable thinking for main-window vision requests.
   --no-send-gui-prompts
                      Disable GUI countdown/result prompts.
+  --post-send-minimize
+                     Minimize the target window after send if there is no window to restore.
+  --post-send-force-minimize
+                     Always minimize the target window after send instead of restoring focus. Default: enabled
   --send-script PATH  Override the downstream send script.
   --send-config PATH  Pass a config file to the downstream send script.
   --pywxdump-root D   Override the local PyWxDump project path for image send.
@@ -165,6 +208,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-send-gui-prompts)
       NO_SEND_GUI_PROMPTS=1
+      shift
+      ;;
+    --post-send-minimize)
+      POST_SEND_MINIMIZE=1
+      shift
+      ;;
+    --post-send-force-minimize)
+      POST_SEND_FORCE_MINIMIZE=1
       shift
       ;;
     --send-script)
@@ -267,9 +318,120 @@ mkdir -p "${SCREENSHOT_DIR}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 SHOT_PATH="${SCREENSHOT_DIR}/desktop-${STAMP}.png"
 
+if [[ "${PRINT_ONLY}" -eq 1 ]]; then
+  PYWXDUMP_ROOT="$(resolve_pywxdump_root)" || {
+    echo "PyWxDump not found. Use --pywxdump-root to override." >&2
+    exit 1
+  }
+  PYTHON_BIN="$(resolve_python_bin)" || {
+    echo "python3 not found, and repo-local .venv python is unavailable: ${PYWXDUMP_ROOT}" >&2
+    exit 1
+  }
+  echo "Resolved chat: ${CHAT}"
+  echo "Resolved screenshot: ${SHOT_PATH}"
+  echo "Resolved mode: ${CAPTURE_MODE}"
+  echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
+  echo "Resolved python: ${PYTHON_BIN}"
+  echo "Resolved window mode: ${WINDOW_MODE}"
+  if [[ -n "${HOVER_X}" ]]; then
+    echo "Resolved hover point: ${HOVER_X},${HOVER_Y}"
+  fi
+  if [[ -n "${SEND_CONFIG}" ]]; then
+    echo "Resolved send config: ${SEND_CONFIG}"
+  fi
+  echo "Resolved display: ${DISPLAY_VALUE}"
+  echo "Resolved xauthority: ${XAUTHORITY_VALUE}"
+  echo "Resolved GUI countdown seconds: ${SEND_GUI_COUNTDOWN_SECONDS}"
+  echo "Resolved GUI notify timeout ms: ${SEND_GUI_NOTIFY_TIMEOUT_MS}"
+  if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
+    echo "Resolved main-window vision base URL: ${MAIN_WINDOW_VISION_BASE_URL}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_MODEL}" ]]; then
+    echo "Resolved main-window vision model: ${MAIN_WINDOW_VISION_MODEL}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_API_KEY_ENV}" ]]; then
+    echo "Resolved main-window vision API key env: ${MAIN_WINDOW_VISION_API_KEY_ENV}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]]; then
+    echo "Resolved main-window vision timeout seconds: ${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]]; then
+    echo "Resolved main-window vision thinking budget tokens: ${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}"
+  fi
+  if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
+    echo "Resolved main-window vision thinking: disabled"
+  fi
+  if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
+    echo "Resolved GUI prompts: disabled"
+  fi
+  if [[ "${POST_SEND_MINIMIZE}" -eq 1 ]]; then
+    echo "Resolved post send minimize: enabled"
+  fi
+  if [[ "${POST_SEND_FORCE_MINIMIZE}" -eq 1 ]]; then
+    echo "Resolved post send force minimize: enabled"
+  fi
+  if [[ "${CAPTURE_MODE}" == "desktop" ]]; then
+    printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q gnome-screenshot -f %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SHOT_PATH}"
+  else
+    if [[ -n "${HOVER_X}" ]]; then
+      printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q xdotool mousemove --sync %q %q ; xdotool key --clearmodifiers shift+ctrl+super+s ; wait for new PNG under %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${HOVER_X}" "${HOVER_Y}" "${SCREENSHOT_DIR}"
+    else
+      printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q xdotool key --clearmodifiers shift+ctrl+super+s ; wait for new PNG under %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}"
+    fi
+  fi
+  printf 'Resolved send:'
+  printf ' %q' "${PYTHON_BIN}" "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode "${WINDOW_MODE}" --path "${SHOT_PATH}" --post-send-delay-ms "${POST_SEND_DELAY_MS}" --send-timeout "${SEND_TIMEOUT}" --send-step-delay-ms "${SEND_STEP_DELAY_MS}" --send-paste-settle-ms "${SEND_PASTE_SETTLE_MS}" --send-gui-countdown-seconds "${SEND_GUI_COUNTDOWN_SECONDS}" --send-gui-notify-timeout-ms "${SEND_GUI_NOTIFY_TIMEOUT_MS}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
+    printf ' %q %q' --main-window-vision-base-url "${MAIN_WINDOW_VISION_BASE_URL}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_MODEL}" ]]; then
+    printf ' %q %q' --main-window-vision-model "${MAIN_WINDOW_VISION_MODEL}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_API_KEY_ENV}" ]]; then
+    printf ' %q %q' --main-window-vision-api-key-env "${MAIN_WINDOW_VISION_API_KEY_ENV}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]]; then
+    printf ' %q %q' --main-window-vision-timeout-seconds "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]]; then
+    printf ' %q %q' --main-window-vision-thinking-budget-tokens "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}"
+  fi
+  if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
+    printf ' %q' --main-window-vision-disable-thinking
+  fi
+  if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
+    printf ' %q' --no-send-gui-prompts
+  fi
+  if [[ "${POST_SEND_MINIMIZE}" -eq 1 ]]; then
+    printf ' %q' --post-send-minimize
+  fi
+  if [[ "${POST_SEND_FORCE_MINIMIZE}" -eq 1 ]]; then
+    printf ' %q' --post-send-force-minimize
+  fi
+  printf '\n'
+  exit 0
+fi
+
+PYWXDUMP_ROOT="$(resolve_pywxdump_root)" || {
+  echo "PyWxDump not found. Use --pywxdump-root to override." >&2
+  exit 1
+}
+
+PYTHON_BIN="$(resolve_python_bin)" || {
+  echo "python3 not found, and repo-local .venv python is unavailable: ${PYWXDUMP_ROOT}" >&2
+  exit 1
+}
+
+if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
+  echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
+  exit 1
+fi
+
 echo "Resolved chat: ${CHAT}"
 echo "Resolved screenshot: ${SHOT_PATH}"
 echo "Resolved mode: ${CAPTURE_MODE}"
+echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
+echo "Resolved python: ${PYTHON_BIN}"
 echo "Resolved window mode: ${WINDOW_MODE}"
 if [[ -n "${HOVER_X}" ]]; then
   echo "Resolved hover point: ${HOVER_X},${HOVER_Y}"
@@ -302,47 +464,11 @@ fi
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   echo "Resolved GUI prompts: disabled"
 fi
-
-if [[ "${PRINT_ONLY}" -eq 1 ]]; then
-  if [[ "${CAPTURE_MODE}" == "desktop" ]]; then
-    printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q gnome-screenshot -f %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SHOT_PATH}"
-  else
-    if [[ -n "${HOVER_X}" ]]; then
-      printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q xdotool mousemove --sync %q %q ; xdotool key --clearmodifiers shift+ctrl+super+s ; wait for new PNG under %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${HOVER_X}" "${HOVER_Y}" "${SCREENSHOT_DIR}"
-    else
-      printf 'Resolved capture: DISPLAY=%q XAUTHORITY=%q xdotool key --clearmodifiers shift+ctrl+super+s ; wait for new PNG under %q\n' "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}"
-    fi
-  fi
-  printf 'Resolved send:'
-  printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode "${WINDOW_MODE}" --path "${SHOT_PATH}" --post-send-delay-ms "${POST_SEND_DELAY_MS}" --send-timeout "${SEND_TIMEOUT}" --send-step-delay-ms "${SEND_STEP_DELAY_MS}" --send-paste-settle-ms "${SEND_PASTE_SETTLE_MS}" --send-gui-countdown-seconds "${SEND_GUI_COUNTDOWN_SECONDS}" --send-gui-notify-timeout-ms "${SEND_GUI_NOTIFY_TIMEOUT_MS}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
-  if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
-    printf ' %q %q' --main-window-vision-base-url "${MAIN_WINDOW_VISION_BASE_URL}"
-  fi
-  if [[ -n "${MAIN_WINDOW_VISION_MODEL}" ]]; then
-    printf ' %q %q' --main-window-vision-model "${MAIN_WINDOW_VISION_MODEL}"
-  fi
-  if [[ -n "${MAIN_WINDOW_VISION_API_KEY_ENV}" ]]; then
-    printf ' %q %q' --main-window-vision-api-key-env "${MAIN_WINDOW_VISION_API_KEY_ENV}"
-  fi
-  if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]]; then
-    printf ' %q %q' --main-window-vision-timeout-seconds "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}"
-  fi
-  if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]]; then
-    printf ' %q %q' --main-window-vision-thinking-budget-tokens "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}"
-  fi
-  if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
-    printf ' %q' --main-window-vision-disable-thinking
-  fi
-  if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
-    printf ' %q' --no-send-gui-prompts
-  fi
-  printf '\n'
-  exit 0
+if [[ "${POST_SEND_MINIMIZE}" -eq 1 ]]; then
+  echo "Resolved post send minimize: enabled"
 fi
-
-if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
-  echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
-  exit 1
+if [[ "${POST_SEND_FORCE_MINIMIZE}" -eq 1 ]]; then
+  echo "Resolved post send force minimize: enabled"
 fi
 
 if [[ "${DELAY_SECONDS}" -gt 0 ]]; then
@@ -355,7 +481,7 @@ if [[ "${CAPTURE_MODE}" == "desktop" ]]; then
   if command -v gnome-screenshot >/dev/null 2>&1; then
     DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" gnome-screenshot -f "${SHOT_PATH}"
   else
-    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" python3 - "${SHOT_PATH}" <<'PY'
+    DISPLAY="${DISPLAY_VALUE}" XAUTHORITY="${XAUTHORITY_VALUE}" "${PYTHON_BIN}" - "${SHOT_PATH}" <<'PY'
 import sys
 from PIL import ImageGrab
 
@@ -389,7 +515,7 @@ else
 fi
 
 CMD=(
-  python3
+  "${PYTHON_BIN}"
   "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
   send-image
   --target
@@ -418,6 +544,14 @@ CMD=(
 
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   CMD+=(--no-send-gui-prompts)
+fi
+
+if [[ "${POST_SEND_MINIMIZE}" -eq 1 ]]; then
+  CMD+=(--post-send-minimize)
+fi
+
+if [[ "${POST_SEND_FORCE_MINIMIZE}" -eq 1 ]]; then
+  CMD+=(--post-send-force-minimize)
 fi
 
 if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
@@ -455,7 +589,7 @@ set +e
 STATUS=${PIPESTATUS[0]}
 set -e
 
-python3 - "${OUTPUT_FILE}" <<'PY'
+"${PYTHON_BIN}" - "${OUTPUT_FILE}" <<'PY'
 import json
 import sys
 

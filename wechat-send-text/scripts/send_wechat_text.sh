@@ -22,7 +22,7 @@ MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS="${WECHAT_MAIN_WINDOW_VISION_THINKING_
 MAIN_WINDOW_VISION_DISABLE_THINKING=0
 NO_SEND_GUI_PROMPTS=0
 POST_SEND_MINIMIZE=0
-POST_SEND_FORCE_MINIMIZE=0
+POST_SEND_FORCE_MINIMIZE=1
 PYTHON_BIN=""
 DB_DIR_VALUE=""
 
@@ -135,7 +135,7 @@ Options:
   --post-send-minimize
                      Minimize the target window after send if there is no window to restore.
   --post-send-force-minimize
-                     Always minimize the target window after send instead of restoring focus.
+                     Always minimize the target window after send instead of restoring focus. Default: enabled
   --pywxdump-root P   Override the local PyWxDump project path.
   --display VALUE     Override the X11 DISPLAY used for sending.
   --xauthority PATH   Override the XAUTHORITY used for sending.

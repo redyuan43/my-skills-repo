@@ -9,11 +9,48 @@ PRINT_ONLY=0
 SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-}"
 OLLAMA_URL="${WECHAT_VISION_BASE_URL:-http://127.0.0.1:1234}"
 VISION_MODEL="${WECHAT_VISION_MODEL:-qwen/qwen3.5-35b-a3b}"
 VISION_API_KEY_ENV="${WECHAT_VISION_API_KEY_ENV:-OPENAI_API_KEY}"
 NOTE=""
+PYTHON_BIN=""
+
+resolve_pywxdump_root() {
+  local candidates=()
+  local candidate=""
+
+  if [[ -n "${PYWXDUMP_ROOT}" ]]; then
+    candidates+=("${PYWXDUMP_ROOT}")
+  fi
+  if [[ -n "${PWD:-}" ]]; then
+    candidates+=("${PWD}")
+  fi
+  candidates+=("${HOME}/github/PyWxDump")
+  candidates+=("${HOME}/PyWxDump")
+  candidates+=("/home/ivan/github/PyWxDump")
+
+  for candidate in "${candidates[@]}"; do
+    [[ -n "${candidate}" ]] || continue
+    if [[ -f "${candidate}/tools/linux_wx_chat_daemon.py" ]]; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+resolve_python_bin() {
+  if [[ -x "${PYWXDUMP_ROOT}/.venv/bin/python" ]]; then
+    printf '%s\n' "${PYWXDUMP_ROOT}/.venv/bin/python"
+    return 0
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    command -v python3
+    return 0
+  fi
+  return 1
+}
 
 activate_chat_window() {
   local title="$1"
@@ -132,22 +169,29 @@ if ! [[ "${DELAY_SECONDS}" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
-if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
-  echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
+PYWXDUMP_ROOT="$(resolve_pywxdump_root)" || {
+  echo "PyWxDump not found. Use --pywxdump-root to override." >&2
   exit 1
-fi
+}
+
+PYTHON_BIN="$(resolve_python_bin)" || {
+  echo "python3 not found, and repo-local .venv python is unavailable: ${PYWXDUMP_ROOT}" >&2
+  exit 1
+}
 
 mkdir -p "${SCREENSHOT_DIR}"
 
 if [[ "${PRINT_ONLY}" -eq 1 ]]; then
+  echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
+  echo "Resolved python: ${PYTHON_BIN}"
   printf 'Resolved capture: python3 <inline> %q %q %q %q %q %q -> crop target control ROI under %q\n' \
     "${PYWXDUMP_ROOT}" "${CHAT}" "${HOVER_X}" "${HOVER_Y}" "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}"
   printf 'Resolved send image:'
-  printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode standalone --path "<captured-png>" --post-send-delay-ms 1800 --send-timeout 30 --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  printf ' %q' "${PYTHON_BIN}" "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode standalone --path "<captured-png>" --post-send-delay-ms 1800 --send-timeout 30 --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
   printf '\n'
   printf 'Resolved diagnose: python3 <inline> %q %q %q %q %q\n' "${PYWXDUMP_ROOT}" "${OLLAMA_URL}" "${VISION_MODEL}" "${VISION_API_KEY_ENV}" "<captured-png>"
   printf 'Resolved send text:'
-  printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-text --target "${CHAT}" --window-mode standalone --text "<diagnosis-md>" --post-send-delay-ms 1200 --send-timeout 30 --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  printf ' %q' "${PYTHON_BIN}" "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-text --target "${CHAT}" --window-mode standalone --text "<diagnosis-md>" --post-send-delay-ms 1200 --send-timeout 30 --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
   printf '\n'
   exit 0
 fi
@@ -159,7 +203,7 @@ fi
 activate_chat_window "${CHAT}"
 sleep 0.2
 captured_png="$(
-  python3 - "${PYWXDUMP_ROOT}" "${CHAT}" "${HOVER_X}" "${HOVER_Y}" "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}" <<'PY'
+  "${PYTHON_BIN}" - "${PYWXDUMP_ROOT}" "${CHAT}" "${HOVER_X}" "${HOVER_Y}" "${DISPLAY_VALUE}" "${XAUTHORITY_VALUE}" "${SCREENSHOT_DIR}" <<'PY'
 import os
 import shutil
 import sys
@@ -192,7 +236,7 @@ print(target_path)
 PY
 )"
 
-python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
+"${PYTHON_BIN}" "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
   send-image \
   --target "${CHAT}" \
   --window-mode standalone \
@@ -204,7 +248,7 @@ python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
 
 diagnosis_md=""
 if ! diagnosis_md="$(
-  python3 - "${PYWXDUMP_ROOT}" "${OLLAMA_URL}" "${VISION_MODEL}" "${VISION_API_KEY_ENV}" "${captured_png}" "${NOTE}" <<'PY'
+  "${PYTHON_BIN}" - "${PYWXDUMP_ROOT}" "${OLLAMA_URL}" "${VISION_MODEL}" "${VISION_API_KEY_ENV}" "${captured_png}" "${NOTE}" <<'PY'
 import json
 import os
 import sys
@@ -303,7 +347,7 @@ print("\n".join(parts))
 PY
 )"
 
-python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
+"${PYTHON_BIN}" "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" \
   send-text \
   --target "${CHAT}" \
   --window-mode standalone \
