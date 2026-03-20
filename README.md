@@ -349,6 +349,13 @@
 - `scripts/send_text_with_setup.sh` - 引导脚本，负责定位 PyWxDump、准备 `.venv`、提 key、解密数据库并切到交互式 bash
 - `scripts/send_text_with_setup.py` - 发送执行脚本，负责主界面搜索、视觉验标题、发送文本和数据库回读确认
 
+### 43. sync-latest-skills
+**功能：** 拉取 `my-skills-repo` 最新内容，并把仓库里的顶层技能目录同步到 `~/.codex/skills`
+**用途：** 当需要一键刷新本机技能目录、把仓库更新同步回本地链接，或替换旧版本技能目录时使用
+**文件：**
+- `SKILL.md` - 技能说明文档
+- `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
