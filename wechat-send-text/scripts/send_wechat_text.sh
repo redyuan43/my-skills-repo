@@ -4,9 +4,9 @@ set -euo pipefail
 CHAT=""
 TEXT=""
 PRINT_ONLY=0
-PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
+PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
-XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
+XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-}}"
 WINDOW_MODE="${WECHAT_SEND_WINDOW_MODE:-standalone}"
 SEND_STEP_DELAY_MS="${WECHAT_SEND_STEP_DELAY_MS:-220}"
 SEND_PASTE_SETTLE_MS="${WECHAT_SEND_PASTE_SETTLE_MS:-320}"
@@ -21,6 +21,89 @@ MAIN_WINDOW_VISION_TIMEOUT_SECONDS="${WECHAT_MAIN_WINDOW_VISION_TIMEOUT_SECONDS:
 MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS="${WECHAT_MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS:-}"
 MAIN_WINDOW_VISION_DISABLE_THINKING=0
 NO_SEND_GUI_PROMPTS=0
+POST_SEND_MINIMIZE=0
+POST_SEND_FORCE_MINIMIZE=0
+PYTHON_BIN=""
+DB_DIR_VALUE=""
+
+resolve_pywxdump_root() {
+  local candidates=()
+  local candidate=""
+
+  if [[ -n "${PYWXDUMP_ROOT}" ]]; then
+    candidates+=("${PYWXDUMP_ROOT}")
+  fi
+  if [[ -n "${PWD:-}" ]]; then
+    candidates+=("${PWD}")
+  fi
+  candidates+=("${HOME}/github/PyWxDump")
+  candidates+=("${HOME}/PyWxDump")
+  candidates+=("/home/ivan/github/PyWxDump")
+
+  for candidate in "${candidates[@]}"; do
+    [[ -n "${candidate}" ]] || continue
+    if [[ -f "${candidate}/tools/linux_wx_chat_daemon.py" ]]; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+resolve_python_bin() {
+  if [[ -x "${PYWXDUMP_ROOT}/.venv/bin/python" ]]; then
+    printf '%s\n' "${PYWXDUMP_ROOT}/.venv/bin/python"
+    return 0
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    command -v python3
+    return 0
+  fi
+  return 1
+}
+
+resolve_xauthority() {
+  if [[ -n "${XAUTHORITY_VALUE}" ]]; then
+    printf '%s\n' "${XAUTHORITY_VALUE}"
+    return 0
+  fi
+  if [[ -n "${XAUTHORITY:-}" ]]; then
+    printf '%s\n' "${XAUTHORITY}"
+    return 0
+  fi
+  if [[ -f "${HOME}/.Xauthority" ]]; then
+    printf '%s\n' "${HOME}/.Xauthority"
+    return 0
+  fi
+  printf '%s\n' "/run/user/1000/gdm/Xauthority"
+}
+
+find_latest_db_dir() {
+  local bases=(
+    "${HOME}/Documents/xwechat_files"
+    "${HOME}/xwechat_files"
+  )
+  local best_path=""
+  local best_mtime=""
+  local path=""
+  local mtime=""
+  local base=""
+
+  for base in "${bases[@]}"; do
+    [[ -d "${base}" ]] || continue
+    while IFS= read -r path; do
+      [[ -n "${path}" ]] || continue
+      mtime="$(stat -c '%Y' "${path}" 2>/dev/null || true)"
+      [[ -n "${mtime}" ]] || continue
+      if [[ -z "${best_mtime}" || "${mtime}" -gt "${best_mtime}" ]]; then
+        best_mtime="${mtime}"
+        best_path="${path}"
+      fi
+    done < <(find "${base}" -maxdepth 2 -type d -name db_storage 2>/dev/null)
+  done
+
+  [[ -n "${best_path}" ]] && printf '%s\n' "${best_path}"
+}
 
 usage() {
   cat <<'EOF'
@@ -49,6 +132,10 @@ Options:
                      Disable thinking for main-window vision requests.
   --no-send-gui-prompts
                      Disable GUI countdown/result prompts.
+  --post-send-minimize
+                     Minimize the target window after send if there is no window to restore.
+  --post-send-force-minimize
+                     Always minimize the target window after send instead of restoring focus.
   --pywxdump-root P   Override the local PyWxDump project path.
   --display VALUE     Override the X11 DISPLAY used for sending.
   --xauthority PATH   Override the XAUTHORITY used for sending.
@@ -105,6 +192,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-send-gui-prompts)
       NO_SEND_GUI_PROMPTS=1
+      shift
+      ;;
+    --post-send-minimize)
+      POST_SEND_MINIMIZE=1
+      shift
+      ;;
+    --post-send-force-minimize)
+      POST_SEND_FORCE_MINIMIZE=1
       shift
       ;;
     --pywxdump-root)
@@ -170,13 +265,26 @@ if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]] && ! [[ "${MAIN_WINDO
   exit 2
 fi
 
+PYWXDUMP_ROOT="$(resolve_pywxdump_root)" || {
+  echo "PyWxDump not found. Use --pywxdump-root to override." >&2
+  exit 1
+}
+
+PYTHON_BIN="$(resolve_python_bin)" || {
+  echo "python3 not found, and repo-local .venv python is unavailable: ${PYWXDUMP_ROOT}" >&2
+  exit 1
+}
+
+XAUTHORITY_VALUE="$(resolve_xauthority)"
+DB_DIR_VALUE="$(find_latest_db_dir || true)"
+
 if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
   echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
   exit 1
 fi
 
 CMD=(
-  python3
+  "${PYTHON_BIN}"
   "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
   send-text
   --target
@@ -203,8 +311,23 @@ CMD=(
   "${XAUTHORITY_VALUE}"
 )
 
+if [[ -n "${DB_DIR_VALUE}" ]]; then
+  CMD+=(
+    --db-dir
+    "${DB_DIR_VALUE}"
+  )
+fi
+
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   CMD+=(--no-send-gui-prompts)
+fi
+
+if [[ "${POST_SEND_MINIMIZE}" -eq 1 ]]; then
+  CMD+=(--post-send-minimize)
+fi
+
+if [[ "${POST_SEND_FORCE_MINIMIZE}" -eq 1 ]]; then
+  CMD+=(--post-send-force-minimize)
 fi
 
 if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
@@ -234,9 +357,13 @@ fi
 echo "Resolved chat: ${CHAT}"
 echo "Resolved text length: ${#TEXT}"
 echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
+echo "Resolved python: ${PYTHON_BIN}"
 echo "Resolved window mode: ${WINDOW_MODE}"
 echo "Resolved display: ${DISPLAY_VALUE}"
 echo "Resolved xauthority: ${XAUTHORITY_VALUE}"
+if [[ -n "${DB_DIR_VALUE}" ]]; then
+  echo "Resolved db dir: ${DB_DIR_VALUE}"
+fi
 echo "Resolved GUI countdown seconds: ${SEND_GUI_COUNTDOWN_SECONDS}"
 echo "Resolved GUI notify timeout ms: ${SEND_GUI_NOTIFY_TIMEOUT_MS}"
 if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
@@ -259,6 +386,12 @@ if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
 fi
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   echo "Resolved GUI prompts: disabled"
+fi
+if [[ "${POST_SEND_MINIMIZE}" -eq 1 ]]; then
+  echo "Resolved post send minimize: enabled"
+fi
+if [[ "${POST_SEND_FORCE_MINIMIZE}" -eq 1 ]]; then
+  echo "Resolved post send force minimize: enabled"
 fi
 
 if [[ "${PRINT_ONLY}" -eq 1 ]]; then
