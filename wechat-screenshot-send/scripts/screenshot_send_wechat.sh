@@ -22,6 +22,12 @@ POST_SEND_DELAY_MS="${WECHAT_SEND_POST_DELAY_MS:-1800}"
 SEND_TIMEOUT="${WECHAT_SEND_TIMEOUT:-30}"
 SEND_GUI_COUNTDOWN_SECONDS="${WECHAT_SEND_GUI_COUNTDOWN_SECONDS:-1}"
 SEND_GUI_NOTIFY_TIMEOUT_MS="${WECHAT_SEND_GUI_NOTIFY_TIMEOUT_MS:-4000}"
+MAIN_WINDOW_VISION_BASE_URL="${WECHAT_MAIN_WINDOW_VISION_BASE_URL:-}"
+MAIN_WINDOW_VISION_MODEL="${WECHAT_MAIN_WINDOW_VISION_MODEL:-}"
+MAIN_WINDOW_VISION_API_KEY_ENV="${WECHAT_MAIN_WINDOW_VISION_API_KEY_ENV:-}"
+MAIN_WINDOW_VISION_TIMEOUT_SECONDS="${WECHAT_MAIN_WINDOW_VISION_TIMEOUT_SECONDS:-}"
+MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS="${WECHAT_MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS:-}"
+MAIN_WINDOW_VISION_DISABLE_THINKING=0
 NO_SEND_GUI_PROMPTS=0
 
 latest_png() {
@@ -75,6 +81,18 @@ Options:
                      Countdown seconds before GUI control. Default: 1
   --send-gui-notify-timeout-ms N
                      GUI result prompt timeout in milliseconds. Default: 4000
+  --main-window-vision-base-url URL
+                     Override main-window vision base URL.
+  --main-window-vision-model MODEL
+                     Override main-window vision model.
+  --main-window-vision-api-key-env ENV
+                     Override main-window vision API key env name.
+  --main-window-vision-timeout-seconds N
+                     Override main-window vision timeout in seconds.
+  --main-window-vision-thinking-budget-tokens N
+                     Override main-window vision thinking budget tokens.
+  --main-window-vision-disable-thinking
+                     Disable thinking for main-window vision requests.
   --no-send-gui-prompts
                      Disable GUI countdown/result prompts.
   --send-script PATH  Override the downstream send script.
@@ -120,6 +138,30 @@ while [[ $# -gt 0 ]]; do
     --send-gui-notify-timeout-ms)
       SEND_GUI_NOTIFY_TIMEOUT_MS="${2:-}"
       shift 2
+      ;;
+    --main-window-vision-base-url)
+      MAIN_WINDOW_VISION_BASE_URL="${2:-}"
+      shift 2
+      ;;
+    --main-window-vision-model)
+      MAIN_WINDOW_VISION_MODEL="${2:-}"
+      shift 2
+      ;;
+    --main-window-vision-api-key-env)
+      MAIN_WINDOW_VISION_API_KEY_ENV="${2:-}"
+      shift 2
+      ;;
+    --main-window-vision-timeout-seconds)
+      MAIN_WINDOW_VISION_TIMEOUT_SECONDS="${2:-}"
+      shift 2
+      ;;
+    --main-window-vision-thinking-budget-tokens)
+      MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS="${2:-}"
+      shift 2
+      ;;
+    --main-window-vision-disable-thinking)
+      MAIN_WINDOW_VISION_DISABLE_THINKING=1
+      shift
       ;;
     --no-send-gui-prompts)
       NO_SEND_GUI_PROMPTS=1
@@ -186,6 +228,16 @@ if ! [[ "${SEND_GUI_NOTIFY_TIMEOUT_MS}" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
+if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]] && ! [[ "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" =~ ^[0-9]+$ ]]; then
+  echo "--main-window-vision-timeout-seconds must be a non-negative integer" >&2
+  exit 2
+fi
+
+if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]] && ! [[ "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" =~ ^[0-9]+$ ]]; then
+  echo "--main-window-vision-thinking-budget-tokens must be a non-negative integer" >&2
+  exit 2
+fi
+
 if [[ "${CAPTURE_MODE}" != "desktop" && "${CAPTURE_MODE}" != "ui-window" ]]; then
   echo "--mode must be one of: desktop, ui-window" >&2
   exit 2
@@ -229,6 +281,24 @@ echo "Resolved display: ${DISPLAY_VALUE}"
 echo "Resolved xauthority: ${XAUTHORITY_VALUE}"
 echo "Resolved GUI countdown seconds: ${SEND_GUI_COUNTDOWN_SECONDS}"
 echo "Resolved GUI notify timeout ms: ${SEND_GUI_NOTIFY_TIMEOUT_MS}"
+if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
+  echo "Resolved main-window vision base URL: ${MAIN_WINDOW_VISION_BASE_URL}"
+fi
+if [[ -n "${MAIN_WINDOW_VISION_MODEL}" ]]; then
+  echo "Resolved main-window vision model: ${MAIN_WINDOW_VISION_MODEL}"
+fi
+if [[ -n "${MAIN_WINDOW_VISION_API_KEY_ENV}" ]]; then
+  echo "Resolved main-window vision API key env: ${MAIN_WINDOW_VISION_API_KEY_ENV}"
+fi
+if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]]; then
+  echo "Resolved main-window vision timeout seconds: ${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}"
+fi
+if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]]; then
+  echo "Resolved main-window vision thinking budget tokens: ${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}"
+fi
+if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
+  echo "Resolved main-window vision thinking: disabled"
+fi
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   echo "Resolved GUI prompts: disabled"
 fi
@@ -245,6 +315,24 @@ if [[ "${PRINT_ONLY}" -eq 1 ]]; then
   fi
   printf 'Resolved send:'
   printf ' %q' python3 "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" send-image --target "${CHAT}" --window-mode "${WINDOW_MODE}" --path "${SHOT_PATH}" --post-send-delay-ms "${POST_SEND_DELAY_MS}" --send-timeout "${SEND_TIMEOUT}" --send-step-delay-ms "${SEND_STEP_DELAY_MS}" --send-paste-settle-ms "${SEND_PASTE_SETTLE_MS}" --send-gui-countdown-seconds "${SEND_GUI_COUNTDOWN_SECONDS}" --send-gui-notify-timeout-ms "${SEND_GUI_NOTIFY_TIMEOUT_MS}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}"
+  if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
+    printf ' %q %q' --main-window-vision-base-url "${MAIN_WINDOW_VISION_BASE_URL}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_MODEL}" ]]; then
+    printf ' %q %q' --main-window-vision-model "${MAIN_WINDOW_VISION_MODEL}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_API_KEY_ENV}" ]]; then
+    printf ' %q %q' --main-window-vision-api-key-env "${MAIN_WINDOW_VISION_API_KEY_ENV}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]]; then
+    printf ' %q %q' --main-window-vision-timeout-seconds "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}"
+  fi
+  if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]]; then
+    printf ' %q %q' --main-window-vision-thinking-budget-tokens "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}"
+  fi
+  if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
+    printf ' %q' --main-window-vision-disable-thinking
+  fi
   if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
     printf ' %q' --no-send-gui-prompts
   fi
@@ -330,6 +418,30 @@ CMD=(
 
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   CMD+=(--no-send-gui-prompts)
+fi
+
+if [[ -n "${MAIN_WINDOW_VISION_BASE_URL}" ]]; then
+  CMD+=(--main-window-vision-base-url "${MAIN_WINDOW_VISION_BASE_URL}")
+fi
+
+if [[ -n "${MAIN_WINDOW_VISION_MODEL}" ]]; then
+  CMD+=(--main-window-vision-model "${MAIN_WINDOW_VISION_MODEL}")
+fi
+
+if [[ -n "${MAIN_WINDOW_VISION_API_KEY_ENV}" ]]; then
+  CMD+=(--main-window-vision-api-key-env "${MAIN_WINDOW_VISION_API_KEY_ENV}")
+fi
+
+if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]]; then
+  CMD+=(--main-window-vision-timeout-seconds "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}")
+fi
+
+if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]]; then
+  CMD+=(--main-window-vision-thinking-budget-tokens "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}")
+fi
+
+if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
+  CMD+=(--main-window-vision-disable-thinking)
 fi
 
 OUTPUT_FILE="$(mktemp -t wechat-screenshot-send-output.XXXXXX)"

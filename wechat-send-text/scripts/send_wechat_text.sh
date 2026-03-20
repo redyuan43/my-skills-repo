@@ -2,12 +2,8 @@
 set -euo pipefail
 
 CHAT=""
-FILE_PATH=""
-ALLOW_JPEG=0
+TEXT=""
 PRINT_ONLY=0
-DOCS_ROOT="${HOME}/Documents"
-LEGACY_CONFIG_PATH=""
-LEGACY_APP_ROOT=""
 PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-/home/ivan/github/PyWxDump}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
@@ -29,14 +25,11 @@ NO_SEND_GUI_PROMPTS=0
 usage() {
   cat <<'EOF'
 Usage:
-  send_wechat_file.sh --chat CHAT [--path FILE]
-  send_wechat_file.sh --chat CHAT [--allow-jpeg] [--print-only]
+  send_wechat_text.sh --chat CHAT --text TEXT
 
 Options:
   --chat CHAT         WeChat chat title to send to.
-  --path FILE         Absolute path of a local file to send.
-  --allow-jpeg        Allow jpg/jpeg when auto-picking from Documents.
-  --documents-root D  Override the search root. Default: ~/Documents
+  --text TEXT         Text content to send.
   --window-mode MODE  Window mode: standalone | main | auto. Default: standalone
   --send-gui-countdown-seconds N
                      Countdown seconds before GUI control. Default: 1
@@ -56,8 +49,6 @@ Options:
                      Disable thinking for main-window vision requests.
   --no-send-gui-prompts
                      Disable GUI countdown/result prompts.
-  --config PATH       Legacy compatibility option. Ignored.
-  --app-root PATH     Legacy compatibility option. Ignored.
   --pywxdump-root P   Override the local PyWxDump project path.
   --display VALUE     Override the X11 DISPLAY used for sending.
   --xauthority PATH   Override the XAUTHORITY used for sending.
@@ -72,16 +63,8 @@ while [[ $# -gt 0 ]]; do
       CHAT="${2:-}"
       shift 2
       ;;
-    --path)
-      FILE_PATH="${2:-}"
-      shift 2
-      ;;
-    --allow-jpeg)
-      ALLOW_JPEG=1
-      shift
-      ;;
-    --documents-root)
-      DOCS_ROOT="${2:-}"
+    --text)
+      TEXT="${2:-}"
       shift 2
       ;;
     --window-mode)
@@ -124,14 +107,6 @@ while [[ $# -gt 0 ]]; do
       NO_SEND_GUI_PROMPTS=1
       shift
       ;;
-    --config)
-      LEGACY_CONFIG_PATH="${2:-}"
-      shift 2
-      ;;
-    --app-root)
-      LEGACY_APP_ROOT="${2:-}"
-      shift 2
-      ;;
     --pywxdump-root)
       PYWXDUMP_ROOT="${2:-}"
       shift 2
@@ -165,6 +140,11 @@ if [[ -z "${CHAT}" ]]; then
   exit 2
 fi
 
+if [[ -z "${TEXT}" ]]; then
+  echo "--text is required" >&2
+  exit 2
+fi
+
 if [[ "${WINDOW_MODE}" != "standalone" && "${WINDOW_MODE}" != "main" && "${WINDOW_MODE}" != "auto" ]]; then
   echo "--window-mode must be one of: standalone, main, auto" >&2
   exit 2
@@ -190,44 +170,6 @@ if [[ -n "${MAIN_WINDOW_VISION_THINKING_BUDGET_TOKENS}" ]] && ! [[ "${MAIN_WINDO
   exit 2
 fi
 
-pick_file() {
-  local root="$1"
-  if [[ ! -d "${root}" ]]; then
-    echo "Documents root not found: ${root}" >&2
-    return 1
-  fi
-
-  local find_cmd=(find "${root}" -maxdepth 3 -type f)
-  local selected=""
-
-  if [[ "${ALLOW_JPEG}" -eq 0 ]]; then
-    selected="$("${find_cmd[@]}" \
-      ! -iname '*.jpg' ! -iname '*.jpeg' \
-      | sort \
-      | head -n 1)"
-  fi
-
-  if [[ -z "${selected}" ]]; then
-    selected="$("${find_cmd[@]}" | sort | head -n 1)"
-  fi
-
-  if [[ -z "${selected}" ]]; then
-    echo "No candidate file found under ${root}" >&2
-    return 1
-  fi
-
-  printf '%s\n' "${selected}"
-}
-
-if [[ -z "${FILE_PATH}" ]]; then
-  FILE_PATH="$(pick_file "${DOCS_ROOT}")"
-fi
-
-if [[ ! -f "${FILE_PATH}" ]]; then
-  echo "File not found: ${FILE_PATH}" >&2
-  exit 1
-fi
-
 if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
   echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
   exit 1
@@ -236,13 +178,13 @@ fi
 CMD=(
   python3
   "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py"
-  send-file
+  send-text
   --target
   "${CHAT}"
   --window-mode
   "${WINDOW_MODE}"
-  --path
-  "${FILE_PATH}"
+  --text
+  "${TEXT}"
   --post-send-delay-ms
   "${POST_SEND_DELAY_MS}"
   --send-timeout
@@ -290,7 +232,7 @@ if [[ "${MAIN_WINDOW_VISION_DISABLE_THINKING}" -eq 1 ]]; then
 fi
 
 echo "Resolved chat: ${CHAT}"
-echo "Resolved file: ${FILE_PATH}"
+echo "Resolved text length: ${#TEXT}"
 echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
 echo "Resolved window mode: ${WINDOW_MODE}"
 echo "Resolved display: ${DISPLAY_VALUE}"
@@ -318,12 +260,6 @@ fi
 if [[ "${NO_SEND_GUI_PROMPTS}" -eq 1 ]]; then
   echo "Resolved GUI prompts: disabled"
 fi
-if [[ -n "${LEGACY_CONFIG_PATH}" ]]; then
-  echo "Ignored legacy --config: ${LEGACY_CONFIG_PATH}"
-fi
-if [[ -n "${LEGACY_APP_ROOT}" ]]; then
-  echo "Ignored legacy --app-root: ${LEGACY_APP_ROOT}"
-fi
 
 if [[ "${PRINT_ONLY}" -eq 1 ]]; then
   printf 'Resolved command:'
@@ -332,7 +268,7 @@ if [[ "${PRINT_ONLY}" -eq 1 ]]; then
   exit 0
 fi
 
-OUTPUT_FILE="$(mktemp -t wechat-send-file-output.XXXXXX)"
+OUTPUT_FILE="$(mktemp -t wechat-send-text-output.XXXXXX)"
 cleanup_output() {
   rm -f "${OUTPUT_FILE}"
 }
@@ -348,11 +284,10 @@ import json
 import sys
 
 path = sys.argv[1]
-lines = []
+payload = None
 with open(path, "r", encoding="utf-8") as fp:
     lines = [line.rstrip("\n") for line in fp]
 
-payload = None
 for line in reversed(lines):
     text = line.strip()
     if not text.startswith("{") or not text.endswith("}"):
@@ -367,7 +302,7 @@ if payload is not None:
     restore_action = payload.get("restore_action", "none")
     status = payload.get("status", "")
     matched_local_id = payload.get("matched_local_id")
-    print(f"[skill][wechat-send-file] status={status} restore_action={restore_action} matched_local_id={matched_local_id}")
+    print(f"[skill][wechat-send-text] status={status} restore_action={restore_action} matched_local_id={matched_local_id}")
 PY
 
 exit "${STATUS}"
