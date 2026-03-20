@@ -1,0 +1,4 @@
+.codex/
+.serena/
+__pycache__/
+*.pyc
