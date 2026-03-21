@@ -356,6 +356,13 @@
 - `SKILL.md` - 技能说明文档
 - `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`
 
+
+### 44. gh-browser-chromium-fix
+**功能：** 配置 GitHub CLI 及系统默认 Web 处理器一起打开 Chromium，而不是 Firefox 或不可用的 Snap 浏览器
+**用途：** 当 `gh auth login`、`gh browse` 或 `--web` 链接走错浏览器、需要把 `gh config browser` 和 XDG 默认浏览器一起固定到 Chromium，或想避免 `gh` 继续调用 Firefox 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（`gh` 浏览器路由、系统默认 Web 处理器和失败处理）
+- `scripts/set_gh_browser.sh` - 自动探测 Chromium 并同时写入 `gh config browser` 和 XDG 默认处理器的脚本
 ## 使用方法
 
 1. 克隆此仓库到本地
