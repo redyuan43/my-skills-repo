@@ -356,13 +356,20 @@
 - `SKILL.md` - 技能说明文档
 - `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`
 
-
 ### 44. gh-browser-chromium-fix
 **功能：** 配置 GitHub CLI 及系统默认 Web 处理器一起打开 Chromium，而不是 Firefox 或不可用的 Snap 浏览器
 **用途：** 当 `gh auth login`、`gh browse` 或 `--web` 链接走错浏览器、需要把 `gh config browser` 和 XDG 默认浏览器一起固定到 Chromium，或想避免 `gh` 继续调用 Firefox 时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（`gh` 浏览器路由、系统默认 Web 处理器和失败处理）
 - `scripts/set_gh_browser.sh` - 自动探测 Chromium 并同时写入 `gh config browser` 和 XDG 默认处理器的脚本
+
+### 45. openclaw-wechat-linux-local-launcher
+**功能：** 为 OpenClaw 的本地 `wechat-linux` 调试环境提供配置模板，并指导如何用辅助脚本启动、看日志、查状态和停止 Gateway
+**用途：** 当需要在单机上把 `wechat-linux` 跑起来、先准备 `~/.openclaw/openclaw.json` 和 `~/.openclaw/.env`，再用 `scripts/run-wechat-linux-local.sh` 等脚本做本地 bring-up 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（前置条件、配置编辑、启动顺序和常见排障点）
+- `assets/templates/openclaw.json` - 脱敏版 OpenClaw 本地 `wechat-linux` 配置模板
+- `assets/templates/wechat-linux.env.example` - 脱敏版环境变量模板（API key / Base URL / DISPLAY）
 ## 使用方法
 
 1. 克隆此仓库到本地
