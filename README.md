@@ -370,6 +370,13 @@
 - `SKILL.md` - 技能说明文档（前置条件、配置编辑、启动顺序和常见排障点）
 - `assets/templates/openclaw.json` - 脱敏版 OpenClaw 本地 `wechat-linux` 配置模板
 - `assets/templates/wechat-linux.env.example` - 脱敏版环境变量模板（API key / Base URL / DISPLAY）
+
+### 46. dual-mi-barge-in-replay-lab
+**功能：** 用两台 `MI Speakphone` 做自动化 `barge-in` 真实回放实验，让 `speaker1` 播放助手语音、`speaker2` 外放模拟插话、`mic1` 负责检测与识别，并输出可定位问题的实验工件
+**用途：** 当需要定位“实时语音打断不灵敏”“AEC 把外部插话也消掉了”“流式 partial 比 batch 更差”“双设备自动化回放测试怎么搭”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用场景、默认拓扑、推荐参数与实验工作流）
+- `references/runbook.md` - 双 `MI` 自动化回放的经验总结、关键误区、判据和默认策略说明
 ## 使用方法
 
 1. 克隆此仓库到本地
