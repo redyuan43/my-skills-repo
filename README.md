@@ -392,6 +392,14 @@
 - `assets/xstartup` - `TigerVNC` 会话入口模板
 - `assets/xfce4-session.xml` - 精简 `XFCE` failsafe session 模板
 - `assets/autostart/*.desktop` - 关闭 `xfce4-screensaver`、`xiccd`、`tracker`、`nm-applet` 等自启动项的覆盖模板
+
+### 48. vnc-xfce-recovery-kit
+**功能：** 把坏掉的 `TigerVNC + XFCE` 桌面一键恢复到完整可用状态，并提供可扩展的启动 hook 机制
+**用途：** 当用户说“VNC 服务端能连但桌面体验坏了”“想重装 XFCE 并恢复标准桌面”“Chromium 打不开但我默认就要 Chromium”“希望把这套恢复流程固化成以后还能重复跑的脚本”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用场景、最短使用方式、可扩展 hook 约定）
+- `references/runbook.md` - 恢复后的目标状态、为什么保留 `-extension SELinux`、以及后续扩展建议
+- `scripts/recover_vnc_xfce.sh` - 一键恢复脚本：重装 `dbus/selinux-policy-default/XFCE`、备份并重置用户配置、恢复标准 `xstartup`、刷新 `vncserver-headless.service`、固定默认终端和浏览器、重建 `:1` 桌面
 ## 使用方法
 
 1. 克隆此仓库到本地
