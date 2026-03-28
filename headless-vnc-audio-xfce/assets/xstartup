@@ -1,0 +1,12 @@
+#!/bin/sh
+
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+
+export XDG_SESSION_DESKTOP=xfce
+export XDG_CURRENT_DESKTOP=XFCE
+export DESKTOP_SESSION=xfce
+
+"$HOME/.local/bin/vnc-session-poststart.sh" >"$HOME/.vnc/poststart.log" 2>&1 &
+
+exec startxfce4

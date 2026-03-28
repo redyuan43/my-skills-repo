@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Print Applet
+Exec=system-config-printer-applet
+Hidden=true
+X-GNOME-Autostart-enabled=false

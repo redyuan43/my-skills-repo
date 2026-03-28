@@ -377,6 +377,21 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（适用场景、默认拓扑、推荐参数与实验工作流）
 - `references/runbook.md` - 双 `MI` 自动化回放的经验总结、关键误区、判据和默认策略说明
+
+### 47. headless-vnc-audio-xfce
+**功能：** 在无显示器 Ubuntu/Linux 上部署固定会话 `TigerVNC + XFCE + PulseAudio TCP`，同时覆盖服务端安装、客户端音频接入、黑屏排障和内存优化经验
+**用途：** 当机器只通过 VNC 访问 GUI、需要让客户端听到远端音视频声音、重启后遇到“端口通但黑屏”、或想继续压 `XFCE` 内存占用时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（架构、标准工作流、常见坑和优化优先级）
+- `references/runbook.md` - 已验证过的经验总结，含黑屏、音频、协议误用和内存口径说明
+- `scripts/vnc_audio_server_setup.sh` - 服务端创建 `vnc_audio` sink 并暴露 `PulseAudio TCP`
+- `scripts/vnc_audio_status.sh` - 服务端音频状态检查脚本
+- `scripts/vnc_audio_client_attach.sh` - Linux 客户端用 `parec | pacat` 挂接远端音频
+- `scripts/vnc_session_poststart.sh` - VNC 会话启动后关闭 `xfce4-screensaver/xiccd` 等干扰项
+- `assets/vncserver-headless.service` - `systemd` 常驻 VNC 服务模板
+- `assets/xstartup` - `TigerVNC` 会话入口模板
+- `assets/xfce4-session.xml` - 精简 `XFCE` failsafe session 模板
+- `assets/autostart/*.desktop` - 关闭 `xfce4-screensaver`、`xiccd`、`tracker`、`nm-applet` 等自启动项的覆盖模板
 ## 使用方法
 
 1. 克隆此仓库到本地

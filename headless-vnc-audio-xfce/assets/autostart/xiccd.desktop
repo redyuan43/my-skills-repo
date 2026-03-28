@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=xiccd
+Exec=xiccd
+Hidden=true
+X-GNOME-Autostart-enabled=false
