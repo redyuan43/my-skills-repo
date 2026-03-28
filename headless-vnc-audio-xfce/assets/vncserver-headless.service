@@ -1,0 +1,20 @@
+[Unit]
+Description=Persistent TigerVNC desktop on __DISPLAY__ for __USER__
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=__USER__
+Group=__USER__
+WorkingDirectory=__HOME__
+PAMName=login
+Environment=HOME=__HOME__
+Environment=USER=__USER__
+ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill __DISPLAY__ >/dev/null 2>&1 || true'
+ExecStart=/bin/sh -c '/usr/bin/vncserver __DISPLAY__ -localhost no -geometry __GEOMETRY__ -depth __DEPTH__; status=$?; [ "$status" -eq 0 ] || [ "$status" -eq 1 ]'
+ExecStop=/usr/bin/vncserver -kill __DISPLAY__
+
+[Install]
+WantedBy=multi-user.target
