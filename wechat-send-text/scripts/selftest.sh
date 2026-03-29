@@ -22,7 +22,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "${SAFE_MODE}" -eq 1 ]]; then
-  "${RUNNER}" --chat "${CHAT}" --text "${TEXT}" --print-only
+  OUTPUT="$("${RUNNER}" --chat "${CHAT}" --text "${TEXT}" --print-only)"
+  printf '%s\n' "${OUTPUT}"
+  printf '%s\n' "${OUTPUT}" | rg -q "Resolved window mode: standalone"
+  printf '%s\n' "${OUTPUT}" | rg -q "Resolved PyWxDump:"
+  printf '%s\n' "${OUTPUT}" | rg -q "Resolved python:"
   exit 0
 fi
 

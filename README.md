@@ -356,7 +356,29 @@
 - `SKILL.md` - 技能说明文档
 - `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`
 
-### 44. headless-vnc-audio-xfce
+### 44. gh-browser-chromium-fix
+**功能：** 配置 GitHub CLI 及系统默认 Web 处理器一起打开 Chromium，而不是 Firefox 或不可用的 Snap 浏览器
+**用途：** 当 `gh auth login`、`gh browse` 或 `--web` 链接走错浏览器、需要把 `gh config browser` 和 XDG 默认浏览器一起固定到 Chromium，或想避免 `gh` 继续调用 Firefox 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（`gh` 浏览器路由、系统默认 Web 处理器和失败处理）
+- `scripts/set_gh_browser.sh` - 自动探测 Chromium 并同时写入 `gh config browser` 和 XDG 默认处理器的脚本
+
+### 45. openclaw-wechat-linux-local-launcher
+**功能：** 为 OpenClaw 的本地 `wechat-linux` 调试环境提供配置模板，并指导如何用辅助脚本启动、看日志、查状态和停止 Gateway
+**用途：** 当需要在单机上把 `wechat-linux` 跑起来、先准备 `~/.openclaw/openclaw.json` 和 `~/.openclaw/.env`，再用 `scripts/run-wechat-linux-local.sh` 等脚本做本地 bring-up 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（前置条件、配置编辑、启动顺序和常见排障点）
+- `assets/templates/openclaw.json` - 脱敏版 OpenClaw 本地 `wechat-linux` 配置模板
+- `assets/templates/wechat-linux.env.example` - 脱敏版环境变量模板（API key / Base URL / DISPLAY）
+
+### 46. dual-mi-barge-in-replay-lab
+**功能：** 用两台 `MI Speakphone` 做自动化 `barge-in` 真实回放实验，让 `speaker1` 播放助手语音、`speaker2` 外放模拟插话、`mic1` 负责检测与识别，并输出可定位问题的实验工件
+**用途：** 当需要定位“实时语音打断不灵敏”“AEC 把外部插话也消掉了”“流式 partial 比 batch 更差”“双设备自动化回放测试怎么搭”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用场景、默认拓扑、推荐参数与实验工作流）
+- `references/runbook.md` - 双 `MI` 自动化回放的经验总结、关键误区、判据和默认策略说明
+
+### 47. headless-vnc-audio-xfce
 **功能：** 在无显示器 Ubuntu/Linux 上部署固定会话 `TigerVNC + XFCE + PulseAudio TCP`，同时覆盖服务端安装、客户端音频接入、黑屏排障和内存优化经验
 **用途：** 当机器只通过 VNC 访问 GUI、需要让客户端听到远端音视频声音、重启后遇到“端口通但黑屏”、或想继续压 `XFCE` 内存占用时使用
 **文件：**
@@ -371,6 +393,35 @@
 - `assets/xfce4-session.xml` - 精简 `XFCE` failsafe session 模板
 - `assets/autostart/*.desktop` - 关闭 `xfce4-screensaver`、`xiccd`、`tracker`、`nm-applet` 等自启动项的覆盖模板
 
+### 48. vnc-xfce-recovery-kit
+**功能：** 把坏掉的 `TigerVNC + XFCE` 桌面一键恢复到完整可用状态，并提供可扩展的启动 hook 机制
+**用途：** 当用户说“VNC 服务端能连但桌面体验坏了”“想重装 XFCE 并恢复标准桌面”“Chromium 打不开但我默认就要 Chromium”“希望把这套恢复流程固化成以后还能重复跑的脚本”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用场景、最短使用方式、可扩展 hook 约定）
+- `references/runbook.md` - 恢复后的目标状态、为什么保留 `-extension SELinux`、以及后续扩展建议
+- `scripts/recover_vnc_xfce.sh` - 一键恢复脚本：重装 `dbus/selinux-policy-default/XFCE`、备份并重置用户配置、恢复标准 `xstartup`、刷新 `vncserver-headless.service`、固定默认终端和浏览器、重建 `:1` 桌面
+
+### 49. linux-auto-shutdown-triage
+**功能：** 排查 Linux 机器“自动关机 / 自动重启 / 像关机一样消失”的问题，并在必要时执行电源策略止血和日志持久化
+**用途：** 当用户说“电脑过一会儿自己关机”“怀疑系统有自动关机逻辑”“空闲后像关机一样”“想查是手动关机、定时任务、电源键、合盖还是自动挂起”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（排查顺序、证据判断、止血策略与验证标准）
+- `references/command-checklist.md` - 时间线、计划任务、手动关机、GNOME/XFCE 电源策略、日志与 `journald` 持久化命令清单
+- `scripts/triage_auto_shutdown.sh` - 默认只读排查、按需执行止血配置的一键脚本
+
+### 47. headless-rdp-remmina-audio
+**功能：** 在无显示器的 Ubuntu/Linux 主机上部署 `xrdp + XFCE`，启用音频重定向，并为 Linux 客户端生成可复用的 `Remmina` RDP 配置
+**用途：** 当用户说“只通过远程桌面登录主机”“想替代 VNC”“远程要听到服务器声音”“客户端用 Remmina”“要排查分辨率或剪贴板问题”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（服务端安装、音频模块构建、客户端 Remmina 工作流、分辨率/剪贴板排障）
+- `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率和键盘抓取的 `.remmina` 配置文件
+
+### 48. xfce-lock-screen-timeout
+**功能：** 检查并设置 XFCE 桌面的空闲锁屏时间，明确区分 `xfce4-screensaver` 持久化配置和当前 X11 会话 `xset` 的即时超时
+**用途：** 当用户要求“把 XFCE 锁屏时间改成一小时/30 分钟”、需要查看当前锁屏超时，或发现图形界面改了但实际不生效时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、判断顺序、手工兜底命令和验证方式）
+- `scripts/set_xfce_lock_screen_timeout.sh` - 查看当前状态，或把空闲锁屏时间改成指定分钟数并立即校验
 ## 使用方法
 
 1. 克隆此仓库到本地
