@@ -51,6 +51,12 @@ description: 排查 Linux 机器“过一会儿自动关机、自动重启、像
 - `journalctl --list-boots` 应能列出持久化 boot 记录。
 - 若问题再次发生，应优先回看异常时间附近的 `journalctl -b -1` 或对应 boot 日志。
 
+## Script
+
+- 默认只读排查：`bash scripts/triage_auto_shutdown.sh`
+- 带时间窗口看日志：`bash scripts/triage_auto_shutdown.sh --since "YYYY-MM-DD HH:MM:SS" --until "YYYY-MM-DD HH:MM:SS"`
+- 一次性执行常见止血：`bash scripts/triage_auto_shutdown.sh --apply-safe-mitigations`
+
 ## Safety Rules
 
 - 修改系统电源策略或 `journald` 配置前，先确认用户同意。
@@ -60,3 +66,4 @@ description: 排查 Linux 机器“过一会儿自动关机、自动重启、像
 ## Resources
 
 - 需要具体命令和判读关键词时，读 [references/command-checklist.md](references/command-checklist.md)。
+- 需要直接执行排查和止血时，使用 [scripts/triage_auto_shutdown.sh](scripts/triage_auto_shutdown.sh)。
