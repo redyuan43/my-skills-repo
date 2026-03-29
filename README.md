@@ -407,6 +407,8 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（排查顺序、证据判断、止血策略与验证标准）
 - `references/command-checklist.md` - 时间线、计划任务、手动关机、GNOME/XFCE 电源策略、日志与 `journald` 持久化命令清单
+- `references/boot-capture.md` - 开机自动取证脚本的适用场景、安装方式与判读要点
+- `scripts/boot_capture.sh` - 在新 boot 一开始自动抓取上一轮异常关机/挂起证据的落盘脚本
 - `scripts/triage_auto_shutdown.sh` - 默认只读排查、按需执行止血配置的一键脚本
 
 ### 47. headless-rdp-remmina-audio
