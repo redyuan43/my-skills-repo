@@ -14,6 +14,7 @@ Usage:
   chromium_flatpak_fallback.sh install
   chromium_flatpak_fallback.sh launch [DISPLAY]
   chromium_flatpak_fallback.sh status
+  chromium_flatpak_fallback.sh desktop
 EOF
 }
 
@@ -95,6 +96,56 @@ status_app() {
   fi
 }
 
+desktop_dir() {
+  local dir=""
+
+  if have xdg-user-dir; then
+    dir="$(xdg-user-dir DESKTOP 2>/dev/null || true)"
+  fi
+
+  if [ -n "${dir}" ] && [ -d "${dir}" ]; then
+    printf '%s\n' "${dir}"
+    return 0
+  fi
+
+  if [ -d "${HOME}/Desktop" ]; then
+    printf '%s\n' "${HOME}/Desktop"
+    return 0
+  fi
+
+  if [ -d "${HOME}/桌面" ]; then
+    printf '%s\n' "${HOME}/桌面"
+    return 0
+  fi
+
+  printf '%s\n' "${HOME}/Desktop"
+}
+
+desktop_launcher() {
+  local dir
+  local file
+
+  dir="$(desktop_dir)"
+  mkdir -p "$dir"
+  file="${dir}/Chromium.desktop"
+
+  cat >"$file" <<'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Chromium
+Comment=Access the Internet
+Exec=flatpak run org.chromium.Chromium %U
+Icon=org.chromium.Chromium
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true
+EOF
+
+  chmod +x "$file"
+  echo "Desktop launcher created: $file"
+}
+
 case "${1:-}" in
   diagnose)
     diagnose
@@ -107,6 +158,9 @@ case "${1:-}" in
     ;;
   status)
     status_app
+    ;;
+  desktop)
+    desktop_launcher
     ;;
   *)
     usage

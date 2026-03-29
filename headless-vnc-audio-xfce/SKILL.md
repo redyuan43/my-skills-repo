@@ -27,6 +27,44 @@ description: 在无显示器 Ubuntu/Linux 上部署固定会话 TigerVNC + 精�
 - 修复“端口通但进桌面黑屏”的典型 `xfce4-screensaver` 覆盖问题
 - 给出当前已验证过的内存优化优先级
 
+## `sync-latest-skills` 之后的最短使用示例
+
+如果这个技能已经通过 `sync-latest-skills` 同步到 `~/.codex/skills`，最短可按下面顺序落地：
+
+### 服务端
+
+```bash
+cd ~/.codex/skills/headless-vnc-audio-xfce
+
+install -Dm700 assets/xstartup "$HOME/.vnc/xstartup"
+install -Dm700 scripts/vnc_session_poststart.sh "$HOME/.local/bin/vnc-session-poststart.sh"
+install -Dm644 assets/xfce4-session.xml "$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml"
+install -Dm700 scripts/vnc_audio_server_setup.sh "$HOME/.local/bin/vnc-audio-server-setup.sh"
+install -Dm700 scripts/vnc_audio_status.sh "$HOME/.local/bin/vnc-audio-status.sh"
+
+sudo install -Dm644 assets/vncserver-headless.service /etc/systemd/system/vncserver-headless.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now vncserver-headless.service
+
+bash "$HOME/.local/bin/vnc-audio-server-setup.sh"
+```
+
+### 客户端
+
+```bash
+cd ~/.codex/skills/headless-vnc-audio-xfce
+scp <server>:/home/<user>/.config/pulse/vnc-audio.cookie ~/.config/pulse/vnc-audio.cookie
+export VNC_AUDIO_SERVER=<server-ip>
+bash scripts/vnc_audio_client_attach.sh
+```
+
+上面是最短路径，默认假设：
+
+- 远端用户是当前登录用户
+- `assets/vncserver-headless.service` 里的占位符已经先替换好
+- 客户端已装 `parec` 和 `pacat`
+- 画面连接仍然通过普通 `VNC` viewer 访问 `<server-ip>:5901`
+
 ## 标准工作流
 
 ### 1. 服务端安装轻量桌面
