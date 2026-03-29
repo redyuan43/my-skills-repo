@@ -407,6 +407,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（排查顺序、证据判断、止血策略与验证标准）
 - `references/command-checklist.md` - 时间线、计划任务、手动关机、GNOME/XFCE 电源策略、日志与 `journald` 持久化命令清单
+
+### 47. headless-rdp-remmina-audio
+**功能：** 在无显示器的 Ubuntu/Linux 主机上部署 `xrdp + XFCE`，启用音频重定向，并为 Linux 客户端生成可复用的 `Remmina` RDP 配置
+**用途：** 当用户说“只通过远程桌面登录主机”“想替代 VNC”“远程要听到服务器声音”“客户端用 Remmina”“要排查分辨率或剪贴板问题”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（服务端安装、音频模块构建、客户端 Remmina 工作流、分辨率/剪贴板排障）
+- `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率和键盘抓取的 `.remmina` 配置文件
 ## 使用方法
 
 1. 克隆此仓库到本地
