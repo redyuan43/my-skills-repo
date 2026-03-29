@@ -415,6 +415,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（服务端安装、音频模块构建、客户端 Remmina 工作流、分辨率/剪贴板排障）
 - `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率和键盘抓取的 `.remmina` 配置文件
+
+### 48. xfce-lock-screen-timeout
+**功能：** 检查并设置 XFCE 桌面的空闲锁屏时间，明确区分 `xfce4-screensaver` 持久化配置和当前 X11 会话 `xset` 的即时超时
+**用途：** 当用户要求“把 XFCE 锁屏时间改成一小时/30 分钟”、需要查看当前锁屏超时，或发现图形界面改了但实际不生效时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、判断顺序、手工兜底命令和验证方式）
+- `scripts/set_xfce_lock_screen_timeout.sh` - 查看当前状态，或把空闲锁屏时间改成指定分钟数并立即校验
 ## 使用方法
 
 1. 克隆此仓库到本地
