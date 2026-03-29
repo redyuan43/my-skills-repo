@@ -400,6 +400,13 @@
 - `SKILL.md` - 技能说明文档（适用场景、最短使用方式、可扩展 hook 约定）
 - `references/runbook.md` - 恢复后的目标状态、为什么保留 `-extension SELinux`、以及后续扩展建议
 - `scripts/recover_vnc_xfce.sh` - 一键恢复脚本：重装 `dbus/selinux-policy-default/XFCE`、备份并重置用户配置、恢复标准 `xstartup`、刷新 `vncserver-headless.service`、固定默认终端和浏览器、重建 `:1` 桌面
+
+### 49. linux-auto-shutdown-triage
+**功能：** 排查 Linux 机器“自动关机 / 自动重启 / 像关机一样消失”的问题，并在必要时执行电源策略止血和日志持久化
+**用途：** 当用户说“电脑过一会儿自己关机”“怀疑系统有自动关机逻辑”“空闲后像关机一样”“想查是手动关机、定时任务、电源键、合盖还是自动挂起”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（排查顺序、证据判断、止血策略与验证标准）
+- `references/command-checklist.md` - 时间线、计划任务、手动关机、GNOME/XFCE 电源策略、日志与 `journald` 持久化命令清单
 ## 使用方法
 
 1. 克隆此仓库到本地
