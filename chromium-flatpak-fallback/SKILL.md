@@ -70,6 +70,15 @@ setsid -f env DISPLAY=:1 XDG_RUNTIME_DIR=/run/user/$(id -u) flatpak run org.chro
 flatpak run org.chromium.Chromium
 ```
 
+4. 如果用户希望像普通桌面应用那样双击图标启动，把启动器放到桌面：
+
+```bash
+cp ~/.local/share/flatpak/exports/share/applications/org.chromium.Chromium.desktop ~/Desktop/Chromium.desktop
+chmod +x ~/Desktop/Chromium.desktop
+```
+
+在 XFCE / Ubuntu 桌面里，必要时右键图标选择 `Allow Launching` 一次即可。
+
 ## 推荐脚本
 
 优先使用随 skill 附带的脚本：
@@ -78,6 +87,7 @@ flatpak run org.chromium.Chromium
 bash chromium-flatpak-fallback/scripts/chromium_flatpak_fallback.sh diagnose
 bash chromium-flatpak-fallback/scripts/chromium_flatpak_fallback.sh install
 bash chromium-flatpak-fallback/scripts/chromium_flatpak_fallback.sh launch
+bash chromium-flatpak-fallback/scripts/chromium_flatpak_fallback.sh desktop
 ```
 
 ## 验证

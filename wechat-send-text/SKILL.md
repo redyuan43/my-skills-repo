@@ -7,16 +7,22 @@ description: Send text to a specified WeChat chat or group on Ubuntu X11 through
 
 ## Overview
 
-Use `scripts/send_wechat_text.sh` to send plain text through `PyWxDump tools/linux_wx_chat_daemon.py send-text`. This skill keeps the default `standalone` behavior, auto-resolves the local `PyWxDump` clone, prefers the repo-local virtualenv Python, and passes the newest `db_storage` path when it can discover one. By default it force-minimizes the chat window after sending, and it also exposes `--post-send-minimize` and `--post-send-force-minimize` for explicit control.
+Use `scripts/send_wechat_text.sh` to send plain text through `PyWxDump tools/linux_wx_chat_daemon.py send-text`. This skill is intentionally thin: it only resolves arguments, forwards them to the local CLI, and prints the final `restore_action` summary.
+
+在这台机器上，执行环境必须固定使用 `~/github/PyWxDump/.venv/bin/python`。不要使用系统 `python3`，否则容易再次触发 `Cryptodome` / `Pillow` 之类的依赖缺失问题。
+
+默认行为是**直接发送**（除非你传 `--print-only`）且`standalone/auto` 下默认走模糊匹配。`post-send` 阶段默认会强制最小化发送窗口，返回值通常为 `restore_action=minimized`，以便回到后台。
+
+Standalone/auto 模式下会对聊天窗口名做模糊匹配，输入独立聊天窗口名片段即可定位，如 `meeting` 可匹配 `meeting` 群窗口；匹配到多个窗口会直接报错并要求你补充更长关键词。
 
 ## Workflow
 
 1. Determine the target chat title.
 2. Provide the text explicitly through `--text`.
-3. Choose `--window-mode standalone|main|auto`; default remains `standalone`.
+3. Choose `--window-mode standalone|main|auto`.
 4. If `--window-mode main` is used for a new target, optionally pass explicit main-window vision settings.
-5. By default the wrapper force-minimizes the chat window after sending; if needed, add `--post-send-minimize` or `--post-send-force-minimize` explicitly for clarity.
-6. Run the script and read the final JSON plus the extra wrapper summary line.
+5. Run the script and read the final JSON plus the extra wrapper summary line.
+6. 独立窗口匹配使用 `--chat` 里给出的片段进行包含匹配，若片段无法匹配到独立窗口会尝试原始目标名（适用于主窗口路径）。
 
 ## Quick Use
 
@@ -47,26 +53,15 @@ skills/wechat-send-text/scripts/send_wechat_text.sh \
   --print-only
 ```
 
-Send and force-minimize the chat window afterward:
-
-```bash
-skills/wechat-send-text/scripts/send_wechat_text.sh \
-  --chat "gaming" \
-  --text "你好" \
-  --window-mode auto \
-  --post-send-force-minimize
-```
-
 ## Constraints
 
-- This skill assumes Ubuntu X11.
-- By default the wrapper tries to auto-resolve the local `PyWxDump` clone, repo-local `.venv` Python, `XAUTHORITY`, and the newest `db_storage`. Use `--pywxdump-root` to override the repo path when needed.
-- `--window-mode standalone` remains the default and requires the target chat to already be open as an independent WeChat window.
+- This skill assumes Ubuntu X11 and the local `PyWxDump` clone under `~/github/PyWxDump`.
+- On this machine, always run through `~/github/PyWxDump/.venv/bin/python`. Do not fall back to system `python3` when executing live sends.
+- `--window-mode standalone` requires the target chat to already be open as an independent WeChat window.
 - `--window-mode main` relies on WeChat main-window search and post-send database verification.
-- By default the wrapper enables `--post-send-force-minimize`, so the send target window is minimized after a successful send instead of restoring focus.
-- `--post-send-minimize` minimizes the target window only when there is no previous window to restore.
-- `--post-send-force-minimize` always minimizes the target window after sending and takes priority over restore behavior.
 - For `--window-mode main`, prefer `qwen3.5-plus` plus the Coding Plan Anthropic endpoint when explicit vision settings are needed.
+- `--chat` 在 `standalone|auto` 模式下支持窗口名模糊匹配；多窗口命中会中止发送防止误发。
+- 默认不需要额外确认，若使用默认参数则会执行发送；`restore_action` 会标识发送后恢复行为（`minimized` 或 `restored`）。
 
 ## Selftest
 

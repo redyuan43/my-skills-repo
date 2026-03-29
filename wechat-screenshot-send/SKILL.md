@@ -7,8 +7,12 @@ description: Capture the current desktop on Ubuntu X11 and immediately send the 
 
 ## Overview
 
-Use `scripts/screenshot_send_wechat.sh` for a one-shot workflow: capture the desktop, save the screenshot under `~/Pictures/Screenshots/`, and immediately send it through `PyWxDump tools/linux_wx_chat_daemon.py send-image`. The wrapper auto-resolves the local `PyWxDump` clone and by default force-minimizes the chat window after sending.
-If the goal is排障，不是普通截图转发，优先用 `scripts/diagnose_control_wechat.sh`：先把鼠标悬停到目标控件，再触发交互式截图，把截图发到群里，并把诊断 Markdown 回发到同一会话。这个诊断脚本也会自动探测本机 `PyWxDump` 路径。
+Use `scripts/screenshot_send_wechat.sh` for a one-shot workflow: capture the desktop, save the screenshot under `~/Pictures/Screenshots/`, and immediately send it through `PyWxDump tools/linux_wx_chat_daemon.py send-image`.
+
+在这台机器上，执行环境必须固定使用 `~/github/PyWxDump/.venv/bin/python`。不要使用系统 `python3`，否则容易再次触发 `Cryptodome` / `Pillow` 之类的依赖缺失问题。
+
+默认行为是**直接发送**（除非你传 `--print-only`）并默认尝试最小化发送窗口（`restore_action=minimized`）。`standalone/auto` 下支持聊天名模糊匹配，例如 `meeting` 可命中 `meeting` 对应的独立窗口；若存在多个候选则会报错避免误发。
+If the goal is排障，不是普通截图转发，优先用 `scripts/diagnose_control_wechat.sh`：先把鼠标悬停到目标控件，再触发交互式截图，把截图发到群里，并把诊断 Markdown 回发到同一会话。
 
 When `--window-mode main` is used for a target that has not been warmed before, the underlying `PyWxDump` flow may need a vision model to pick the correct search result row. In practice, `qwen3.5-plus` is the stable choice for this step. If you use 阿里云 Coding Plan, prefer the native Anthropic-compatible endpoint `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1`. Do not assume `qwen3-coder-plus` is reliable for main-window search-result selection.
 
@@ -19,10 +23,9 @@ When `--window-mode main` is used for a target that has not been warmed before, 
 3. 诊断场景下，先把鼠标移到控件，再调用交互式截图快捷键。
 4. Save the screenshot to `~/Pictures/Screenshots/`.
 5. 根据需要选择 `--window-mode standalone|main|auto`。
-6. 默认发送后强制收回聊天窗口；如需显式说明，也可以添加 `--post-send-minimize` 或 `--post-send-force-minimize`。
-7. 通过 `PyWxDump send-image` 发送截图。
-8. 诊断场景继续调用视觉模型生成 Markdown 诊断，并回发文本。
-9. Do not ask for an extra confirmation step. If the window is missing or send fails, return the error directly.
+6. 通过 `PyWxDump send-image` 发送截图。
+7. 诊断场景继续调用视觉模型生成 Markdown 诊断，并回发文本。
+7. Do not ask for an extra confirmation step. If the window is missing or send fails, return the error directly.
 
 ## Quick Use
 
@@ -68,14 +71,6 @@ skills/wechat-screenshot-send/scripts/screenshot_send_wechat.sh \
   --print-only
 ```
 
-截图发送后显式强制收回窗口：
-
-```bash
-skills/wechat-screenshot-send/scripts/screenshot_send_wechat.sh \
-  --chat "新技术讨论" \
-  --post-send-force-minimize
-```
-
 控件级诊断截图并回发分析：
 
 ```bash
@@ -89,17 +84,18 @@ skills/wechat-screenshot-send/scripts/diagnose_control_wechat.sh \
 ## Constraints
 
 - This skill assumes Ubuntu X11 and `gnome-screenshot` is available.
+- This skill assumes the local `PyWxDump` clone is `~/github/PyWxDump`.
+- On this machine, always run through `~/github/PyWxDump/.venv/bin/python`. Do not fall back to system `python3` when executing live sends.
 - `--window-mode standalone` requires the target chat to already be open as an independent WeChat window.
 - `--window-mode main` relies on WeChat main-window search and post-send database verification.
+- `--chat` 在 `standalone|auto` 模式下会进行独立窗口名模糊匹配；`--mode ui-window` 下也会要求匹配到独立窗口用于截图激活。
 - For `--window-mode main`, the first successful send to a target warms that target. Later sends can reuse the lighter `warm_search_enter_refocus` path.
 - For `--window-mode main`, prefer `qwen3.5-plus` as the search-result vision model if you explicitly configure `PyWxDump` main-window vision options.
 - For `--window-mode main` with Coding Plan, prefer `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1` instead of the older OpenAI-compatible `/v1` endpoint.
 - The underlying CLI now supports `--main-window-vision-timeout-seconds`, `--main-window-vision-thinking-budget-tokens`, and `--main-window-vision-disable-thinking`.
-- By default the wrapper enables `--post-send-force-minimize`, so the send target window is minimized after a successful send instead of restoring focus.
-- `--post-send-minimize` minimizes the target window only when there is no previous window to restore.
-- `--post-send-force-minimize` always minimizes the target window after sending and takes priority over restore behavior.
 - `--mode ui-window` 仍然更适合配合独立窗口使用；主界面模式下更推荐 `--mode desktop`。
 - 诊断脚本依赖本地视觉模型可用；若模型失败，脚本会把失败说明回发，而不是静默退出。
+- 默认发送为即时发送（非 `--print-only`），`restore_action` 通常会返回 `minimized`，表示发送后窗口已最小化到后台。
 
 ## Selftest
 
