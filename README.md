@@ -424,6 +424,16 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、判断顺序、手工兜底命令和验证方式）
 - `scripts/set_xfce_lock_screen_timeout.sh` - 查看当前状态，或把空闲锁屏时间改成指定分钟数并立即校验
+
+### 49. wechat-auto-enter-startup
+**功能：** 安装视觉识别版 Linux 微信自动进入流程，自动启动 `wechat`、识别绿色 `Enter Weixin` 按钮并点击，同时可配置为桌面登录后自动执行
+**用途：** 当用户想把“启动微信并点进入微信”做成稳定脚本、明确嫌弃固定坐标点击、需要改成截图识别绿色按钮，或者希望在 XFCE/GNOME 登录后自动运行这套流程时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、安装工作流、自启动方式和限制）
+- `scripts/install_wechat_auto_enter.sh` - 安装脚本，负责复制主脚本、生成 autostart wrapper 和 `~/.config/autostart` 桌面项
+- `scripts/wechat_auto_enter.sh` - 运行脚本，负责启动微信、定位窗口、截图识别绿色按钮并点击中心
+- `scripts/wechat_auto_enter_autostart.sh` - 自启动包装脚本模板，负责登录桌面后延迟执行主脚本
+- `scripts/selftest.sh` - 语法、依赖和安装结果检查脚本
 ## 使用方法
 
 1. 克隆此仓库到本地
