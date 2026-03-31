@@ -434,6 +434,12 @@
 - `scripts/wechat_auto_enter.sh` - 运行脚本，负责启动微信、定位窗口、截图识别绿色按钮并点击中心
 - `scripts/wechat_auto_enter_autostart.sh` - 自启动包装脚本模板，负责登录桌面后延迟执行主脚本
 - `scripts/selftest.sh` - 语法、依赖和安装结果检查脚本
+
+### 50. remmina-tailscale-xrdp
+**功能：** 在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina 远程桌面，并完成客户端 Remmina 参数优化、服务端 XFCE 合成器优化、Tailscale 登录与联通验证
+**用途：** 当用户说“Remmina 局域网能连，想从外网继续连”“继续用 xrdp + XFCE，不要换协议”“把客户端和服务端一起配通并顺手优化桌面性能”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档，包含服务端检查、Tailscale 安装登录、XFCE 优化、Remmina 调参、MagicDNS 与 3389 联通验证的完整工作流
 ## 使用方法
 
 1. 克隆此仓库到本地
