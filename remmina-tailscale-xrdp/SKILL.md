@@ -161,6 +161,63 @@ xfconf-query -c xfwm4 -p /general/use_compositing
 - 减少阴影、透明等额外绘制
 - 对 `xrdp + XFCE` 通常更顺
 
+### 6.1 如果 xrdp 登录后秒退，优先排查会话总线污染
+
+这类问题常见于同一 Linux 用户名下曾经跑过：
+- 本地物理 XFCE 会话
+- TigerVNC/Xvnc 会话
+- 旧的 xrdp/Xorg 会话
+
+典型症状：
+- `tailscale ping` 和 `nc -vz <ip> 3389` 都成功
+- Remmina 认证通过，但桌面一闪而退，或者黑屏后立即断开
+- `journalctl -u xrdp -u xrdp-sesman` 里显示 session start success，但几秒后 terminated
+- `~/.xsession-errors` 里出现 `screensaver already running in this session`、`Process already running`、`Disconnected from session manager`、`startxfce4` 崩溃，或者旧的 `DBUS_SESSION_BUS_ADDRESS=/run/user/<uid>/bus`
+
+先检查是否存在旧图形会话或 VNC 残留：
+
+```bash
+loginctl list-sessions --no-legend
+ps -u "$USER" -o pid,ppid,tty,stat,cmd --sort=pid | egrep 'xfce|xfwm|xfsettingsd|xfdesktop|panel|dbus|Xorg|xorgxrdp|startxfce4|xfce4-session|vnc'
+systemctl --user list-unit-files | egrep -i 'vnc|tigervnc' || true
+find ~/.config/autostart /etc/xdg/autostart -maxdepth 1 -type f 2>/dev/null | egrep -i 'vnc|tigervnc' || true
+tail -n 120 ~/.xsession-errors
+```
+
+如果判断是会话污染，不要继续调分辨率，先把 xrdp 会话隔离出来：
+
+```bash
+cat > ~/.xsession <<'EOF'
+#!/bin/sh
+exec xfce4-session
+EOF
+chmod 755 ~/.xsession
+
+cat > ~/.xsessionrc <<'EOF'
+# Isolate xrdp XFCE from any existing user session bus
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+export XDG_SESSION_DESKTOP=xfce
+export XDG_CURRENT_DESKTOP=XFCE
+export DESKTOP_SESSION=xfce
+EOF
+
+: > ~/.xsession-errors
+sudo systemctl restart xrdp xrdp-sesman
+```
+
+这一步的目的：
+- 不让 xrdp 会话复用已有用户总线
+- 避免本地会话、旧 VNC 会话、旧 xrdp 会话互相抢 XFCE session manager
+- 比继续调整 Remmina 分辨率更对症
+
+如果仍然异常，再继续看：
+- `journalctl -u xrdp -u xrdp-sesman -n 160 --no-pager`
+- `~/.xorgxrdp.*.log`
+- `~/.xsession-errors`
+
+如果机器上还保留 TigerVNC 作为旧方案，建议在 xrdp 方案稳定后停掉用户级 VNC 自启和 VNC 专用 autostart，减少后续冲突面。
+
 ### 7. 配置客户端 Remmina
 
 先找现有配置：
