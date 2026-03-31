@@ -54,6 +54,23 @@ def parse_args() -> argparse.Namespace:
         help="Path to a user-provided yt-dlp cookies file for gated content",
     )
     parser.add_argument(
+        "--cookies-from-browser",
+        choices=("chrome", "chromium", "firefox", "edge", "safari", "brave"),
+        help="Extract cookies directly from a supported browser profile",
+    )
+    parser.add_argument(
+        "--js-runtime",
+        help=(
+            "JavaScript runtime spec for yt-dlp challenge solving, "
+            'for example "node:/home/user/.local/bin/node"'
+        ),
+    )
+    parser.add_argument(
+        "--remote-components",
+        action="store_true",
+        help="Enable yt-dlp remote challenge solver components from GitHub",
+    )
+    parser.add_argument(
         "--write-thumbnail",
         action="store_true",
         help="Save the thumbnail alongside other artifacts",
@@ -120,6 +137,12 @@ def build_command(args: argparse.Namespace) -> tuple[list[str], Path]:
         cmd.append("--no-playlist")
     if args.cookies:
         cmd.extend(["--cookies", str(Path(args.cookies).expanduser().resolve())])
+    if args.cookies_from_browser:
+        cmd.extend(["--cookies-from-browser", args.cookies_from_browser])
+    if args.js_runtime:
+        cmd.extend(["--js-runtimes", args.js_runtime])
+    if args.remote_components:
+        cmd.extend(["--remote-components", "ejs:github"])
     if args.write_info_json:
         cmd.append("--write-info-json")
     if args.write_description:
@@ -179,6 +202,9 @@ def build_command(args: argparse.Namespace) -> tuple[list[str], Path]:
 def main() -> int:
     args = parse_args()
     ensure_dependency("yt-dlp")
+    if args.js_runtime:
+        runtime_name = args.js_runtime.split(":", 1)[0]
+        ensure_dependency(runtime_name)
 
     cmd, output_dir = build_command(args)
     output_dir.mkdir(parents=True, exist_ok=True)
