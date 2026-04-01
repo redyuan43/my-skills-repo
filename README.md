@@ -440,6 +440,14 @@
 **用途：** 当用户说“Remmina 局域网能连，想从外网继续连”“继续用 xrdp + XFCE，不要换协议”“把客户端和服务端一起配通并顺手优化桌面性能”时使用
 **文件：**
 - `SKILL.md` - 技能说明文档，包含服务端检查、Tailscale 安装登录、XFCE 优化、Remmina 调参、MagicDNS 与 3389 联通验证的完整工作流
+
+### 51. ssh-monitor-cycle
+**功能：** 在单个终端里按 `~/.ssh/config` 轮询多台 SSH 主机，依次运行 `htop` 和 `jtop/nvtop`，并通过本地 PTY 代理支持 `PageUp/PageDown` 切换
+**用途：** 当需要在一台终端里循环查看多台机器的 CPU/GPU 负载，希望保留远端全屏监控界面、自动处理 `htop` 缺失安装、并直接用 `PageUp/PageDown` 在主机之间切换时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、运行方式、按键说明与限制）
+- `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 按键切换和远端监控流程
+- `scripts/ssh_monitor_cycle.sh` - 启动包装脚本，统一从 shell 调用 Python 版本
 ## 使用方法
 
 1. 克隆此仓库到本地
