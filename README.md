@@ -444,11 +444,11 @@
 - `SKILL.md` - 技能说明文档，包含服务端检查、Tailscale 安装登录、XFCE 优化、Remmina 调参、MagicDNS 与 3389 联通验证的完整工作流
 
 ### 51. ssh-monitor-cycle
-**功能：** 在单个终端里按 `~/.ssh/config` 轮询多台 SSH 主机，依次运行 `htop` 和 `jtop/nvtop`，并通过本地 PTY 代理支持 `PageUp/PageDown` 切换与 `Ctrl-S/Ctrl-R` 停驻/恢复
+**功能：** 在单个终端里按 `~/.ssh/config` 轮询多台 SSH 主机，依次运行 `htop` 和 `jtop/nvtop`，并通过本地 PTY 代理支持 `PageUp/PageDown` 切换与 `Ctrl-G/Ctrl-R` 停驻/恢复
 **用途：** 当需要在一台终端里循环查看多台机器的 CPU/GPU 负载，希望保留远端全屏监控界面、自动处理 `htop` 缺失安装，并直接用按键完成上一台/下一台切换或停驻当前界面时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（触发条件、运行方式、按键说明与限制）
-- `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 切换与 `Ctrl-S/Ctrl-R` 停驻控制
+- `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 切换与 `Ctrl-G/Ctrl-R` 停驻控制
 - `scripts/ssh_monitor_cycle.sh` - 启动包装脚本，统一从 shell 调用 Python 版本
 
 ### 52. wechat-archive
