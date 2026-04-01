@@ -36,6 +36,8 @@ From the skill root:
 
 - `PageDown`: switch to next host
 - `PageUp`: switch to previous host
+- `Ctrl-S`: hold the current screen and stop auto-advance
+- `Ctrl-R`: resume automatic cycling from hold mode
 - `Ctrl-C`: quit
 
 ## Environment variables
@@ -51,6 +53,6 @@ AUTO_COPY_ID=0
 
 ## Notes
 
-- The Python script uses a local PTY proxy so the current terminal can intercept `PageUp` / `PageDown` before forwarding other input to the remote monitor.
+- The Python script uses a local PTY proxy so the current terminal can intercept `PageUp` / `PageDown` and `Ctrl-S` / `Ctrl-R` before forwarding other input to the remote monitor.
 - If a terminal emulator intercepts `PageUp` / `PageDown` for local scrollback, the user may need to disable that binding or use a terminal that forwards those keys.
 - If `htop` is missing on the remote host, the script attempts to install it using the detected package manager.

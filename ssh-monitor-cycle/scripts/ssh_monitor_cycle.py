@@ -27,6 +27,9 @@ PAGE_UP = b"\x1b[5~"
 PAGE_DOWN = b"\x1b[6~"
 CTRL_C = b"\x03"
 CTRL_BACKSLASH = b"\x1c"
+CTRL_R = b"\x12"
+CTRL_S = b"\x13"
+PHASE_MARKER_PREFIX = b"__SSH_MONITOR_PHASE__ "
 
 COPY_ID_PROMPTED = set()
 
@@ -49,6 +52,8 @@ def usage() -> int:
             运行时按键:
               PageDown          立即切到下一台
               PageUp            立即切到上一台
+              Ctrl-S            停在当前界面
+              Ctrl-R            从停驻状态恢复自动轮播
               Ctrl-C            退出脚本
             """
         ),
@@ -98,6 +103,8 @@ def remote_script() -> str:
         gpu_monitor="${GPU_MONITOR:-nvtop}"
         host_alias="${MONITOR_HOST_ALIAS:-unknown}"
         remote_name="$(hostname)"
+        hold_mode="${HOLD_MODE:-0}"
+        hold_tool="${HOLD_TOOL:-}"
 
         install_htop() {
           if command -v htop >/dev/null 2>&1; then
@@ -141,26 +148,50 @@ def remote_script() -> str:
         echo "Connected at $(date '+%F %T')"
         echo "Host alias: ${host_alias}"
         echo "Remote host: ${remote_name}"
-        echo "Cycle once: htop ${view_seconds}s -> ${gpu_monitor} ${view_seconds}s"
-        echo "Keys: PageDown next | PageUp prev | Ctrl-C quit"
+        if [[ "$hold_mode" == "1" ]]; then
+          echo "Hold mode: ${hold_tool}"
+          echo "Keys: PageDown next | PageUp prev | Ctrl-R resume | Ctrl-C quit"
+        else
+          echo "Cycle once: htop ${view_seconds}s -> ${gpu_monitor} ${view_seconds}s"
+          echo "Keys: PageDown next | PageUp prev | Ctrl-S hold | Ctrl-C quit"
+        fi
         sleep 1
 
         install_htop || echo "[$(hostname)] htop 安装失败，将继续后续流程"
 
+        if [[ "$hold_mode" == "1" && -n "$hold_tool" ]]; then
+          echo "__SSH_MONITOR_PHASE__ ${hold_tool}"
+          if command -v "$hold_tool" >/dev/null 2>&1; then
+            "$hold_tool" || true
+          else
+            echo "[$(hostname)] 未安装 $hold_tool，保持停驻等待"
+            while true; do
+              sleep 3600
+            done
+          fi
+          clear
+          exit 0
+        fi
+
+        echo "__SSH_MONITOR_PHASE__ htop"
         run_monitor htop
         clear
+        echo "__SSH_MONITOR_PHASE__ ${gpu_monitor}"
         run_monitor "$gpu_monitor"
         clear
         """
     )
 
 
-def build_ssh_command(host: str) -> list[str]:
+def build_ssh_command(host: str, hold_tool: str | None = None) -> list[str]:
     env_prefix = (
         f"VIEW_SECONDS={VIEW_SECONDS} "
         f"GPU_MONITOR={choose_gpu_monitor(host)} "
         f"MONITOR_HOST_ALIAS={shlex.quote(host)} "
     )
+    if hold_tool is not None:
+        env_prefix += "HOLD_MODE=1 "
+        env_prefix += f"HOLD_TOOL={shlex.quote(hold_tool)} "
     command = env_prefix + "bash -lc " + shlex.quote(remote_script())
     return [
         "ssh",
@@ -259,7 +290,7 @@ def terminate_process(proc: subprocess.Popen[bytes]) -> None:
         proc.wait(timeout=1.5)
 
 
-def extract_action(buffer: bytearray) -> tuple[str | None, bytes]:
+def extract_action(buffer: bytearray, paused_mode: bool) -> tuple[str | None, bytes]:
     forward = bytearray()
     sequences = {
         PAGE_UP: "prev",
@@ -267,6 +298,10 @@ def extract_action(buffer: bytearray) -> tuple[str | None, bytes]:
         CTRL_C: "quit",
         CTRL_BACKSLASH: "quit",
     }
+    if paused_mode:
+        sequences[CTRL_R] = "resume"
+    else:
+        sequences[CTRL_S] = "pause"
 
     while buffer:
         matched = False
@@ -285,11 +320,40 @@ def extract_action(buffer: bytearray) -> tuple[str | None, bytes]:
     return None, bytes(forward)
 
 
-def run_host_session(host: str) -> tuple[int, str | None]:
+def consume_output(data: bytes, pending: bytearray, current_tool: str | None) -> tuple[bytes, str | None]:
+    pending.extend(data)
+    forward = bytearray()
+
+    while True:
+        marker_index = pending.find(PHASE_MARKER_PREFIX)
+        if marker_index == -1:
+            forward.extend(pending)
+            pending.clear()
+            break
+
+        if marker_index > 0:
+            forward.extend(pending[:marker_index])
+            del pending[:marker_index]
+
+        newline_index = pending.find(b"\n")
+        if newline_index == -1:
+            break
+
+        marker_line = bytes(pending[: newline_index + 1])
+        del pending[: newline_index + 1]
+        if marker_line.startswith(PHASE_MARKER_PREFIX):
+            current_tool = marker_line[len(PHASE_MARKER_PREFIX) :].strip().decode("utf-8", errors="replace")
+        else:
+            forward.extend(marker_line)
+
+    return bytes(forward), current_tool
+
+
+def run_host_session(host: str, hold_tool: str | None = None) -> tuple[int, str | None, str | None]:
     master_fd, slave_fd = pty.openpty()
     sync_pty_window_size(slave_fd)
     proc = subprocess.Popen(
-        build_ssh_command(host),
+        build_ssh_command(host, hold_tool=hold_tool),
         stdin=slave_fd,
         stdout=slave_fd,
         stderr=slave_fd,
@@ -302,6 +366,9 @@ def run_host_session(host: str) -> tuple[int, str | None]:
     input_buffer = bytearray()
     action = None
     resize_pending = False
+    paused_mode = hold_tool is not None
+    current_tool = hold_tool
+    output_pending = bytearray()
 
     def handle_sigwinch(signum, frame) -> None:
         nonlocal resize_pending
@@ -329,7 +396,9 @@ def run_host_session(host: str) -> tuple[int, str | None]:
                     except OSError:
                         data = b""
                     if data:
-                        os.write(stdout_fd, data)
+                        display_data, current_tool = consume_output(data, output_pending, current_tool)
+                        if display_data:
+                            os.write(stdout_fd, display_data)
 
                 if stdin_fd in readable:
                     chunk = os.read(stdin_fd, 128)
@@ -339,7 +408,7 @@ def run_host_session(host: str) -> tuple[int, str | None]:
                         break
 
                     input_buffer.extend(chunk)
-                    action, forward = extract_action(input_buffer)
+                    action, forward = extract_action(input_buffer, paused_mode=paused_mode)
                     if forward:
                         os.write(master_fd, forward)
                     if action is not None:
@@ -353,12 +422,18 @@ def run_host_session(host: str) -> tuple[int, str | None]:
                     break
                 if not data:
                     break
-                os.write(stdout_fd, data)
+                display_data, current_tool = consume_output(data, output_pending, current_tool)
+                if display_data:
+                    os.write(stdout_fd, display_data)
+
+            if output_pending:
+                os.write(stdout_fd, bytes(output_pending))
+                output_pending.clear()
     finally:
         signal.signal(signal.SIGWINCH, previous_sigwinch)
         os.close(master_fd)
 
-    return proc.wait(), action
+    return proc.wait(), action, current_tool
 
 
 def run_cycle(hosts: list[str]) -> int:
@@ -371,10 +446,10 @@ def run_cycle(hosts: list[str]) -> int:
         print(f"========== {host} ==========")
         print(f"开始时间: {time.strftime('%F %T')}")
         print(f"进度: {index + 1}/{host_count}")
-        print("按键: PageDown 下一台 | PageUp 上一台 | Ctrl-C 退出")
+        print("按键: PageDown 下一台 | PageUp 上一台 | Ctrl-S 停驻当前界面 | Ctrl-C 退出")
         sys.stdout.flush()
 
-        status, action = run_host_session(host)
+        status, action, current_tool = run_host_session(host)
         print()
 
         if action == "next":
@@ -390,12 +465,41 @@ def run_cycle(hosts: list[str]) -> int:
         if action == "quit":
             print(f"[{host}] 已退出脚本")
             return 0
+        if action == "pause":
+            hold_tool = current_tool or choose_gpu_monitor(host)
+            print(f"[{host}] 已停驻在 {hold_tool} 界面。按 Ctrl-R 恢复自动轮播。")
+            while True:
+                hold_status, hold_action, _ = run_host_session(host, hold_tool=hold_tool)
+                print()
+                if hold_action == "resume":
+                    print(f"[{host}] 已恢复自动轮播")
+                    break
+                if hold_action == "next":
+                    print(f"[{host}] 已切到下一台")
+                    index = (index + 1) % host_count
+                    time.sleep(0.2)
+                    hold_status = None
+                    break
+                if hold_action == "prev":
+                    print(f"[{host}] 已切到上一台")
+                    index = (index - 1 + host_count) % host_count
+                    time.sleep(0.2)
+                    hold_status = None
+                    break
+                if hold_action == "quit":
+                    print(f"[{host}] 已退出脚本")
+                    return 0
+                print(f"[{host}] 停驻会话结束，重新进入停驻模式")
+            if hold_action == "resume":
+                continue
+            if hold_action in {"next", "prev"}:
+                continue
 
         if status != 0:
             if AUTO_COPY_ID:
                 print(f"[{host}] 直接登录失败，尝试执行 ssh-copy-id")
                 if try_copy_id(host):
-                    retry_status, retry_action = run_host_session(host)
+                    retry_status, retry_action, retry_current_tool = run_host_session(host)
                     print()
                     if retry_action == "quit":
                         print(f"[{host}] 已退出脚本")
@@ -410,6 +514,35 @@ def run_cycle(hosts: list[str]) -> int:
                         index = (index - 1 + host_count) % host_count
                         time.sleep(0.2)
                         continue
+                    if retry_action == "pause":
+                        hold_tool = retry_current_tool or choose_gpu_monitor(host)
+                        print(f"[{host}] 已停驻在 {hold_tool} 界面。按 Ctrl-R 恢复自动轮播。")
+                        while True:
+                            hold_status, hold_action, _ = run_host_session(host, hold_tool=hold_tool)
+                            print()
+                            if hold_action == "resume":
+                                print(f"[{host}] 已恢复自动轮播")
+                                break
+                            if hold_action == "next":
+                                print(f"[{host}] 已切到下一台")
+                                index = (index + 1) % host_count
+                                time.sleep(0.2)
+                                hold_status = None
+                                break
+                            if hold_action == "prev":
+                                print(f"[{host}] 已切到上一台")
+                                index = (index - 1 + host_count) % host_count
+                                time.sleep(0.2)
+                                hold_status = None
+                                break
+                            if hold_action == "quit":
+                                print(f"[{host}] 已退出脚本")
+                                return 0
+                            print(f"[{host}] 停驻会话结束，重新进入停驻模式")
+                        if hold_action == "resume":
+                            continue
+                        if hold_action in {"next", "prev"}:
+                            continue
                     if retry_status == 0:
                         maybe_offer_copy_id(host)
                         print(f"[{host}] 本轮完成，{HOST_SWITCH_DELAY}s 后切到下一台")
