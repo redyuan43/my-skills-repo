@@ -59,6 +59,12 @@
 - `scripts/export_cli_configs.sh` - 从当前机器导出脱敏模板
 - `scripts/install_cli_configs.sh` - 安装模板并按环境变量替换占位符
 
+### 6. claude-aliyun-config-fixer
+**功能：** 配置与排障 Claude Code 对接阿里云百炼 / Coding Plan（含 `403 invalid api-key` 快速定位）
+**用途：** 当按阿里云文档配置 Claude Code 失败、出现 `403 invalid api-key`、或不确定 `sk-` / `sk-sp-` Key 与 Base URL 如何匹配时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（含 Key 前缀与 Base URL 对应关系、冲突项清理、最小验证与排障流程）
+
 ### 7. ai-cli-suite-installer
 **功能：** 批量安装/升级 `claude`、`kilo`、`codex`、`opencode`、`qwen`、`gemini` 六大 CLI，并处理 npm 全局权限问题
 **用途：** 当需要一键安装或统一升级这六个 AI CLI、修复 `npm -g` 的 `EACCES/EPERM`、切换到 `~/.npm-global`（无需 sudo）、或避免 `kilo/opencode/claude` 升级卡住时使用
@@ -119,13 +125,13 @@
 
 ### 14. asr
 **功能：** 语音识别（Speech-to-Text），将音频文件转录为文字
-**用途：** 当需要将本地音频文件（WAV 等）通过本地 SenseVoiceSmall 后端转录为文字时使用。用法：`/asr /path/to/audio.wav`
+**用途：** 当需要将本地音频文件（WAV 等）通过本地 Qwen3-ASR 模型转录为文字时使用。用法：`/asr /path/to/audio.wav`
 **文件：**
 - `SKILL.md` - 技能说明文档（转录流程、响应字段说明与错误处理）
 
 ### 15. translate
 **功能：** 语义翻译（Semantic Translation），使用本地 AI 模型进行中英文互译
-**用途：** 当需要通过本地 Ollama 模型 `huihui_ai/hy-mt1.5-abliterated:1.8b` 翻译文字、支持中英互译时使用。用法：`/translate Hello World [to:zh|to:en]`
+**用途：** 当需要通过本地 Ollama 大语言模型翻译文字、支持中英互译时使用。用法：`/translate Hello World [to:zh|to:en]`
 **文件：**
 - `SKILL.md` - 技能说明文档（参数解析、API 调用、响应展示与 fallback 处理）
 
@@ -136,15 +142,7 @@
 - `SKILL.md` - 技能说明文档（B 站下载工作流、短链解析、cookie 使用和失败处理）
 - `scripts/download_bilibili.py` - Bilibili 下载包装脚本，支持 `video`/`audio`/`subtitles`/`metadata` 模式，并自动探测 Chromium/Snap Chromium 配置
 
-### 17. download-podcast-audio
-**功能：** 使用 `yt-dlp` 下载播客单集音频、show notes、封面图和元数据，覆盖小宇宙单集页、直链音频和其他能解析出真实音频地址的播客落地页
-**用途：** 当用户提供小宇宙单集链接、播客节目页链接或直接的 MP3/M4A/OPUS 地址，希望保存本地音频并保留 `.info.json`、描述文本和缩略图时使用
-**文件：**
-- `SKILL.md` - 技能说明文档（播客下载工作流、常用命令和失败处理）
-- `scripts/download_podcast.py` - 播客音频下载包装脚本，支持 `audio`/`metadata` 模式和浏览器 cookie 重试
-- `references/presets.md` - 常用下载参数和操作规则参考
-
-### 18. qwen3-omni-multimodal-client
+### 17. qwen3-omni-multimodal-client
 **功能：** 调用本地 `Qwen3-Omni` 服务，统一覆盖文本、音频、图片、视频输入，以及文本/音频输出
 **用途：** 当本地 `Qwen3-Omni` wrapper 服务已经启动，用户需要快速执行 `ping`、文本问答、文本转语音、图片理解、音频理解或视频理解命令时使用
 **文件：**
@@ -152,7 +150,7 @@
 - `references/examples.md` - 多模态命令速查示例
 - `scripts/run_qwen3_omni_infer.sh` - 本地 CLI 调用包装脚本
 
-### 19. qwen3-omni-bundle-manager
+### 18. qwen3-omni-bundle-manager
 **功能：** 安全隔离不可用模型缓存、生成只包含可用 `gptq4` 路径的部署压缩包，并校验压缩包内容
 **用途：** 当需要清理 `Qwen3-Omni` 项目里的失败模型分支、保留可用 `gptq4` 模型、导出可迁移 bundle，或验证归档是否排除了失败模型时使用
 **文件：**
@@ -160,7 +158,7 @@
 - `references/bundle-layout.md` - bundle 内部布局说明
 - `scripts/prune_and_bundle.sh` - 串联清理与打包的入口脚本
 
-### 20. deskflow-linux-setup
+### 19. deskflow-linux-setup
 **功能：** 在 Linux 上安装、运行并排障 Deskflow，覆盖 Flatpak、原生包、AppImage 和源码编译
 **用途：** 当需要安装 Deskflow 键鼠共享工具、验证下载的安装包是否可用、修复 `.deb` 依赖冲突，或按官方方法从源码构建 Deskflow 时使用
 **文件：**
@@ -168,7 +166,7 @@
 - `references/install-methods.md` - 程序摘要、安装方式对比、Linux 依赖列表、源码编译命令和 Ubuntu GNOME 快捷键配置
 - `assets/deskflow-1.26.0-linux-x86_64.flatpak` - 已验证可安装的 Deskflow Flatpak 原始安装包
 
-### 21. openclaw-setup
+### 20. openclaw-setup
 **功能：** 安装 OpenClaw 并配置 API 模型 provider
 **用途：** 当需要全新安装 OpenClaw、配置 GLM/Ollama/OpenAI/OpenRouter 等模型 provider、启动 Gateway 或排查常见问题时使用
 **文件：**
@@ -451,54 +449,12 @@
 - `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 切换与 `Ctrl-G/Ctrl-R` 停驻控制
 - `scripts/ssh_monitor_cycle.sh` - 启动包装脚本，统一从 shell 调用 Python 版本
 
-### 52. wechat-archive
-**功能：** 统一执行微信归档的索引、检索、摘要、专题分析、topic memory card 与 watchlist alert 工作流，并附带每日增量索引和本地 HTTP 检索服务的 systemd 资产
-**用途：** 当需要把 `/home/nx/chat_archive` 通过 OpenViking 做增量索引、语义搜索、日报/单 chat 分析，或把这套工作流和 `1934` 常驻服务一起打包成可复用技能时使用
-**文件：**
-- `SKILL.md` - 技能说明文档（统一工作流、默认路径、命令入口和运维规则）
-- `scripts/archive_locator.py` - 导出 Markdown 的 chat/day/topic 文件定位工具
-- `scripts/run_wechat_archive_agent.sh` - `examples/wechat_archive_agent.py` 的统一包装脚本
-- `scripts/run_wechat_archive_daily_index.sh` - 每日增量索引包装脚本
-- `scripts/run_wechat_archive_http_service.sh` - 本地 `1934` HTTP 服务启动脚本
-- `systemd/user/openviking-wechat-archive-index.service` - 每日索引 service 模板
-- `systemd/user/openviking-wechat-archive-index.timer` - 每日索引 timer 模板
-- `systemd/user/openviking-wechat-archive-server.service` - 本地 HTTP 检索服务模板
-
-### 53. remmina-x11-clipboard-bridge
+### 52. remmina-x11-clipboard-bridge
 **功能：** 修复 Linux X11 下 Remmina 内复制文本后无法在本地应用直接 `Ctrl+V` 粘贴的问题，并自动安装/配置 `autocutsel` 进行 `PRIMARY` 与 `CLIPBOARD` 桥接
 **用途：** 当用户说“Remmina 里复制的文本贴不到外面”“X11 下远程桌面选中文本后本地剪贴板没更新”，或想把这个修复做成登录后自动生效时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、诊断顺序、安装步骤、验证与回滚）
 - `scripts/install_autocutsel_bridge.sh` - 安装 `autocutsel`、写入 `~/.config/autostart/autocutsel.desktop`，并在当前 X11 会话立即启动桥接
-
-### 53. jtop-desktop-launcher
-**功能：** 为 Linux 桌面生成可双击的 `jtop` 启动器，自动重启 `jtop.service`，并在服务真正 ready 后再进入 `jtop`
-**用途：** 当用户每次开机后都要手动 `sudo systemctl restart jtop.service` 才能打开 `jtop`、想做桌面快捷方式双击启动，或遇到 `pkexec` 图形认证失败时使用
-**文件：**
-- `SKILL.md` - 技能说明文档（触发条件、关键经验、标准工作流与验证方式）
-- `scripts/install_jtop_desktop_launcher.sh` - 一键安装桌面启动器，可选写入最小免密 sudo 规则
-
-### 54. jetson-super-mode-upgrade
-**功能：** 在 Jetson Orin Nano / Orin NX 上启用并验收真正可用的 Super Mode，覆盖 Super DTB、`nv_boot_control.conf`、bootloader capsule、双重启验证与回滚
-**用途：** 当系统里已经出现 `*_super.conf`、`nv-super.dtb` 或 super capsule，但仅靠 `nvpmodel` 切换并没有真正提频、GPU 仍卡在 `918000000`，需要把“伪 Super”升级成“真 Super”时使用
-**文件：**
-- `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
-- `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
-- `scripts/check_jetson_super_mode.py` - 半自动只读检查脚本，自动判断当前属于普通模式、待重启、Super DTB 半成功还是真正可用的 Super Mode
-
-### 55. lmstudio-brave-mcp-bootstrap
-**功能：** 为 LM Studio 一键安装 Brave Search MCP，写入本地 `mcp.json`、自定义 MCP server、启动脚本和凭证模板，支持代理、IPv4 与重试策略
-**用途：** 当用户需要把 Brave Search API 接入 LM Studio、希望把这套 MCP 搜索能力迁移到其他 Linux/macOS 设备、或希望把代理配置稳定固化到 LM Studio 子进程时使用
-**文件：**
-- `SKILL.md` - 技能说明文档（适用边界、标准工作流、资源说明）
-- `agents/openai.yaml` - skill UI 元数据，方便支持 skill 面板的平台直接触发
-- `assets/brave-lmstudio-mcp.mjs` - 自定义 Brave MCP server，暴露 web/news/video/image/place/suggest/spellcheck/summarizer 等工具
-- `assets/brave-lmstudio-mcp.sh` - LM Studio 启动脚本，负责加载凭证并拉起 Node server
-- `assets/brave-official-mcp.sh` - 官方 Brave MCP 启动脚本，适用于 `--mode official`
-- `assets/brave-search.env.example` - 凭证与代理模板
-- `references/troubleshooting.md` - Brave MCP 常见超时、代理和套餐边界排障说明
-- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本，支持 `custom` / `official` 模式，并可做链路自检
-
 ## 使用方法
 
 1. 克隆此仓库到本地
