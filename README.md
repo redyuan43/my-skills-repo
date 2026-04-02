@@ -448,6 +448,7 @@
 - `SKILL.md` - 技能说明文档（触发条件、运行方式、按键说明与限制）
 - `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 切换与 `Ctrl-S/Ctrl-R` 停驻控制
 - `scripts/ssh_monitor_cycle.sh` - 启动包装脚本，统一从 shell 调用 Python 版本
+
 ### 51. wechat-archive
 **功能：** 统一执行微信归档的索引、检索、摘要、专题分析、topic memory card 与 watchlist alert 工作流，并附带每日增量索引和本地 HTTP 检索服务的 systemd 资产
 **用途：** 当需要把 `/home/nx/chat_archive` 通过 OpenViking 做增量索引、语义搜索、日报/单 chat 分析，或把这套工作流和 `1934` 常驻服务一起打包成可复用技能时使用
@@ -461,6 +462,12 @@
 - `systemd/user/openviking-wechat-archive-index.timer` - 每日索引 timer 模板
 - `systemd/user/openviking-wechat-archive-server.service` - 本地 HTTP 检索服务模板
 
+### 52. remmina-x11-clipboard-bridge
+**功能：** 修复 Linux X11 下 Remmina 内复制文本后无法在本地应用直接 `Ctrl+V` 粘贴的问题，并自动安装/配置 `autocutsel` 进行 `PRIMARY` 与 `CLIPBOARD` 桥接
+**用途：** 当用户说“Remmina 里复制的文本贴不到外面”“X11 下远程桌面选中文本后本地剪贴板没更新”，或想把这个修复做成登录后自动生效时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、诊断顺序、安装步骤、验证与回滚）
+- `scripts/install_autocutsel_bridge.sh` - 安装 `autocutsel`、写入 `~/.config/autostart/autocutsel.desktop`，并在当前 X11 会话立即启动桥接
 ## 使用方法
 
 1. 克隆此仓库到本地
