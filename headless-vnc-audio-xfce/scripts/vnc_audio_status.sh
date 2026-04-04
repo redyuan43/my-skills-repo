@@ -9,7 +9,7 @@ COOKIE_PATH="${VNC_AUDIO_COOKIE:-$PULSE_DIR/vnc-audio.cookie}"
 iface="$(ip -o -4 route show to default | awk 'NR==1 { print $5 }')"
 listen_ip=""
 if [[ -n "$iface" ]]; then
-  listen_ip="$(ip -o -4 addr show dev "$iface" scope global | awk 'NR==1 { split($4, parts, \"/\"); print parts[1] }')"
+  listen_ip="$(ip -o -4 addr show dev "$iface" scope global | awk 'NR==1 { split($4, parts, "/"); print parts[1] }')"
 fi
 
 printf 'default sink: %s\n' "$(pactl get-default-sink 2>/dev/null || echo unknown)"

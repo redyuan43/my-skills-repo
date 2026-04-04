@@ -27,7 +27,7 @@ listen_ip() {
   local iface
   iface="$(default_iface)"
   if [[ -n "$iface" ]]; then
-    ip -o -4 addr show dev "$iface" scope global | awk 'NR==1 { split($4, parts, \"/\"); print parts[1] }'
+    ip -o -4 addr show dev "$iface" scope global | awk 'NR==1 { split($4, parts, "/"); print parts[1] }'
   fi
 }
 

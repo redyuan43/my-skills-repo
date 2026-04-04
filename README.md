@@ -136,7 +136,15 @@
 - `SKILL.md` - 技能说明文档（B 站下载工作流、短链解析、cookie 使用和失败处理）
 - `scripts/download_bilibili.py` - Bilibili 下载包装脚本，支持 `video`/`audio`/`subtitles`/`metadata` 模式，并自动探测 Chromium/Snap Chromium 配置
 
-### 17. qwen3-omni-multimodal-client
+### 17. download-podcast-audio
+**功能：** 使用 `yt-dlp` 下载播客单集音频、show notes、封面图和元数据，覆盖小宇宙单集页、直链音频和其他能解析出真实音频地址的播客落地页
+**用途：** 当用户提供小宇宙单集链接、播客节目页链接或直接的 MP3/M4A/OPUS 地址，希望保存本地音频并保留 `.info.json`、描述文本和缩略图时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（播客下载工作流、常用命令和失败处理）
+- `scripts/download_podcast.py` - 播客音频下载包装脚本，支持 `audio`/`metadata` 模式和浏览器 cookie 重试
+- `references/presets.md` - 常用下载参数和操作规则参考
+
+### 18. qwen3-omni-multimodal-client
 **功能：** 调用本地 `Qwen3-Omni` 服务，统一覆盖文本、音频、图片、视频输入，以及文本/音频输出
 **用途：** 当本地 `Qwen3-Omni` wrapper 服务已经启动，用户需要快速执行 `ping`、文本问答、文本转语音、图片理解、音频理解或视频理解命令时使用
 **文件：**
@@ -144,7 +152,7 @@
 - `references/examples.md` - 多模态命令速查示例
 - `scripts/run_qwen3_omni_infer.sh` - 本地 CLI 调用包装脚本
 
-### 18. qwen3-omni-bundle-manager
+### 19. qwen3-omni-bundle-manager
 **功能：** 安全隔离不可用模型缓存、生成只包含可用 `gptq4` 路径的部署压缩包，并校验压缩包内容
 **用途：** 当需要清理 `Qwen3-Omni` 项目里的失败模型分支、保留可用 `gptq4` 模型、导出可迁移 bundle，或验证归档是否排除了失败模型时使用
 **文件：**
@@ -152,7 +160,7 @@
 - `references/bundle-layout.md` - bundle 内部布局说明
 - `scripts/prune_and_bundle.sh` - 串联清理与打包的入口脚本
 
-### 19. deskflow-linux-setup
+### 20. deskflow-linux-setup
 **功能：** 在 Linux 上安装、运行并排障 Deskflow，覆盖 Flatpak、原生包、AppImage 和源码编译
 **用途：** 当需要安装 Deskflow 键鼠共享工具、验证下载的安装包是否可用、修复 `.deb` 依赖冲突，或按官方方法从源码构建 Deskflow 时使用
 **文件：**
@@ -160,7 +168,7 @@
 - `references/install-methods.md` - 程序摘要、安装方式对比、Linux 依赖列表、源码编译命令和 Ubuntu GNOME 快捷键配置
 - `assets/deskflow-1.26.0-linux-x86_64.flatpak` - 已验证可安装的 Deskflow Flatpak 原始安装包
 
-### 20. openclaw-setup
+### 21. openclaw-setup
 **功能：** 安装 OpenClaw 并配置 API 模型 provider
 **用途：** 当需要全新安装 OpenClaw、配置 GLM/Ollama/OpenAI/OpenRouter 等模型 provider、启动 Gateway 或排查常见问题时使用
 **文件：**
@@ -443,7 +451,7 @@
 - `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 切换与 `Ctrl-S/Ctrl-R` 停驻控制
 - `scripts/ssh_monitor_cycle.sh` - 启动包装脚本，统一从 shell 调用 Python 版本
 
-### 51. wechat-archive
+### 52. wechat-archive
 **功能：** 统一执行微信归档的索引、检索、摘要、专题分析、topic memory card 与 watchlist alert 工作流，并附带每日增量索引和本地 HTTP 检索服务的 systemd 资产
 **用途：** 当需要把 `/home/nx/chat_archive` 通过 OpenViking 做增量索引、语义搜索、日报/单 chat 分析，或把这套工作流和 `1934` 常驻服务一起打包成可复用技能时使用
 **文件：**
@@ -456,7 +464,7 @@
 - `systemd/user/openviking-wechat-archive-index.timer` - 每日索引 timer 模板
 - `systemd/user/openviking-wechat-archive-server.service` - 本地 HTTP 检索服务模板
 
-### 52. remmina-x11-clipboard-bridge
+### 53. remmina-x11-clipboard-bridge
 **功能：** 修复 Linux X11 下 Remmina 内复制文本后无法在本地应用直接 `Ctrl+V` 粘贴的问题，并自动安装/配置 `autocutsel` 进行 `PRIMARY` 与 `CLIPBOARD` 桥接
 **用途：** 当用户说“Remmina 里复制的文本贴不到外面”“X11 下远程桌面选中文本后本地剪贴板没更新”，或想把这个修复做成登录后自动生效时使用
 **文件：**
@@ -477,7 +485,6 @@
 - `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
 - `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
 - `scripts/check_jetson_super_mode.py` - 半自动只读检查脚本，自动判断当前属于普通模式、待重启、Super DTB 半成功还是真正可用的 Super Mode
-
 ## 使用方法
 
 1. 克隆此仓库到本地

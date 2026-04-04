@@ -45,7 +45,7 @@ persona_label() {
     cat-maid-engineer) echo "月见喵 | 女仆风 | 关照细致" ;;
     cat-tsundere-engineer) echo "凛铃喵 | 傲娇风 | 救火修复" ;;
     cat-soft-engineer) echo "糯米喵 | 软萌风 | 温和讲解" ;;
-    cat-chief-engineer) echo "苍曜喵 | 总工风 | 架构评审" ;;
+    cat-chief-engineer) echo "苍曜喵 / Cangyao（硬朗直男） | 总工风 | 架构评审" ;;
     cat-playful-engineer) echo "星糖喵 | 活泼风 | 前端创意" ;;
     cat-nightwatch-engineer) echo "夜墨喵 | 守夜风 | 运维安全" ;;
     *) echo "$1" ;;
