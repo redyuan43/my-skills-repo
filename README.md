@@ -468,6 +468,14 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、诊断顺序、安装步骤、验证与回滚）
 - `scripts/install_autocutsel_bridge.sh` - 安装 `autocutsel`、写入 `~/.config/autostart/autocutsel.desktop`，并在当前 X11 会话立即启动桥接
+
+### 53. jtop-desktop-launcher
+**功能：** 为 Linux 桌面生成可双击的 `jtop` 启动器，自动重启 `jtop.service`，并在服务真正 ready 后再进入 `jtop`
+**用途：** 当用户每次开机后都要手动 `sudo systemctl restart jtop.service` 才能打开 `jtop`、想做桌面快捷方式双击启动，或遇到 `pkexec` 图形认证失败时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、关键经验、标准工作流与验证方式）
+- `scripts/install_jtop_desktop_launcher.sh` - 一键安装桌面启动器，可选写入最小免密 sudo 规则
+
 ## 使用方法
 
 1. 克隆此仓库到本地
