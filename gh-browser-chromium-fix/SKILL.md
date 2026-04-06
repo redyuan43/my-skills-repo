@@ -27,7 +27,7 @@ command -v chromium chromium-browser google-chrome-stable google-chrome
 
 2. 选一个可工作的 Chromium 可执行文件。
 
-- 优先使用本机已经验证可用的原生 Chromium，例如 `/home/agx/.local/bin/chromium`
+- 优先使用本机已经验证可用的原生 Chromium，例如 `~/.local/bin/chromium`
 - 如果 `command -v chromium` 直接给出可执行文件，就用它
 - 如果只找到 Snap 包装器，不要把包装器当作最终方案
 
@@ -60,7 +60,7 @@ gio mime x-scheme-handler/https
 
 ```bash
 bash gh-browser-chromium-fix/scripts/set_gh_browser.sh
-bash gh-browser-chromium-fix/scripts/set_gh_browser.sh /home/agx/.local/bin/chromium
+bash gh-browser-chromium-fix/scripts/set_gh_browser.sh "$HOME/.local/bin/chromium"
 ```
 
 ## 失败处理

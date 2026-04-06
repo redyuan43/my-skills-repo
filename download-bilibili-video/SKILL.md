@@ -48,7 +48,7 @@ Download from a short link and force Snap Chromium cookies:
 ```bash
 python3 scripts/download_bilibili.py \
   --url "https://b23.tv/zinUqAv" \
-  --browser-profile /home/dgx/snap/chromium/common/chromium \
+  --browser-profile "$HOME/snap/chromium/common/chromium" \
   --mode video
 ```
 
@@ -81,7 +81,7 @@ python3 scripts/download_bilibili.py \
 
 - If a `b23.tv` link fails directly, keep short-link expansion enabled and use the resolved `bilibili.com/video/BV...` URL.
 - If Bilibili returns `412 Precondition Failed`, prefer Chromium cookies via `--cookies-from-browser`.
-- If the machine uses Snap Chromium, set `--browser-profile /home/dgx/snap/chromium/common/chromium` or let the script auto-detect it.
+- If the machine uses Snap Chromium, set `--browser-profile "$HOME/snap/chromium/common/chromium"` or let the script auto-detect it.
 - If content is private, region-restricted, members-only, or DRM-protected, report the exact `yt-dlp` error instead of retrying blindly.
 - Keep playlist behavior disabled unless the user explicitly asks for an anthology or playlist-style download.
 
