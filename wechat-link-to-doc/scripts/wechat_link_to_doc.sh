@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="/home/ivan/github/PyWxDump"
+REPO_ROOT="${PYWXDUMP_ROOT:-$HOME/github/PyWxDump}"
 URL=""
 OUTPUT_DIR=""
 DOC_TYPE=""

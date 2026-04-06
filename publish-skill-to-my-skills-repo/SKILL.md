@@ -13,7 +13,7 @@ Publish a local skill folder into `my-skills-repo` while preserving that repo's 
 
 ## 1. Confirm the target repo and local clone
 
-Check whether `my-skills-repo` is already cloned locally (for example `/home/ivan/my-skills-repo`).
+Check whether `my-skills-repo` is already cloned locally (for example `~/github/my-skills-repo`).
 
 If not cloned, clone:
 
@@ -31,7 +31,7 @@ Read `references/my-skills-repo-format.md` for the observed structure and conven
 
 ## 2. Prepare the source skill folder
 
-Confirm the source skill path (usually under `/home/ivan/.codex/skills/<skill-name>`).
+Confirm the source skill path (usually under `~/.codex/skills/<skill-name>`).
 
 Copy only the files needed by the public repo format:
 
@@ -43,8 +43,8 @@ Use the bundled script to copy and generate a README entry template:
 
 ```bash
 python3 scripts/import_skill_to_my_skills_repo.py \
-  --source /home/ivan/.codex/skills/gh-repo-maintenance \
-  --target-repo /home/ivan/my-skills-repo
+  --source "$HOME/.codex/skills/gh-repo-maintenance" \
+  --target-repo "$HOME/github/my-skills-repo"
 ```
 
 Default behavior:

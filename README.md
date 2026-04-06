@@ -59,12 +59,6 @@
 - `scripts/export_cli_configs.sh` - 从当前机器导出脱敏模板
 - `scripts/install_cli_configs.sh` - 安装模板并按环境变量替换占位符
 
-### 6. claude-aliyun-config-fixer
-**功能：** 配置与排障 Claude Code 对接阿里云百炼 / Coding Plan（含 `403 invalid api-key` 快速定位）
-**用途：** 当按阿里云文档配置 Claude Code 失败、出现 `403 invalid api-key`、或不确定 `sk-` / `sk-sp-` Key 与 Base URL 如何匹配时使用
-**文件：**
-- `SKILL.md` - 技能说明文档（含 Key 前缀与 Base URL 对应关系、冲突项清理、最小验证与排障流程）
-
 ### 7. ai-cli-suite-installer
 **功能：** 批量安装/升级 `claude`、`kilo`、`codex`、`opencode`、`qwen`、`gemini` 六大 CLI，并处理 npm 全局权限问题
 **用途：** 当需要一键安装或统一升级这六个 AI CLI、修复 `npm -g` 的 `EACCES/EPERM`、切换到 `~/.npm-global`（无需 sudo）、或避免 `kilo/opencode/claude` 升级卡住时使用
@@ -125,13 +119,13 @@
 
 ### 14. asr
 **功能：** 语音识别（Speech-to-Text），将音频文件转录为文字
-**用途：** 当需要将本地音频文件（WAV 等）通过本地 Qwen3-ASR 模型转录为文字时使用。用法：`/asr /path/to/audio.wav`
+**用途：** 当需要将本地音频文件（WAV 等）通过本地 SenseVoiceSmall 后端转录为文字时使用。用法：`/asr /path/to/audio.wav`
 **文件：**
 - `SKILL.md` - 技能说明文档（转录流程、响应字段说明与错误处理）
 
 ### 15. translate
 **功能：** 语义翻译（Semantic Translation），使用本地 AI 模型进行中英文互译
-**用途：** 当需要通过本地 Ollama 大语言模型翻译文字、支持中英互译时使用。用法：`/translate Hello World [to:zh|to:en]`
+**用途：** 当需要通过本地 Ollama 模型 `huihui_ai/hy-mt1.5-abliterated:1.8b` 翻译文字、支持中英互译时使用。用法：`/translate Hello World [to:zh|to:en]`
 **文件：**
 - `SKILL.md` - 技能说明文档（参数解析、API 调用、响应展示与 fallback 处理）
 
