@@ -485,6 +485,17 @@
 - `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
 - `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
 - `scripts/check_jetson_super_mode.py` - 半自动只读检查脚本，自动判断当前属于普通模式、待重启、Super DTB 半成功还是真正可用的 Super Mode
+
+### 55. lmstudio-brave-mcp-bootstrap
+**功能：** 为 LM Studio 一键安装 Brave Search MCP，写入本地 `mcp.json`、自定义 MCP server、启动脚本和凭证模板，支持代理、IPv4 与重试策略
+**用途：** 当用户需要把 Brave Search API 接入 LM Studio、希望把这套 MCP 搜索能力迁移到其他 Linux/macOS 设备、或希望把代理配置稳定固化到 LM Studio 子进程时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、标准工作流、资源说明）
+- `assets/brave-lmstudio-mcp.mjs` - 自定义 Brave MCP server，暴露 web/news/video/image/place/suggest/spellcheck/summarizer 等工具
+- `assets/brave-lmstudio-mcp.sh` - LM Studio 启动脚本，负责加载凭证并拉起 Node server
+- `assets/brave-search.env.example` - 凭证与代理模板
+- `references/troubleshooting.md` - Brave MCP 常见超时、代理和套餐边界排障说明
+- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本
 ## 使用方法
 
 1. 克隆此仓库到本地
