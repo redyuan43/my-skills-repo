@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jetson GPU Fan Guard"
+  short_description: "Jetson GPU 温控风扇守护脚本与开机自启安装"
+  default_prompt: "Use $jetson-gpu-fan-guard to install a boot-time GPU temperature fan guard on this Jetson device."
