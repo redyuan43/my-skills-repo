@@ -1,0 +1,4 @@
+interface:
+  display_name: "LM Studio Brave MCP Bootstrap"
+  short_description: "Install portable Brave Search MCP for LM Studio."
+  default_prompt: "Use $lmstudio-brave-mcp-bootstrap to install or refresh Brave Search MCP for LM Studio on this device, including API key, proxy, and validation steps."

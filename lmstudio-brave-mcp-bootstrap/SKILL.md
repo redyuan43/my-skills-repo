@@ -10,7 +10,7 @@ description: 为 LM Studio 安装和配置基于 Brave Search API 的 MCP 搜索
 它会安装一套可复用的本地资产：
 
 - `~/.lmstudio/mcp.json`
-- `~/.lmstudio/bin/brave-lmstudio-mcp.sh`
+- `~/.lmstudio/bin/brave-lmstudio-mcp.sh` 或 `~/.lmstudio/bin/brave-official-mcp.sh`
 - `~/.lmstudio/mcp-servers/brave-search/brave-lmstudio-mcp.mjs`
 - `~/.lmstudio/credentials/brave-search.env`
 
@@ -37,6 +37,14 @@ bash scripts/install_lmstudio_brave_mcp.sh \
   --proxy-url "socks://127.0.0.1:10808/"
 ```
 
+如果你只想装官方 Brave MCP server，而不是自定义增强版：
+
+```bash
+bash scripts/install_lmstudio_brave_mcp.sh \
+  --mode official \
+  --api-key "YOUR_BRAVE_API_KEY"
+```
+
 3. 重启 LM Studio。
 
 4. 新开聊天验证：
@@ -49,6 +57,8 @@ bash scripts/install_lmstudio_brave_mcp.sh \
 
 - 默认保留自定义 MCP server，而不是退回官方 `@modelcontextprotocol/server-brave-search`
 原因：这套实现支持更多 Brave 端点，也显式处理了代理、IPv4 和重试。
+- `--mode official` 只暴露官方 Brave MCP 自带的能力，通常比自定义模式少。
+- 如果用户明确要求“尽量多配置 Brave 的能力”，优先使用默认 `custom` 模式。
 - 如果用户机器必须走代理，不要依赖桌面环境“自动继承代理”。
 优先用 `--proxy-url` 写入 `brave-search.env`，让 MCP 行为稳定可复现。
 - 如需排查超时，先读 `references/troubleshooting.md`。
@@ -56,7 +66,9 @@ bash scripts/install_lmstudio_brave_mcp.sh \
 ## 资源说明
 
 - `scripts/install_lmstudio_brave_mcp.sh`
-作用：一键安装或更新 LM Studio 的 Brave MCP 配置。
+作用：一键安装或更新 LM Studio 的 Brave MCP 配置，支持 `custom` / `official` 两种模式。
+- `agents/openai.yaml`
+作用：为支持 skill UI 的平台提供显示名、简介和默认调用提示。
 - `assets/brave-lmstudio-mcp.mjs`
 作用：自定义 Brave MCP server，暴露网页、新闻、图片、视频、地点、suggest、spellcheck、summarizer 等工具。
 - `references/troubleshooting.md`

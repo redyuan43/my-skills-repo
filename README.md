@@ -491,11 +491,13 @@
 **用途：** 当用户需要把 Brave Search API 接入 LM Studio、希望把这套 MCP 搜索能力迁移到其他 Linux/macOS 设备、或希望把代理配置稳定固化到 LM Studio 子进程时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、标准工作流、资源说明）
+- `agents/openai.yaml` - skill UI 元数据，方便支持 skill 面板的平台直接触发
 - `assets/brave-lmstudio-mcp.mjs` - 自定义 Brave MCP server，暴露 web/news/video/image/place/suggest/spellcheck/summarizer 等工具
 - `assets/brave-lmstudio-mcp.sh` - LM Studio 启动脚本，负责加载凭证并拉起 Node server
+- `assets/brave-official-mcp.sh` - 官方 Brave MCP 启动脚本，适用于 `--mode official`
 - `assets/brave-search.env.example` - 凭证与代理模板
 - `references/troubleshooting.md` - Brave MCP 常见超时、代理和套餐边界排障说明
-- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本
+- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本，支持 `custom` / `official` 模式
 ## 使用方法
 
 1. 克隆此仓库到本地

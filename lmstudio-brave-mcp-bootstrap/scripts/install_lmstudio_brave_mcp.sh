@@ -8,6 +8,7 @@ LMSTUDIO_DIR="${LMSTUDIO_DIR:-$HOME/.lmstudio}"
 SERVER_NAME="brave-search"
 API_KEY="${BRAVE_API_KEY:-}"
 PROXY_URL="${ALL_PROXY:-}"
+MODE="custom"
 FORCE="0"
 
 usage() {
@@ -18,6 +19,8 @@ usage() {
 选项：
   --api-key <key>         写入 Brave API key
   --proxy-url <url>       写入 MCP 专用代理，如 socks://127.0.0.1:10808/
+  --mode <custom|official>
+                         选择自定义增强版或官方 Brave MCP，默认 custom
   --lmstudio-dir <path>   指定 LM Studio 配置目录，默认 ~/.lmstudio
   --force                 覆盖已有 server 文件和凭证模板
   -h, --help              显示帮助
@@ -37,6 +40,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --proxy-url)
       PROXY_URL="${2:-}"
+      shift 2
+      ;;
+    --mode)
+      MODE="${2:-}"
       shift 2
       ;;
     --lmstudio-dir)
@@ -70,6 +77,11 @@ require_cmd "node"
 require_cmd "curl"
 require_cmd "python3"
 
+if [[ "${MODE}" != "custom" && "${MODE}" != "official" ]]; then
+  echo "--mode 只能是 custom 或 official" >&2
+  exit 1
+fi
+
 BIN_DIR="${LMSTUDIO_DIR}/bin"
 CREDENTIALS_DIR="${LMSTUDIO_DIR}/credentials"
 SERVER_DIR="${LMSTUDIO_DIR}/mcp-servers/${SERVER_NAME}"
@@ -90,8 +102,13 @@ copy_if_needed() {
   cp "${src}" "${dst}"
 }
 
-copy_if_needed "${SKILL_ROOT}/assets/brave-lmstudio-mcp.sh" "${WRAPPER_FILE}"
-copy_if_needed "${SKILL_ROOT}/assets/brave-lmstudio-mcp.mjs" "${SERVER_FILE}"
+if [[ "${MODE}" == "custom" ]]; then
+  copy_if_needed "${SKILL_ROOT}/assets/brave-lmstudio-mcp.sh" "${WRAPPER_FILE}"
+  copy_if_needed "${SKILL_ROOT}/assets/brave-lmstudio-mcp.mjs" "${SERVER_FILE}"
+else
+  WRAPPER_FILE="${BIN_DIR}/brave-official-mcp.sh"
+  copy_if_needed "${SKILL_ROOT}/assets/brave-official-mcp.sh" "${WRAPPER_FILE}"
+fi
 copy_if_needed "${SKILL_ROOT}/assets/brave-search.env.example" "${EXAMPLE_FILE}"
 
 chmod 700 "${WRAPPER_FILE}"
@@ -173,8 +190,11 @@ echo
 echo "LM Studio Brave MCP 已写入："
 echo "  - ${MCP_JSON}"
 echo "  - ${WRAPPER_FILE}"
-echo "  - ${SERVER_FILE}"
+if [[ "${MODE}" == "custom" ]]; then
+  echo "  - ${SERVER_FILE}"
+fi
 echo "  - ${CREDENTIALS_FILE}"
+echo "  - mode=${MODE}"
 echo
 if [[ "${API_KEY}" == "" ]]; then
   echo "注意：当前凭证文件写入的是占位符，请把真实 Brave API key 填进 ${CREDENTIALS_FILE}"
