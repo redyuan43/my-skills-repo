@@ -1,0 +1,15 @@
+[Unit]
+Description=Jetson GPU Temperature Fan Guard
+After=multi-user.target nvfancontrol.service
+Wants=nvfancontrol.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/jetson_gpu_fan_guard.sh
+Restart=always
+RestartSec=2
+Environment=GPU_TEMP_THRESHOLD_C=70
+Environment=POLL_INTERVAL_SEC=2
+
+[Install]
+WantedBy=multi-user.target
