@@ -19,6 +19,7 @@ description: 在 Jetson Orin Nano / Orin NX 上启用并验证真正可用的 Su
 ## Workflow
 
 1. 先做事实基线，不要凭 `nvpmodel` 字样判断是否成功。
+- 优先先跑 `python3 scripts/check_jetson_super_mode.py`，让脚本先把当前状态判成 `NORMAL_MODE`、`RUNTIME_ONLY_OR_PENDING_REBOOT`、`SUPER_DTB_ONLY`、`SUPER_READY_NOT_PINNED` 或 `FULL_SUPER`。
 - 记录 `jetson_release -v`、`sudo nvbootctrl dump-slots-info`、`tr -d '\0' < /proc/device-tree/compatible`。
 - 记录 `readlink -f /etc/nvpmodel.conf`、`cat /sys/devices/platform/17000000.gpu/devfreq_dev/available_frequencies`、`sudo jetson_clocks --show`。
 - 如果 GPU 可用频率仍只到 `918000000`，那还不是真正的 Super Mode。
@@ -63,6 +64,13 @@ description: 在 Jetson Orin Nano / Orin NX 上启用并验证真正可用的 Su
 - `available_frequencies` 应出现更高 GPU 档位，例如 `1020000000`、`1122000000`、`1173000000`。
 - 再执行 `sudo nvpmodel -m 0` 和 `sudo jetson_clocks`，确认 `MAXN_SUPER` 下 GPU 已能锁到新的上限。
 
+## Script
+
+- 快速检查当前状态：`python3 scripts/check_jetson_super_mode.py`
+- 需要机器可读结果时：`python3 scripts/check_jetson_super_mode.py --json`
+- 这个脚本是只读诊断，不会改 `extlinux`、`nv_boot_control.conf`、`nvpmodel` 或 bootloader。
+- 推荐用法是每次重启后先跑一遍，用脚本先判定自己现在处在第几阶段，再决定是否继续往下走。
+
 ## Validation
 
 - `tr -d '\0' < /proc/device-tree/compatible` 中包含 `-super`。
@@ -90,3 +98,4 @@ description: 在 Jetson Orin Nano / Orin NX 上启用并验证真正可用的 Su
 ## Resources
 
 - 需要具体命令顺序、检查点和回滚示例时，读 [references/runbook.md](references/runbook.md)。
+- 需要半自动检查当前状态时，运行 [scripts/check_jetson_super_mode.py](scripts/check_jetson_super_mode.py)。

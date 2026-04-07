@@ -476,6 +476,7 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
 - `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
+- `scripts/check_jetson_super_mode.py` - 半自动只读检查脚本，自动判断当前属于普通模式、待重启、Super DTB 半成功还是真正可用的 Super Mode
 
 ## 使用方法
 
