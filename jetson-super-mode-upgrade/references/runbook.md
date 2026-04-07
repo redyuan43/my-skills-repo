@@ -8,6 +8,20 @@
 
 ## 0. 基线采集
 
+优先先跑一遍半自动检查脚本：
+
+```bash
+python3 scripts/check_jetson_super_mode.py
+```
+
+如果要把结果交给别的工具继续处理，也可以输出 JSON：
+
+```bash
+python3 scripts/check_jetson_super_mode.py --json
+```
+
+然后再做手工基线采集：
+
 ```bash
 jetson_release -v
 sudo nvbootctrl dump-slots-info
@@ -172,3 +186,4 @@ sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure nvidia-l4t-bootloader
 - 包版本升级到新版本，不代表运行中的 bootloader 已更新。
 - 只改 `extlinux` 不改 `COMPATIBLE_SPEC`，常见结果是“看起来是 Super，GPU 还是 918 MHz”。
 - 只跑 `jetson_clocks` 无法突破频率表上限。
+- 建议每次重启后先跑一次 `python3 scripts/check_jetson_super_mode.py`，不要靠记忆判断自己现在处于哪一阶段。
