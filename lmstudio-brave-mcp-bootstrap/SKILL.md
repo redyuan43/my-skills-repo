@@ -53,6 +53,16 @@ bash scripts/install_lmstudio_brave_mcp.sh \
 请使用 brave_web_search 搜索 LM Studio 官方文档，返回 3 条结果和链接。
 ```
 
+如果你想先判断这台机器该装哪种模式，先跑自检：
+
+```bash
+bash scripts/install_lmstudio_brave_mcp.sh \
+  --self-test \
+  --recommend-mode \
+  --api-key "YOUR_BRAVE_API_KEY" \
+  --proxy-url "socks://127.0.0.1:10808/"
+```
+
 ## 关键规则
 
 - 默认保留自定义 MCP server，而不是退回官方 `@modelcontextprotocol/server-brave-search`
@@ -66,7 +76,7 @@ bash scripts/install_lmstudio_brave_mcp.sh \
 ## 资源说明
 
 - `scripts/install_lmstudio_brave_mcp.sh`
-作用：一键安装或更新 LM Studio 的 Brave MCP 配置，支持 `custom` / `official` 两种模式。
+作用：一键安装或更新 LM Studio 的 Brave MCP 配置，支持 `custom` / `official` 两种模式，并提供 Brave API 链路自检与模式建议。
 - `agents/openai.yaml`
 作用：为支持 skill UI 的平台提供显示名、简介和默认调用提示。
 - `assets/brave-lmstudio-mcp.mjs`

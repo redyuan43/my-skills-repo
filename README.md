@@ -497,7 +497,8 @@
 - `assets/brave-official-mcp.sh` - 官方 Brave MCP 启动脚本，适用于 `--mode official`
 - `assets/brave-search.env.example` - 凭证与代理模板
 - `references/troubleshooting.md` - Brave MCP 常见超时、代理和套餐边界排障说明
-- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本，支持 `custom` / `official` 模式
+- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本，支持 `custom` / `official` 模式，并可做链路自检
+
 ## 使用方法
 
 1. 克隆此仓库到本地

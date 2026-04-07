@@ -10,6 +10,80 @@ API_KEY="${BRAVE_API_KEY:-}"
 PROXY_URL="${ALL_PROXY:-}"
 MODE="custom"
 FORCE="0"
+SELF_TEST="0"
+RECOMMEND_MODE="0"
+
+normalize_proxy_url() {
+  local raw="${1:-}"
+  raw="${raw%/}"
+  if [[ -z "${raw}" ]]; then
+    return 0
+  fi
+  if [[ "${raw}" == socks://* ]]; then
+    printf 'socks5h://%s\n' "${raw#socks://}"
+    return 0
+  fi
+  printf '%s\n' "${raw}"
+}
+
+run_brave_probe() {
+  local proxy_url="${1:-}"
+  local query="${2:-LM Studio official documentation}"
+  local normalized_proxy
+  normalized_proxy="$(normalize_proxy_url "${proxy_url}")"
+
+  local -a cmd=(
+    curl
+    --ipv4
+    --silent
+    --show-error
+    --location
+    --compressed
+    --retry 2
+    --retry-delay 1
+    --retry-all-errors
+    --retry-connrefused
+    --max-time 20
+    --connect-timeout 8
+    --write-out '\n%{http_code}'
+    --header "Accept: application/json"
+    --header "X-Subscription-Token: ${API_KEY}"
+  )
+
+  if [[ -n "${normalized_proxy}" ]]; then
+    cmd+=(--proxy "${normalized_proxy}")
+  fi
+
+  cmd+=("https://api.search.brave.com/res/v1/web/search?q=${query// /+}&count=1")
+
+  ALL_PROXY= all_proxy= HTTPS_PROXY= https_proxy= HTTP_PROXY= http_proxy= "${cmd[@]}"
+}
+
+print_self_test_report() {
+  local direct_ok="$1"
+  local proxy_ok="$2"
+  local proxy_source="$3"
+
+  echo
+  echo "自检结果："
+  echo "  - direct_web_search=${direct_ok}"
+  echo "  - proxy_web_search=${proxy_ok}"
+
+  if [[ -n "${proxy_source}" ]]; then
+    echo "  - proxy_source=${proxy_source}"
+  fi
+
+  if [[ "${direct_ok}" == "1" ]]; then
+    echo "  - recommendation=official_or_custom"
+    echo "结论：直连 Brave API 可用。官方模式和自定义模式都可以。"
+  elif [[ "${proxy_ok}" == "1" ]]; then
+    echo "  - recommendation=custom_with_proxy"
+    echo "结论：直连不可用，但代理链路可用。优先使用 custom 模式，并显式写入 --proxy-url。"
+  else
+    echo "  - recommendation=network_fix_required"
+    echo "结论：直连和代理都不可用。先修网络或代理，再安装 MCP。"
+  fi
+}
 
 usage() {
   cat <<'EOF'
@@ -23,6 +97,8 @@ usage() {
                          选择自定义增强版或官方 Brave MCP，默认 custom
   --lmstudio-dir <path>   指定 LM Studio 配置目录，默认 ~/.lmstudio
   --force                 覆盖已有 server 文件和凭证模板
+  --self-test             只做 Brave API 链路自检，不写配置
+  --recommend-mode        自检后输出推荐安装模式
   -h, --help              显示帮助
 
 环境变量也可用：
@@ -54,6 +130,15 @@ while [[ $# -gt 0 ]]; do
       FORCE="1"
       shift
       ;;
+    --self-test)
+      SELF_TEST="1"
+      shift
+      ;;
+    --recommend-mode)
+      RECOMMEND_MODE="1"
+      SELF_TEST="1"
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -80,6 +165,38 @@ require_cmd "python3"
 if [[ "${MODE}" != "custom" && "${MODE}" != "official" ]]; then
   echo "--mode 只能是 custom 或 official" >&2
   exit 1
+fi
+
+if [[ "${SELF_TEST}" == "1" ]]; then
+  if [[ -z "${API_KEY}" ]]; then
+    echo "--self-test 需要通过 --api-key 或 BRAVE_API_KEY 提供 key" >&2
+    exit 1
+  fi
+
+  direct_ok="0"
+  proxy_ok="0"
+  proxy_source=""
+
+  if run_brave_probe "" >/tmp/lmstudio_brave_direct.$$ 2>/tmp/lmstudio_brave_direct_err.$$; then
+    if tail -n 1 /tmp/lmstudio_brave_direct.$$ | grep -qx '200'; then
+      direct_ok="1"
+    fi
+  fi
+
+  if [[ -n "${PROXY_URL}" ]]; then
+    proxy_source="${PROXY_URL}"
+    if run_brave_probe "${PROXY_URL}" >/tmp/lmstudio_brave_proxy.$$ 2>/tmp/lmstudio_brave_proxy_err.$$; then
+      if tail -n 1 /tmp/lmstudio_brave_proxy.$$ | grep -qx '200'; then
+        proxy_ok="1"
+      fi
+    fi
+  fi
+
+  print_self_test_report "${direct_ok}" "${proxy_ok}" "${proxy_source}"
+
+  if [[ "${RECOMMEND_MODE}" == "1" ]]; then
+    exit 0
+  fi
 fi
 
 BIN_DIR="${LMSTUDIO_DIR}/bin"
@@ -198,5 +315,8 @@ echo "  - mode=${MODE}"
 echo
 if [[ "${API_KEY}" == "" ]]; then
   echo "注意：当前凭证文件写入的是占位符，请把真实 Brave API key 填进 ${CREDENTIALS_FILE}"
+fi
+if [[ "${RECOMMEND_MODE}" == "1" ]]; then
+  print_self_test_report "0" "0" ""
 fi
 echo "下一步：重启 LM Studio，然后新开聊天测试 brave_web_search。"
