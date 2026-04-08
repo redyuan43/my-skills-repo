@@ -27,8 +27,8 @@ PAGE_UP = b"\x1b[5~"
 PAGE_DOWN = b"\x1b[6~"
 CTRL_C = b"\x03"
 CTRL_BACKSLASH = b"\x1c"
+CTRL_G = b"\x07"
 CTRL_R = b"\x12"
-CTRL_S = b"\x13"
 PHASE_MARKER_PREFIX = b"__SSH_MONITOR_PHASE__ "
 
 COPY_ID_PROMPTED = set()
@@ -52,7 +52,7 @@ def usage() -> int:
             运行时按键:
               PageDown          立即切到下一台
               PageUp            立即切到上一台
-              Ctrl-S            停在当前界面
+              Ctrl-G            停在当前界面
               Ctrl-R            从停驻状态恢复自动轮播
               Ctrl-C            退出脚本
             """
@@ -153,7 +153,7 @@ def remote_script() -> str:
           echo "Keys: PageDown next | PageUp prev | Ctrl-R resume | Ctrl-C quit"
         else
           echo "Cycle once: htop ${view_seconds}s -> ${gpu_monitor} ${view_seconds}s"
-          echo "Keys: PageDown next | PageUp prev | Ctrl-S hold | Ctrl-C quit"
+          echo "Keys: PageDown next | PageUp prev | Ctrl-G hold | Ctrl-C quit"
         fi
         sleep 1
 
@@ -301,7 +301,7 @@ def extract_action(buffer: bytearray, paused_mode: bool) -> tuple[str | None, by
     if paused_mode:
         sequences[CTRL_R] = "resume"
     else:
-        sequences[CTRL_S] = "pause"
+        sequences[CTRL_G] = "pause"
 
     while buffer:
         matched = False
@@ -446,7 +446,7 @@ def run_cycle(hosts: list[str]) -> int:
         print(f"========== {host} ==========")
         print(f"开始时间: {time.strftime('%F %T')}")
         print(f"进度: {index + 1}/{host_count}")
-        print("按键: PageDown 下一台 | PageUp 上一台 | Ctrl-S 停驻当前界面 | Ctrl-C 退出")
+        print("按键: PageDown 下一台 | PageUp 上一台 | Ctrl-G 停驻当前界面 | Ctrl-C 退出")
         sys.stdout.flush()
 
         status, action, current_tool = run_host_session(host)
