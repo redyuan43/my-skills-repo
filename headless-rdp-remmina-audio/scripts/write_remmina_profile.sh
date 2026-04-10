@@ -8,7 +8,8 @@ fi
 
 server="$1"
 username="${2:-$USER}"
-profile_name="${3:-${server%%:*}}"
+default_profile_name="RDP_${server//:/_}"
+profile_name="${3:-$default_profile_name}"
 
 profile_dir="${HOME}/.local/share/remmina"
 mkdir -p "${profile_dir}"

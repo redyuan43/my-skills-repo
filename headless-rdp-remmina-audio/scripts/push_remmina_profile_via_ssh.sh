@@ -9,7 +9,8 @@ fi
 client_target="$1"
 server="$2"
 username="${3:-$USER}"
-profile_name="${4:-${server%%:*}}"
+default_profile_name="RDP_${server//:/_}"
+profile_name="${4:-$default_profile_name}"
 
 ssh "$client_target" "mkdir -p ~/.local/share/remmina"
 

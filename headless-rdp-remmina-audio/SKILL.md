@@ -34,6 +34,7 @@ bash headless-rdp-remmina-audio/scripts/write_remmina_profile.sh <server[:port]>
 ```
 
 This writes a reusable `.remmina` profile for `Remmina` `RDP` mode against a direct `xrdp` listener.
+If `profile_name` is omitted, the default name is `RDP_<server>`, for example `RDP_192.168.100.165_3389.remmina`.
 
 If the client is another Linux machine reachable over SSH, use:
 
@@ -42,6 +43,7 @@ bash headless-rdp-remmina-audio/scripts/push_remmina_profile_via_ssh.sh <client-
 ```
 
 This writes the same `.remmina` profile directly on the remote client under `~/.local/share/remmina/`.
+If `profile_name` is omitted, it uses the same `RDP_<server>` naming rule.
 
 ## Server Workflow
 
@@ -154,7 +156,7 @@ sudo apt-get install -y remmina remmina-plugin-rdp freerdp2-x11
 Use the bundled script to write a stable profile:
 
 ```bash
-bash headless-rdp-remmina-audio/scripts/write_remmina_profile.sh <server-ip>:3389 <server-user> BUS002-GPU
+bash headless-rdp-remmina-audio/scripts/write_remmina_profile.sh <server-ip>:3389 <server-user>
 ```
 
 The script writes a profile which:
@@ -168,12 +170,14 @@ The script writes a profile which:
 Open the profile explicitly if Remmina does not refresh the list:
 
 ```bash
-remmina -c ~/.local/share/remmina/BUS002-GPU.remmina
+remmina -c ~/.local/share/remmina/RDP_<server-ip>_3389.remmina
 ```
 
 If the server has multiple LAN addresses, prefer the address on the interface the client actually reaches, for example the wired NIC address instead of Wi-Fi when both exist.
 
 If the client already has an old `.remmina` profile pointing at a stale IP or stale username, back it up first and write a new profile instead of trying to patch every historical option by hand.
+
+Prefer profile names that mirror the actual target, such as `RDP_192.168.100.165_3389`, instead of semantic suffixes like `direct`. The connection endpoint belongs in `server=IP:port`, and the profile name should stay descriptive but literal.
 
 ## Troubleshooting
 
