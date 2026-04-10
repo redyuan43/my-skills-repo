@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jetson AGX Max Power"
+  short_description: "查看、切到和恢复 Jetson AGX Orin 的 MAXN / max power 状态"
+  default_prompt: "Use $jetson-agx-max-power to inspect, switch to MAXN, or restore the previous power state on this Jetson AGX Orin host."

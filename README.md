@@ -412,11 +412,11 @@
 - `scripts/triage_auto_shutdown.sh` - 默认只读排查、按需执行止血配置的一键脚本
 
 ### 47. headless-rdp-remmina-audio
-**功能：** 在无显示器的 Ubuntu/Linux 主机上部署 `xrdp + XFCE`，启用音频重定向，并为 Linux 客户端生成可复用的 `Remmina` RDP 配置
-**用途：** 当用户说“只通过远程桌面登录主机”“想替代 VNC”“远程要听到服务器声音”“客户端用 Remmina”“要排查分辨率或剪贴板问题”时使用
+**功能：** 作为局域网/直连主线，在无显示器的 Ubuntu/Linux 主机上通过 `Remmina + RDP` 访问 `xrdp + XFCE`，启用音频重定向，并为 Linux 客户端生成可复用的 `.remmina` 配置
+**用途：** 当用户说“只通过远程桌面登录主机”“客户端固定用 Remmina”“远程要听到服务器声音”“需要处理分辨率或剪贴板问题”时使用；这是默认的直连入口，不覆盖 Tailscale 和 VNC server
 **文件：**
-- `SKILL.md` - 技能说明文档（服务端安装、音频模块构建、客户端 Remmina 工作流、分辨率/剪贴板排障）
-- `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率和键盘抓取的 `.remmina` 配置文件
+- `SKILL.md` - 技能说明文档（直连边界、最小服务端前提、客户端 Remmina 工作流、分辨率/剪贴板排障）
+- `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率、`16bpp` 和键盘抓取的 `.remmina` 配置文件
 
 ### 48. xfce-lock-screen-timeout
 **功能：** 检查并设置 XFCE 桌面的空闲锁屏时间，明确区分 `xfce4-screensaver` 持久化配置和当前 X11 会话 `xset` 的即时超时
@@ -436,8 +436,8 @@
 - `scripts/selftest.sh` - 语法、依赖和安装结果检查脚本
 
 ### 50. remmina-tailscale-xrdp
-**功能：** 在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina 远程桌面，并完成客户端 Remmina 参数优化、服务端 XFCE 合成器优化、Tailscale 登录与联通验证
-**用途：** 当用户说“Remmina 局域网能连，想从外网继续连”“继续用 xrdp + XFCE，不要换协议”“把客户端和服务端一起配通并顺手优化桌面性能”时使用
+**功能：** 作为外网扩展路径，在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina 远程桌面，并完成客户端 Remmina 参数优化、服务端 XFCE 合成器优化、Tailscale 登录与联通验证
+**用途：** 当用户说“Remmina 局域网已经能连，想从外网继续连”“继续用 xrdp + XFCE，不要换协议”“把客户端和服务端一起配通并顺手优化桌面性能”时使用；局域网/直连默认仍走 `headless-rdp-remmina-audio`
 **文件：**
 - `SKILL.md` - 技能说明文档，包含服务端检查、Tailscale 安装登录、XFCE 优化、Remmina 调参、MagicDNS 与 3389 联通验证的完整工作流
 
@@ -455,6 +455,14 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、诊断顺序、安装步骤、验证与回滚）
 - `scripts/install_autocutsel_bridge.sh` - 安装 `autocutsel`、写入 `~/.config/autostart/autocutsel.desktop`，并在当前 X11 会话立即启动桥接
+
+### 53. jetson-agx-max-power
+**功能：** 在 `Jetson AGX Orin` 上查看当前 power mode / clocks 状态，切到 `MAXN + jetson_clocks`，并恢复到执行前自动保存的状态
+**用途：** 当用户说“把 AGX 切到 max power”“开 MAXN”“确认现在是不是最大 clock”“恢复之前的 nvpmodel / clocks 状态”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（标准工作流、行为约定、约束与验证方式）
+- `scripts/jetson_agx_max_power.sh` - 统一入口脚本，支持 `status|max|restore` 以及 `状态|最大|恢复`
+- `agents/openai.yaml` - skill 的 UI 元数据
 ## 使用方法
 
 1. 克隆此仓库到本地
