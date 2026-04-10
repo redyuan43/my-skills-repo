@@ -1,13 +1,16 @@
 ---
 name: remmina-tailscale-xrdp
-description: 在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina 远程桌面，并完成客户端 Remmina 参数优化、服务端 XFCE 合成器优化、Tailscale 登录与联通验证。适用于“局域网内能用、外网要继续远程桌面”“Remmina 走 RDP”“想让后续客户端按固定步骤自动配通”的场景。
+description: 在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina 远程桌面，并完成客户端 Remmina 参数优化、服务端 XFCE 合成器优化、Tailscale 登录与联通验证。适用于“局域网直连已经通了，但外网要继续远程桌面”“Remmina 继续走 RDP”“想让后续客户端按固定步骤自动配通”的场景。
 ---
 
 # Remmina Tailscale XRDP
 
 ## Overview
 
-这个 skill 用于把一台 Linux 图形机整理成可通过 `Tailscale + RDP` 访问的远程桌面服务端，并把客户端 Remmina 配到可直接使用的状态。
+这个 skill 用于在已经选择 `Remmina + RDP + xrdp` 的前提下，把一台 Linux 图形机扩展成可通过 `Tailscale + RDP` 访问的远程桌面服务端，并把客户端 Remmina 配到可直接使用的状态。
+
+如果用户只需要局域网或同网段直连，不要从这里开始，优先使用：
+- `headless-rdp-remmina-audio`
 
 默认目标：
 - 服务端跑 `xrdp + XFCE`
@@ -37,6 +40,7 @@ description: 在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp
 ### 何时不要使用
 
 - 服务端不是 Linux
+- 用户只需要局域网/直连 `server:3389`
 - 用户要求共享当前物理桌面而不是单独的 xrdp 会话
 - 用户要的是 VNC、NoMachine、RustDesk 或 WireGuard 自建方案
 - 服务端不允许装系统服务
@@ -239,6 +243,7 @@ colordepth=16
 quality=2
 resolution_mode=1
 scale=1
+sound=local
 disableclipboard=0
 multimon=0
 keyboard_grab=1

@@ -415,8 +415,9 @@
 **功能：** 作为局域网/直连主线，在无显示器的 Ubuntu/Linux 主机上通过 `Remmina + RDP` 访问 `xrdp + XFCE`，启用音频重定向，并为 Linux 客户端生成可复用的 `.remmina` 配置
 **用途：** 当用户说“只通过远程桌面登录主机”“客户端固定用 Remmina”“远程要听到服务器声音”“需要处理分辨率或剪贴板问题”时使用；这是默认的直连入口，不覆盖 Tailscale 和 VNC server
 **文件：**
-- `SKILL.md` - 技能说明文档（直连边界、最小服务端前提、客户端 Remmina 工作流、分辨率/剪贴板排障）
+- `SKILL.md` - 技能说明文档（直连边界、最小服务端前提、客户端 Remmina 工作流、TigerVNC 切换步骤、分辨率/剪贴板排障）
 - `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率、`16bpp` 和键盘抓取的 `.remmina` 配置文件
+- `scripts/push_remmina_profile_via_ssh.sh` - 通过 SSH 在另一台 Linux 客户端直接写入 `.remmina` 配置文件
 
 ### 48. xfce-lock-screen-timeout
 **功能：** 检查并设置 XFCE 桌面的空闲锁屏时间，明确区分 `xfce4-screensaver` 持久化配置和当前 X11 会话 `xset` 的即时超时

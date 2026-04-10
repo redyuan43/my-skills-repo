@@ -1,23 +1,51 @@
 ---
 name: headless-rdp-remmina-audio
-description: 在无显示器的 Ubuntu/Linux 主机上部署 `xrdp + XFCE` 远程桌面，启用音频重定向，并在 Linux 客户端用 Remmina 建立可复用的 RDP 配置；适用于“只靠远程登录主机”“要听到服务器声音”“想替代 VNC”“需要处理分辨率/剪贴板问题”这类场景。
+description: 在无显示器的 Ubuntu/Linux 主机上通过 `Remmina + RDP` 直连 `xrdp + XFCE` 远程桌面，启用音频重定向，并在 Linux 客户端生成可复用的 `.remmina` 配置；适用于“只靠远程登录主机”“客户端固定用 Remmina”“要听到服务器声音”“需要处理分辨率/剪贴板问题”这类场景。
 ---
 
 # Headless RDP Remmina Audio
 
-Use this skill when the user wants a headless Linux machine to be reachable through RDP rather than VNC, with working desktop audio on the client.
+Use this skill as the default direct-connect path when the user wants a Linux host to be reached from a Linux client through `Remmina` in `RDP` mode, with working desktop audio on the client.
 
-This skill covers both sides:
+The primary path in this skill is client-first:
 
-- server-side `xrdp + XFCE`
-- client-side `Remmina` profile generation
+- client-side `Remmina` profile generation for direct `server:3389` access
+- the expected server-side target is `xrdp + XFCE`
 - troubleshooting for low resolution, session startup failures, and clipboard quirks
 
-It is not for pure VNC deployments. If the user explicitly requires VNC, use:
+This skill is not for:
+- `VNC server` setup or migration as part of the main flow
+- Tailscale or other internet-facing overlay access
+- physical desktop sharing
+
+If the user explicitly requires VNC, use:
 - `headless-vnc-chromium-fix`
 - `vnc-client-connect`
 
+If the user explicitly needs Tailscale or off-LAN access, use:
+- `remmina-tailscale-xrdp`
+
+## Canonical Entry Point
+
+The canonical client-side entry point is:
+
+```bash
+bash headless-rdp-remmina-audio/scripts/write_remmina_profile.sh <server[:port]> [username] [profile_name]
+```
+
+This writes a reusable `.remmina` profile for `Remmina` `RDP` mode against a direct `xrdp` listener.
+
+If the client is another Linux machine reachable over SSH, use:
+
+```bash
+bash headless-rdp-remmina-audio/scripts/push_remmina_profile_via_ssh.sh <client-ssh-target> <server[:port]> [username] [profile_name]
+```
+
+This writes the same `.remmina` profile directly on the remote client under `~/.local/share/remmina/`.
+
 ## Server Workflow
+
+This section is the minimum server-side prerequisite for the direct-connect path. If the server is already running a healthy `xrdp + XFCE` stack, skip to the Remmina client workflow.
 
 Install the base RDP stack:
 
@@ -126,7 +154,7 @@ sudo apt-get install -y remmina remmina-plugin-rdp freerdp2-x11
 Use the bundled script to write a stable profile:
 
 ```bash
-bash headless-rdp-remmina-audio/scripts/write_remmina_profile.sh 192.168.31.40:3389 nx BUS002-GPU
+bash headless-rdp-remmina-audio/scripts/write_remmina_profile.sh <server-ip>:3389 <server-user> BUS002-GPU
 ```
 
 The script writes a profile which:
@@ -134,6 +162,7 @@ The script writes a profile which:
 - enables local audio output with `sound=local`
 - keeps clipboard enabled
 - uses client resolution mode
+- prefers `16bpp` as the default color depth
 - enables keyboard grab for better pass-through of key combinations
 
 Open the profile explicitly if Remmina does not refresh the list:
@@ -141,6 +170,10 @@ Open the profile explicitly if Remmina does not refresh the list:
 ```bash
 remmina -c ~/.local/share/remmina/BUS002-GPU.remmina
 ```
+
+If the server has multiple LAN addresses, prefer the address on the interface the client actually reaches, for example the wired NIC address instead of Wi-Fi when both exist.
+
+If the client already has an old `.remmina` profile pointing at a stale IP or stale username, back it up first and write a new profile instead of trying to patch every historical option by hand.
 
 ## Troubleshooting
 
@@ -202,19 +235,34 @@ In this state, ordinary clipboard handling may be flaky. The fastest recovery is
 
 If the user only needs a working desktop and audio, avoid spending too much time on advanced clipboard quirks unless they are central to the task.
 
-## Migration Notes
+## Direct Cutover From TigerVNC
 
-During cutover from VNC:
+When replacing an existing `tigervncserver@:1.service` path with `xrdp`, the reliable order is:
 
-1. Keep the existing VNC path as fallback.
-2. Validate `xrdp`, audio, resolution, and reconnect behavior.
-3. Then disable old services such as `x11vnc.service` and `tigervncserver@:1.service`.
+1. Install and start `xrdp + xorgxrdp`.
+2. Write `~/.xsession` and `~/.xsessionrc` for `XFCE`.
+3. Validate `3389` is listening and reachable.
+4. Only then disable and stop `tigervncserver@:1.service`.
 
-Check ports:
+Minimal command sequence:
 
 ```bash
-ss -ltnp | rg '3389|5900|5901'
+sudo apt-get update
+sudo apt-get install -y xrdp xorgxrdp dbus-x11
+chmod 755 ~/.xsession
+chmod 644 ~/.xsessionrc
+sudo adduser xrdp ssl-cert
+sudo systemctl restart xrdp-sesman xrdp
+systemctl is-active xrdp xrdp-sesman
+ss -ltnp | rg ':3389\b|xrdp'
+sudo systemctl disable --now tigervncserver@:1.service
 ```
+
+Why this order matters:
+
+- some machines already have `XFCE` and `TigerVNC`, but no `xrdp` installed at all
+- cutting off `VNC` first can strand the host
+- leaving old `TigerVNC` running while testing `xrdp` can confuse session-state debugging
 
 ## When To Escalate
 
