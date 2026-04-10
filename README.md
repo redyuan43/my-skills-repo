@@ -464,6 +464,12 @@
 - `SKILL.md` - 技能说明文档（标准工作流、行为约定、约束与验证方式）
 - `scripts/jetson_agx_max_power.sh` - 统一入口脚本，支持 `status|max|restore` 以及 `状态|最大|恢复`
 - `agents/openai.yaml` - skill 的 UI 元数据
+
+### 54. v2rayn-linux-github-install
+**功能：** 在 Linux 上直接从 GitHub Releases 安装指定版本的 `v2rayN`，并校验 GUI 客户端是否安装成功
+**用途：** 当用户要求安装 `v2rayN`、明确指定版本号（如 `7.20.2`）、要求使用 Linux `.deb` 包而不是 Windows 资产，或需要在 Ubuntu ARM64/x64 上完成下载、安装与验证时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（版本选择、GitHub 下载、`apt` 安装、结果校验与失败处理）
 ## 使用方法
 
 1. 克隆此仓库到本地
