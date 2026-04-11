@@ -27,9 +27,16 @@ bash sync-latest-skills/scripts/sync_latest_skills.sh
 bash sync-latest-skills/scripts/sync_latest_skills.sh --force
 ```
 
+4. 如果你希望像 `update_skill` 一样用 `rebase` 方式拉取最新代码后再同步，使用：
+
+```bash
+bash sync-latest-skills/scripts/sync_latest_skills.sh --rebase
+```
+
 ## 行为规则
 
-- 先执行 `git pull --ff-only`，确保仓库是最新的
+- 默认执行 `git pull --ff-only`，确保仓库是最新的
+- 如果明确希望保留本地提交并按 `rebase` 方式更新，使用 `--rebase`
 - 只同步仓库根目录下的技能目录
 - 跳过 `README.md`、`.git`、`.serena`、`.codex` 等非技能项
 - 默认不会删除已有目录；遇到冲突会明确跳过并汇报

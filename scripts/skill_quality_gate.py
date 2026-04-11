@@ -35,13 +35,13 @@ DOC_KEYWORDS = {
 }
 
 RISK_PATTERNS = [
-    (re.compile(r"\\brm\\s+[^\\n]*\\s+-rf\\s+/"), "rm -rf /"),
-    (re.compile(r"\\bdd\\s+"), "dd command"),
-    (re.compile(r"\\bmkfs\\b"), "mkfs command"),
-    (re.compile(r"\\bparted\\b"), "parted command"),
-    (re.compile(r"\\bsystemctl\\s+(start|stop|enable|disable|restart|daemon-reload)\\b"), "systemctl control"),
-    (re.compile(r"\\bmkfs\\.|\\bfdisk\\b|\\bparted\\b"), "disk operation"),
-    (re.compile(r"\\btee\\s+(/etc|/root|/boot)"), "direct writes under system paths"),
+    (re.compile(r"\brm\s+[^\n]*\s+-rf\s+/"), "rm -rf /"),
+    (re.compile(r"\bdd\s+"), "dd command"),
+    (re.compile(r"\bmkfs\b"), "mkfs command"),
+    (re.compile(r"\bparted\b"), "parted command"),
+    (re.compile(r"\bsystemctl\s+(start|stop|enable|disable|restart|daemon-reload)\b"), "systemctl control"),
+    (re.compile(r"\bmkfs\.|\bfdisk\b|\bparted\b"), "disk operation"),
+    (re.compile(r"\btee\s+(/etc|/root|/boot)"), "direct writes under system paths"),
 ]
 
 
@@ -238,7 +238,7 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
     syntax_score, syntax_issues = syntax_check_items(sh_scripts, parallel)
     selftest_exec = os.access(selftest, os.X_OK) if has_selftest else False
     selftest_text = read_text(selftest) if has_selftest else ""
-    supports_safe = bool(re.search(r"(\\s|^)--safe(\\s|$)", selftest_text))
+    supports_safe = bool(re.search(r"(^|\s)--safe(\s|$)", selftest_text))
 
     selftest_exec_score = 4 if has_selftest and selftest_exec else 0
     if with_safe_check and has_selftest and supports_safe:
@@ -285,7 +285,7 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
     checks.extend(exec_checks)
 
     # risk: 10
-    scripts_blob = "\\n".join(read_text(p) for p in script_files)
+    scripts_blob = "\n".join(read_text(p) for p in script_files)
     risk_score, risk_hits = check_risk_patterns(scripts_blob)
     risk_checks = [
         SkillCheck(

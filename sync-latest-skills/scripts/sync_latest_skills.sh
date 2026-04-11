@@ -4,20 +4,22 @@ set -euo pipefail
 REPO="${HOME}/github/my-skills-repo"
 SKILL_ROOT="${HOME}/.codex/skills"
 DO_PULL=1
+PULL_MODE="ff-only"
 FORCE=0
 DRY_RUN=0
 
 usage() {
   cat <<'EOF'
 Usage:
-  sync_latest_skills.sh [--repo PATH] [--skill-root PATH] [--dry-run] [--force] [--no-pull]
+  sync_latest_skills.sh [--repo PATH] [--skill-root PATH] [--dry-run] [--force] [--no-pull] [--rebase]
 
 Defaults:
   --repo       ${HOME}/github/my-skills-repo
   --skill-root ${HOME}/.codex/skills
 
 Behavior:
-  - Pull the repo with `git pull --ff-only`
+  - Pull the repo with `git pull --ff-only` by default
+  - Use `--rebase` to pull with `git pull --rebase --autostash`
   - Sync top-level skill directories into the skill root as symlinks
   - Skip non-skill files such as README.md
   - Refuse to overwrite existing directories unless --force is set
@@ -61,6 +63,10 @@ while (($#)); do
       DO_PULL=0
       shift
       ;;
+    --rebase)
+      PULL_MODE="rebase"
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -79,7 +85,11 @@ SKILL_ROOT="$(cd "$SKILL_ROOT" && pwd -P)"
 
 if (( DO_PULL )); then
   log "PULL $REPO"
-  git -C "$REPO" pull --ff-only
+  if [[ "$PULL_MODE" == "rebase" ]]; then
+    git -C "$REPO" pull --rebase --autostash
+  else
+    git -C "$REPO" pull --ff-only
+  fi
 fi
 
 mapfile -t skill_dirs < <(

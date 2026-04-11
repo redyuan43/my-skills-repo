@@ -354,7 +354,7 @@
 **用途：** 当需要一键刷新本机技能目录、把仓库更新同步回本地链接，或替换旧版本技能目录时使用
 **文件：**
 - `SKILL.md` - 技能说明文档
-- `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`
+- `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`，支持 `--rebase`
 
 ### 44. gh-browser-chromium-fix
 **功能：** 配置 GitHub CLI 及系统默认 Web 处理器一起打开 Chromium，而不是 Firefox 或不可用的 Snap 浏览器
