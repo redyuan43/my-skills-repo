@@ -470,6 +470,26 @@
 **用途：** 当用户要求安装 `v2rayN`、明确指定版本号（如 `7.20.2`）、要求使用 Linux `.deb` 包而不是 Windows 资产，或需要在 Ubuntu ARM64/x64 上完成下载、安装与验证时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（版本选择、GitHub 下载、`apt` 安装、结果校验与失败处理）
+
+### 55. lmstudio-brave-mcp-bootstrap
+**功能：** 为 LM Studio 一键安装 Brave Search MCP，写入本地 `mcp.json`、自定义 MCP server、启动脚本和凭证模板，支持代理、IPv4 与重试策略
+**用途：** 当用户需要把 Brave Search API 接入 LM Studio、希望把这套 MCP 搜索能力迁移到其他 Linux/macOS 设备、或希望把代理配置稳定固化到 LM Studio 子进程时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、标准工作流、资源说明）
+- `agents/openai.yaml` - skill UI 元数据，方便支持 skill 面板的平台直接触发
+- `assets/brave-lmstudio-mcp.mjs` - 自定义 Brave MCP server，暴露 web/news/video/image/place/suggest/spellcheck/summarizer 等工具
+- `assets/brave-lmstudio-mcp.sh` - LM Studio 启动脚本，负责加载凭证并拉起 Node server
+- `assets/brave-official-mcp.sh` - 官方 Brave MCP 启动脚本，适用于 `--mode official`
+- `assets/brave-search.env.example` - 凭证与代理模板
+- `references/troubleshooting.md` - Brave MCP 常见超时、代理和套餐边界排障说明
+- `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本，支持 `custom` / `official` 模式，并可做链路自检
+
+### 56. chromium-v2ray-google-fix
+**功能：** 修复 Linux 上 Chromium 通过 `v2rayN/xray` 访问 `www.google.com` 的问题，覆盖代理诊断、DNS 污染排查、Chromium 固定代理启动包装器，以及桌面快捷方式生成
+**用途：** 当用户遇到“Chromium 能开百度但打不开 Google”“需要把 Chromium 固定走本地 V2Ray 代理”“要生成指向 `~/.local/bin/chromium` 的桌面快捷方式”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、工作流、安全规则）
+- `scripts/fix_chromium_v2ray_google.sh` - 诊断/修复脚本，支持 `diagnose`、`apply-wrapper`、`desktop`、`set-dns`、`all`
 ## 使用方法
 
 1. 克隆此仓库到本地
