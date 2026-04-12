@@ -224,6 +224,13 @@
 - `references/jetson-display-stack-repair.md` - Jetson 图形栈排障参考与命令清单
 - `scripts/selftest.sh` - 真实/无副作用自检脚本，用于验证下游命令拼装与 live send 链路
 
+### 28. linux-ntfs-offload-symlink
+**功能：** 把 Linux 主目录中的大型数据目录迁移到 NTFS 分区，并在原路径保留软链接，同时确保 `fstab` 自动挂载可靠生效
+**用途：** 当 `/home` 空间紧张、机器上还有另一块 NTFS 数据盘、希望把模型/缓存/归档迁走且不改变原有访问路径时使用；已覆盖 AMD 395 工作站、Ubuntu、ZFS `/home` + NTFS 数据盘的实测经验
+**文件：**
+- `SKILL.md` - 技能说明文档（选择迁移对象、复制/切换软链接、`fstab` 配置与重挂验证）
+- `references/amd395-ntfs-offload-runbook.md` - AMD 395 + Ubuntu + ZFS/NTFS 组合下的实测运行记录与命令
+
 ### 27. wechat-send-camera-roll
 **功能：** 把相机卡或 `DCIM` 目录下的照片按文件名顺序批量发送到已经单独打开的微信聊天窗口
 **用途：** 当需要把挂载相机卡里的照片一张张发给某个微信联系人、要求纯控件发送而不依赖视觉识别、或需要通过 `--limit` / `--start-after` 做试发和断点续传时使用
