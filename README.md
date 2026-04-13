@@ -490,6 +490,13 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（触发条件、工作流、安全规则）
 - `scripts/fix_chromium_v2ray_google.sh` - 诊断/修复脚本，支持 `diagnose`、`apply-wrapper`、`desktop`、`set-dns`、`all`
+
+### 57. codex-safe-sandbox-no-approval
+**功能：** 把 Codex 全局默认权限切到“相对安全的 sandbox + 不审批”组合，即 `sandbox_mode = "workspace-write"` 与 `approval_policy = "never"`，并保留 `~/.codex/config.toml` 里的其他设置
+**用途：** 当用户希望取消默认 `danger-full-access`、恢复到更安全的工作区写入沙箱，同时又不想每次手动批准命令时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、标准工作流、写入值与行为边界）
+- `scripts/manage_codex_safe_no_approval.sh` - 配置管理脚本，支持 `status` 和 `apply`，写入前自动备份现有 `config.toml`
 ## 使用方法
 
 1. 克隆此仓库到本地
