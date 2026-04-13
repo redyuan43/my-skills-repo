@@ -258,6 +258,15 @@
 **功能：** 通过 PyWxDump 监听指定微信会话或全部会话的新消息，并输出文本、JSON 或 webhook 事件
 **用途：** 当需要持续监控某个聊天、把增量消息接到下游系统、或在监听阶段启用媒体/链接增强时使用
 **文件：**
+
+### 32. lmstudio-auto-updater
+**功能：** 为 Linux 上通过 AppImage 安装的 LM Studio 执行检查、下载、校验、切换软链，并可安装用户级 `systemd` 定时自动更新
+**用途：** 当需要“更新 LM Studio”“自动升级 LM Studio”“检查本机 LM Studio 是否有新版本”，或希望给当前用户安装定时自动更新任务时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、检查/升级/定时更新工作流）
+- `scripts/lmstudio_auto_update.sh` - 主脚本，支持 `status`、`check`、`update`、`prune`、`install-user-timer`、`uninstall-user-timer`
+- `scripts/selftest.sh` - 无副作用自检脚本，验证本机探测和官网 latest 跳转链路
+- `agents/openai.yaml` - skill 的 UI 元数据
 - `SKILL.md` - 技能说明文档（监控工作流、参数边界和适用场景）
 - `scripts/watch_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py watch` 的监控入口脚本
 
@@ -497,6 +506,15 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（触发条件、标准工作流、写入值与行为边界）
 - `scripts/manage_codex_safe_no_approval.sh` - 配置管理脚本，支持 `status` 和 `apply`，写入前自动备份现有 `config.toml`
+
+
+### 58. codex-rs-build-troubleshoot
+**功能：** 同步 `codex-rs` 最新代码、编译 `codex-cli`，并诊断 `core`、`tui`、`app-server`、`mcp` 等核心模块构建状态以及 `/loop`、二进制路径、feature 配置错位问题
+**用途：** 当需要从云端同步最新源码、开始编译、确认核心模块是否随依赖链成功编译，或排查“源码已改但运行行为没变”和 `/loop` alarm 功能异常时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（主流程、判断口径、/loop 专项检查）
+- `scripts/build_codex_rs.sh` - 同步、编译、二进制核对、`/loop` 诊断和关键测试入口脚本
+- `references/troubleshooting.md` - 常见构建错位、feature gate、旧进程和 `/loop` 相关排障说明
 ## 使用方法
 
 1. 克隆此仓库到本地
