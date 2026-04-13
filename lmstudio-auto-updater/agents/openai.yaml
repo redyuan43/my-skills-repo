@@ -1,0 +1,4 @@
+interface:
+  display_name: "LM Studio Auto Updater"
+  short_description: "检查、升级并定时更新 Linux 上的 LM Studio AppImage"
+  default_prompt: "Use $lmstudio-auto-updater to inspect the current LM Studio AppImage install, check whether a newer Linux release exists, update it safely, and optionally install a user-level systemd timer for automatic updates."

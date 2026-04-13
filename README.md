@@ -526,6 +526,17 @@
 - `scripts/check_minimax27_stack.sh` - Brave MCP / llama-server 健康检查与最小聊天验证脚本
 - `references/runbook.md` - 编译、启动、测试和常见问题处理手册
 
+
+
+### 60. lmstudio-auto-updater
+**功能：** 为 Linux 上通过 AppImage 安装的 LM Studio 执行自动检查、下载、校验、切换软链和用户级 systemd 定时更新
+**用途：** 当需要检查本机 LM Studio 是否有新版本、执行安全升级、修复桌面启动器到最新 AppImage，或安装用户级自动更新定时器时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、标准工作流、验证口径）
+- `scripts/lmstudio_auto_update.sh` - LM Studio AppImage 检查、升级、清理和定时任务安装入口脚本
+- `scripts/selftest.sh` - 无副作用自检脚本，验证 latest 跳转、版本探测与下载链路
+- `agents/openai.yaml` - skill 的 UI 元数据
+
 ## 使用方法
 
 1. 克隆此仓库到本地
