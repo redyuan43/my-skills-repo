@@ -515,6 +515,17 @@
 - `SKILL.md` - 技能说明文档（主流程、判断口径、/loop 专项检查）
 - `scripts/build_codex_rs.sh` - 同步、编译、二进制核对、`/loop` 诊断和关键测试入口脚本
 - `references/troubleshooting.md` - 常见构建错位、feature gate、旧进程和 `/loop` 相关排障说明
+
+
+### 59. llama-cpp-minimax27-webui-brave
+**功能：** 在 `llama.cpp` 中编译 CUDA 版 `llama-server`，启动 MiniMax-M2.7 WebUI，并接入 Brave MCP 搜索桥接
+**用途：** 当需要在本地 `llama.cpp` 里跑 Unsloth 的 `MiniMax-M2.7-GGUF`、启用 WebUI、保留已验证的 thinking 配置，并把 Brave MCP 联网搜索接进聊天界面时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（标准工作流、关键规则、已验证经验）
+- `scripts/build_llama_server_cuda.sh` - CUDA 版 `llama-server` 编译入口脚本
+- `scripts/check_minimax27_stack.sh` - Brave MCP / llama-server 健康检查与最小聊天验证脚本
+- `references/runbook.md` - 编译、启动、测试和常见问题处理手册
+
 ## 使用方法
 
 1. 克隆此仓库到本地
