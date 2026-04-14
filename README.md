@@ -72,7 +72,7 @@
 - `SKILL.md` - 技能说明文档（安装/升级流程、npm 权限处理、常见卡住场景说明）
 - `ai-cli-suite-installer/scripts/install_ai_clis.sh` - 六大 CLI 安装升级脚本（含 npm 用户级前缀自动配置、超时保护、非交互优化；该路径为唯一入口）
 
-### 9. meeting-recorder-cli
+### 8. meeting-recorder-cli
 **功能：** 通过 CLI 操控本机会议录音服务，驱动 ASR HTTP 转录并生成会议纪要
 **用途：** 当需要启动/停止录音、查看转录结果、生成会议摘要、或排查录音→转录→摘要链路问题时使用
 **文件：**
@@ -84,7 +84,7 @@
 - `references/runbook.md` - 命令参考与输出说明
 - `agents/openai.yaml` - skill 的 UI 元数据
 
-### 8. ollama-download-monitor
+### 9. ollama-download-monitor
 **功能：** 安装 Ollama 并监控 `ollama pull` 模型下载进度与完成状态
 **用途：** 当需要先按官方流程安装 Ollama（Linux/macOS/Windows），再通过日志实时查看多个模型下载进度并确认是否下载成功时使用
 **文件：**
@@ -231,14 +231,14 @@
 - `SKILL.md` - 技能说明文档（选择迁移对象、复制/切换软链接、`fstab` 配置与重挂验证）
 - `references/amd395-ntfs-offload-runbook.md` - AMD 395 + Ubuntu + ZFS/NTFS 组合下的实测运行记录与命令
 
-### 27. wechat-send-camera-roll
+### 29. wechat-send-camera-roll
 **功能：** 把相机卡或 `DCIM` 目录下的照片按文件名顺序批量发送到已经单独打开的微信聊天窗口
 **用途：** 当需要把挂载相机卡里的照片一张张发给某个微信联系人、要求纯控件发送而不依赖视觉识别、或需要通过 `--limit` / `--start-after` 做试发和断点续传时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（触发条件、工作流、约束和命令示例）
 - `scripts/send_wechat_camera_roll.py` - 批量发送脚本，支持目录遍历、发送间隔、试发和断点续传
 
-### 28. wechat-screenshot-send
+### 30. wechat-screenshot-send
 **功能：** 在 Ubuntu X11 上截取当前桌面或交互式截图，并通过本地 `PyWxDump` 图片发送链路立即发到指定微信会话
 **用途：** 当需要“一次性完成”桌面截图并发给某个微信联系人或群聊、希望直接走主界面搜索发送、想调节 GUI 倒计时/通知参数，或在截图发送后看到窗口恢复结果时使用
 **文件：**
@@ -247,26 +247,26 @@
 - `scripts/diagnose_control_wechat.sh` - 控件级诊断截图、发送和 Markdown 分析回发脚本
 - `scripts/selftest.sh` - 真实/无副作用自检脚本，用于验证截图与发送命令链路
 
-### 29. tailscale-login-helper
+### 31. tailscale-login-helper
 **功能：** 检查 Linux 机器在重启后是否仍保持 Tailscale 登录，并在需要时触发重新登录流程
 **用途：** 当需要确认“重启后还要不要重新登录 Tailscale”、排查 `tailscaled` 服务状态、恢复 Tailnet 登录，或快速判断为何看不到另一台 Tailscale 主机时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（判断规则、标准工作流和使用经验）
 - `scripts/tailscale_login_helper.sh` - 状态检查与登录恢复脚本，支持 `status` 和 `login`
 
-### 30. linux-wx-decrypt
+### 32. linux-wx-decrypt
 **功能：** 通过 PyWxDump 导出和解密 Linux 微信本地数据库，串联 key 提取与数据库批量解密流程
 **用途：** 当需要把当前机器上运行中的 Linux 微信 `db_storage` 转成可读数据库，用于本地分析、归档或后续聊天处理时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（流程、约束和触发场景）
 - `scripts/run_linux_wx_decrypt.sh` - 包装 `linux_get_wx_key.py` 与 `linux_decrypt_wx_db.py` 的入口脚本，支持全流程、仅提 key、仅解密
 
-### 31. wechat-chat-watch
+### 33. wechat-chat-watch
 **功能：** 通过 PyWxDump 监听指定微信会话或全部会话的新消息，并输出文本、JSON 或 webhook 事件
 **用途：** 当需要持续监控某个聊天、把增量消息接到下游系统、或在监听阶段启用媒体/链接增强时使用
 **文件：**
 
-### 32. lmstudio-auto-updater
+### 34. lmstudio-auto-updater
 **功能：** 为 Linux 上通过 AppImage 安装的 LM Studio 执行检查、下载、校验、切换软链，并可安装用户级 `systemd` 定时自动更新
 **用途：** 当需要“更新 LM Studio”“自动升级 LM Studio”“检查本机 LM Studio 是否有新版本”，或希望给当前用户安装定时自动更新任务时使用
 **文件：**
@@ -277,7 +277,7 @@
 - `SKILL.md` - 技能说明文档（监控工作流、参数边界和适用场景）
 - `scripts/watch_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py watch` 的监控入口脚本
 
-### 32. codex-persona-manager
+### 35. codex-persona-manager
 **功能：** 为 Codex、Claude Code 和 OpenCode 安装、迁移和切换猫系人格模板，支持交互式列出人格并让用户自己选择
 **用途：** 当需要在新电脑上恢复 AI CLI 的人格配置、避免手动改 `AGENTS.md` / `settings.json`、查看有哪些人格可选，或切换当前工具的说话风格与自称名字时使用
 **文件：**
@@ -286,21 +286,21 @@
 - `scripts/manage_codex_personas.sh` - 交互式安装与切换脚本，支持 `--list`、`--install-only`、`--target`、`--activate`
 - `references/persona-table.md` - 人格 ID、自称名字、风格关键词与适用场景对照表
 
-### 33. wechat-chat-summary
+### 36. wechat-chat-summary
 **功能：** 通过 PyWxDump 导出指定微信会话的历史消息并生成 Markdown 总结，支持时间范围和可选回发
 **用途：** 当需要总结某个群聊或联系人最近一段时间讨论内容、导出全量聊天摘要、或把精简版总结发回原会话时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（总结流程、时间范围和发送回写约束）
 - `scripts/summarize_wechat_chat.sh` - 包装 `linux_wx_chat_daemon.py summarize-chat` 的总结入口脚本
 
-### 34. wechat-link-to-doc
+### 37. wechat-link-to-doc
 **功能：** 通过 PyWxDump 把微信里分享的 URL，尤其是公众号文章，转成包含 `document.md` 和资源目录的本地文档包
 **用途：** 当需要把一条公众号链接或普通网页固化为本地 Markdown 文档，用于后续总结、归档或知识库输入时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（链接文档化流程、文档类型选择和输出说明）
 - `scripts/wechat_link_to_doc.sh` - 包装 `tools/link_doc_hook.py` 的单 URL 文档化入口脚本
 
-### 35. wechat-auto-assistant
+### 38. wechat-auto-assistant
 **功能：** 通过 PyWxDump 运行“监听消息 -> 丰富上下文 -> 调用外部 Agent webhook -> 执行结构化动作”的微信自动助理闭环
 **用途：** 当需要对白名单微信会话启用真实自动化流程，并让外部 Agent 返回 `send_text`、`send_file`、`send_image`、`summarize_chat` 等动作由本机执行时使用
 **文件：**
@@ -308,20 +308,20 @@
 - `scripts/run_wechat_auto_assistant.sh` - 包装 `linux_wx_chat_daemon.py watch` Assistant 模式的入口脚本
 - `wechat-send-file` / `wechat-screenshot-send` / `wechat-send-camera-roll` - 配套发送类 skill，继续承担独立发送场景
 
-### 36. baidunetdisk-upload
+### 39. baidunetdisk-upload
 **功能：** 通过已安装的 Linux 百度网盘桌面客户端上传本地文件，并用远端目录回读验证上传结果
 **用途：** 当需要把本地文件快速上传到百度网盘、只提供精确路径或大概文件名、并希望上传后能直接给出网盘目录供人工审核时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、约束、危险操作确认要求）
 - `scripts/upload_to_baidunetdisk.py` - 上传执行脚本，负责本地路径解析、临时打包、调用百度网盘客户端上传并回读远端目录
 
-### 37. baidunetdisk-remote-image-search
+### 40. baidunetdisk-remote-image-search
 **功能：** 只针对百度网盘指定目录搜索图片内容，串联远端目录同步、本地缓存、独立 ZBox 索引和 OCR/图片摘要检索
 **用途：** 当需要在百度网盘某个目录里查“图片里有什么文字或内容”、希望结果限定在百度网盘范围内，并返回远端路径、命中来源和片段供人工判断时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（工作流、默认本地优先策略、云端视觉使用边界）
 - `scripts/search_baidunetdisk_images.py` - 搜索脚本，负责调用现有 harness 执行 `remote image search` 并输出稳定结果
-### 38. jetson-display-stack-repair
+### 41. jetson-display-stack-repair
 **功能：** 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑屏或登录界面不显示
 **用途：** 当 `graphical.target` 已启用但屏幕仍不亮、`gdm3` 没有拉起、`nvweston` 抢占 DRM、`display-manager.service` 缺失或 Xorg 报 `drmSetMaster failed` 时使用
 **文件：**
@@ -329,35 +329,35 @@
 - `agents/openai.yaml` - skill 的 UI 元数据
 - `references/jetson-display-stack-repair.md` - Jetson 图形栈排障参考与命令清单
 
-### 39. headless-vnc-chromium-fix
+### 42. headless-vnc-chromium-fix
 **功能：** 在无显示器的 Ubuntu/Linux 机器上安装 TigerVNC + XFCE，并修复 Chromium 因缺少图形会话或 Snap 权限异常而无法启动的问题
 **用途：** 当用户说“没接显示器”“想装 VNC”“Chromium 打不开”“`chromium-browser` 起不来”“`snap-confine` 权限不对”时使用；这是服务端技能，不是客户端连接脚本
 **文件：**
 - `SKILL.md` - 技能说明文档（服务端 headless 检测、VNC 安装、XFCE 启动、Chromium/Snap 排障流程）
 - `scripts/repair_snap_confine.sh` - 将 `/usr/lib/snapd/snap-confine` 修回 `root:root 4755` 并重启 `snapd`
 
-### 40. vnc-client-connect
+### 43. vnc-client-connect
 **功能：** 在 Linux 客户端上一键连接远端 VNC 服务，支持 `host`、`host:display` 和 `host:port` 三种输入
 **用途：** 当需要“给客户端一个连接脚本”“从另一台 Linux 电脑连接 VNC”“不想手工敲 viewer 参数”时使用；这是客户端技能，不修改服务端配置
 **文件：**
 - `SKILL.md` - 技能说明文档（客户端定位、viewer 选择顺序、目标格式和使用示例）
 - `scripts/connect_vnc.sh` - Linux 客户端连接脚本，自动选择可用 viewer 并发起 VNC 连接
 
-### 40. wechat-linux-official-setup
+### 44. wechat-linux-official-setup
 **功能：** 按 Tencent 官方 Linux 版下载页安装 ARM 架构微信，并完成启动、GNOME 固定和手动扫码登录的标准流程
 **用途：** 当需要在 ARM Linux 上安装官方微信客户端、验证 `wechat` 可启动、把启动器固定到 GNOME Dock，或想把“下载 -> 安装 -> 启动 -> 登录”整理成可复用流程时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（官方来源、安装启动工作流、登录约束和使用场景）
 - `scripts/install_wechat_official.sh` - 官方 ARM 包下载、安装、启动和 GNOME 固定脚本
 
-### 41. chromium-flatpak-fallback
+### 45. chromium-flatpak-fallback
 **功能：** 当 Ubuntu 上的 `chromium-browser` 实际走 Snap 包装器且反复失败时，改用 Flatpak 安装并启动真正可用的 Chromium
 **用途：** 当用户明确需要 Chromium、`snap run chromium` 因 `snap-confine`/namespace/容器环境报错或卡住、而机器本身已有图形桌面时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（判定条件、Flatpak 回退流程与验证标准）
 - `scripts/chromium_flatpak_fallback.sh` - 诊断、安装、启动与进程检查脚本
 
-### 42. linux-wechat-send-bootstrap
+### 46. linux-wechat-send-bootstrap
 **功能：** 为 PyWxDump 的 Linux 微信文本发送链路做一键引导，自动补齐 `.venv` 最小依赖、提取 key、解密数据库，并走“搜索 + 视觉验标题 + 数据库回读”的稳妥发送流程
 **用途：** 当新用户第一次在 Linux 上使用 PyWxDump 发送微信消息，遇到 `.venv` 缺 `Pillow` / `pycryptodomex`、`~/.wx_db_keys.json` 为空、`ptrace_scope` 阻止提 key、`OPENAI_API_KEY` 只在 `~/.bashrc` 中，或默认 `send-text` 无法稳定命中目标会话时使用
 **文件：**
@@ -365,21 +365,21 @@
 - `scripts/send_text_with_setup.sh` - 引导脚本，负责定位 PyWxDump、准备 `.venv`、提 key、解密数据库并切到交互式 bash
 - `scripts/send_text_with_setup.py` - 发送执行脚本，负责主界面搜索、视觉验标题、发送文本和数据库回读确认
 
-### 43. sync-latest-skills
+### 47. sync-latest-skills
 **功能：** 拉取 `my-skills-repo` 最新内容，并把仓库里的顶层技能目录同步到 `~/.codex/skills`
 **用途：** 当需要一键刷新本机技能目录、把仓库更新同步回本地链接，或替换旧版本技能目录时使用
 **文件：**
 - `SKILL.md` - 技能说明文档
 - `scripts/sync_latest_skills.sh` - 拉取仓库并将顶层技能目录链接到 `~/.codex/skills`，支持 `--rebase`
 
-### 44. gh-browser-chromium-fix
+### 48. gh-browser-chromium-fix
 **功能：** 配置 GitHub CLI 及系统默认 Web 处理器一起打开 Chromium，而不是 Firefox 或不可用的 Snap 浏览器
 **用途：** 当 `gh auth login`、`gh browse` 或 `--web` 链接走错浏览器、需要把 `gh config browser` 和 XDG 默认浏览器一起固定到 Chromium，或想避免 `gh` 继续调用 Firefox 时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（`gh` 浏览器路由、系统默认 Web 处理器和失败处理）
 - `scripts/set_gh_browser.sh` - 自动探测 Chromium 并同时写入 `gh config browser` 和 XDG 默认处理器的脚本
 
-### 45. openclaw-wechat-linux-local-launcher
+### 49. openclaw-wechat-linux-local-launcher
 **功能：** 为 OpenClaw 的本地 `wechat-linux` 调试环境提供配置模板，并指导如何用辅助脚本启动、看日志、查状态和停止 Gateway
 **用途：** 当需要在单机上把 `wechat-linux` 跑起来、先准备 `~/.openclaw/openclaw.json` 和 `~/.openclaw/.env`，再用 `scripts/run-wechat-linux-local.sh` 等脚本做本地 bring-up 时使用
 **文件：**
@@ -387,14 +387,14 @@
 - `assets/templates/openclaw.json` - 脱敏版 OpenClaw 本地 `wechat-linux` 配置模板
 - `assets/templates/wechat-linux.env.example` - 脱敏版环境变量模板（API key / Base URL / DISPLAY）
 
-### 46. dual-mi-barge-in-replay-lab
+### 50. dual-mi-barge-in-replay-lab
 **功能：** 用两台 `MI Speakphone` 做自动化 `barge-in` 真实回放实验，让 `speaker1` 播放助手语音、`speaker2` 外放模拟插话、`mic1` 负责检测与识别，并输出可定位问题的实验工件
 **用途：** 当需要定位“实时语音打断不灵敏”“AEC 把外部插话也消掉了”“流式 partial 比 batch 更差”“双设备自动化回放测试怎么搭”时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用场景、默认拓扑、推荐参数与实验工作流）
 - `references/runbook.md` - 双 `MI` 自动化回放的经验总结、关键误区、判据和默认策略说明
 
-### 47. headless-vnc-audio-xfce
+### 51. headless-vnc-audio-xfce
 **功能：** 在无显示器 Ubuntu/Linux 上部署固定会话 `TigerVNC + XFCE + PulseAudio TCP`，同时覆盖服务端安装、客户端音频接入、黑屏排障和内存优化经验
 **用途：** 当机器只通过 VNC 访问 GUI、需要让客户端听到远端音视频声音、重启后遇到“端口通但黑屏”、或想继续压 `XFCE` 内存占用时使用
 **文件：**
@@ -409,7 +409,7 @@
 - `assets/xfce4-session.xml` - 精简 `XFCE` failsafe session 模板
 - `assets/autostart/*.desktop` - 关闭 `xfce4-screensaver`、`xiccd`、`tracker`、`nm-applet` 等自启动项的覆盖模板
 
-### 48. vnc-xfce-recovery-kit
+### 52. vnc-xfce-recovery-kit
 **功能：** 把坏掉的 `TigerVNC + XFCE` 桌面一键恢复到完整可用状态，并提供可扩展的启动 hook 机制
 **用途：** 当用户说“VNC 服务端能连但桌面体验坏了”“想重装 XFCE 并恢复标准桌面”“Chromium 打不开但我默认就要 Chromium”“希望把这套恢复流程固化成以后还能重复跑的脚本”时使用
 **文件：**
@@ -417,7 +417,7 @@
 - `references/runbook.md` - 恢复后的目标状态、为什么保留 `-extension SELinux`、以及后续扩展建议
 - `scripts/recover_vnc_xfce.sh` - 一键恢复脚本：重装 `dbus/selinux-policy-default/XFCE`、备份并重置用户配置、恢复标准 `xstartup`、刷新 `vncserver-headless.service`、固定默认终端和浏览器、重建 `:1` 桌面
 
-### 49. linux-auto-shutdown-triage
+### 53. linux-auto-shutdown-triage
 **功能：** 排查 Linux 机器“自动关机 / 自动重启 / 像关机一样消失”的问题，并在必要时执行电源策略止血和日志持久化
 **用途：** 当用户说“电脑过一会儿自己关机”“怀疑系统有自动关机逻辑”“空闲后像关机一样”“想查是手动关机、定时任务、电源键、合盖还是自动挂起”时使用
 **文件：**
@@ -427,7 +427,7 @@
 - `scripts/boot_capture.sh` - 在新 boot 一开始自动抓取上一轮异常关机/挂起证据的落盘脚本
 - `scripts/triage_auto_shutdown.sh` - 默认只读排查、按需执行止血配置的一键脚本
 
-### 47. headless-rdp-remmina-audio
+### 54. headless-rdp-remmina-audio
 **功能：** 作为局域网/直连主线，在无显示器的 Ubuntu/Linux 主机上通过 `Remmina + RDP` 访问 `xrdp + XFCE`，启用音频重定向，并为 Linux 客户端生成可复用的 `.remmina` 配置
 **用途：** 当用户说“只通过远程桌面登录主机”“客户端固定用 Remmina”“远程要听到服务器声音”“需要处理分辨率或剪贴板问题”时使用；这是默认的直连入口，不覆盖 Tailscale 和 VNC server
 **文件：**
@@ -435,14 +435,14 @@
 - `scripts/write_remmina_profile.sh` - 在 Linux 客户端生成启用本地音频、客户端分辨率、`16bpp` 和键盘抓取的 `.remmina` 配置文件
 - `scripts/push_remmina_profile_via_ssh.sh` - 通过 SSH 在另一台 Linux 客户端直接写入 `.remmina` 配置文件
 
-### 48. xfce-lock-screen-timeout
+### 55. xfce-lock-screen-timeout
 **功能：** 检查并设置 XFCE 桌面的空闲锁屏时间，明确区分 `xfce4-screensaver` 持久化配置和当前 X11 会话 `xset` 的即时超时
 **用途：** 当用户要求“把 XFCE 锁屏时间改成一小时/30 分钟”、需要查看当前锁屏超时，或发现图形界面改了但实际不生效时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、判断顺序、手工兜底命令和验证方式）
 - `scripts/set_xfce_lock_screen_timeout.sh` - 查看当前状态，或把空闲锁屏时间改成指定分钟数并立即校验
 
-### 49. wechat-auto-enter-startup
+### 56. wechat-auto-enter-startup
 **功能：** 安装视觉识别版 Linux 微信自动进入流程，自动启动 `wechat`、识别绿色 `Enter Weixin` 按钮并点击，同时可配置为桌面登录后自动执行
 **用途：** 当用户想把“启动微信并点进入微信”做成稳定脚本、明确嫌弃固定坐标点击、需要改成截图识别绿色按钮，或者希望在 XFCE/GNOME 登录后自动运行这套流程时使用
 **文件：**
@@ -452,13 +452,13 @@
 - `scripts/wechat_auto_enter_autostart.sh` - 自启动包装脚本模板，负责登录桌面后延迟执行主脚本
 - `scripts/selftest.sh` - 语法、依赖和安装结果检查脚本
 
-### 50. remmina-tailscale-xrdp
+### 57. remmina-tailscale-xrdp
 **功能：** 作为外网扩展路径，在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina 远程桌面，并完成客户端 Remmina 参数优化、服务端 XFCE 合成器优化、Tailscale 登录与联通验证
 **用途：** 当用户说“Remmina 局域网已经能连，想从外网继续连”“继续用 xrdp + XFCE，不要换协议”“把客户端和服务端一起配通并顺手优化桌面性能”时使用；局域网/直连默认仍走 `headless-rdp-remmina-audio`
 **文件：**
 - `SKILL.md` - 技能说明文档，包含服务端检查、Tailscale 安装登录、XFCE 优化、Remmina 调参、MagicDNS 与 3389 联通验证的完整工作流
 
-### 51. ssh-monitor-cycle
+### 58. ssh-monitor-cycle
 **功能：** 在单个终端里按 `~/.ssh/config` 轮询多台 SSH 主机，依次运行 `htop` 和 `jtop/nvtop`，并通过本地 PTY 代理支持 `PageUp/PageDown` 切换与 `Ctrl-G/Ctrl-R` 停驻/恢复
 **用途：** 当需要在一台终端里循环查看多台机器的 CPU/GPU 负载，希望保留远端全屏监控界面、自动处理 `htop` 缺失安装，并直接用按键完成上一台/下一台切换或停驻当前界面时使用
 **文件：**
@@ -466,14 +466,14 @@
 - `scripts/ssh_monitor_cycle.py` - 主逻辑，负责主机发现、SSH PTY 代理、`PageUp/PageDown` 切换与 `Ctrl-G/Ctrl-R` 停驻控制
 - `scripts/ssh_monitor_cycle.sh` - 启动包装脚本，统一从 shell 调用 Python 版本
 
-### 52. remmina-x11-clipboard-bridge
+### 59. remmina-x11-clipboard-bridge
 **功能：** 修复 Linux X11 下 Remmina 内复制文本后无法在本地应用直接 `Ctrl+V` 粘贴的问题，并自动安装/配置 `autocutsel` 进行 `PRIMARY` 与 `CLIPBOARD` 桥接
 **用途：** 当用户说“Remmina 里复制的文本贴不到外面”“X11 下远程桌面选中文本后本地剪贴板没更新”，或想把这个修复做成登录后自动生效时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、诊断顺序、安装步骤、验证与回滚）
 - `scripts/install_autocutsel_bridge.sh` - 安装 `autocutsel`、写入 `~/.config/autostart/autocutsel.desktop`，并在当前 X11 会话立即启动桥接
 
-### 53. jetson-agx-max-power
+### 60. jetson-agx-max-power
 **功能：** 在 `Jetson AGX Orin` 上查看当前 power mode / clocks 状态，切到 `MAXN + jetson_clocks`，并恢复到执行前自动保存的状态
 **用途：** 当用户说“把 AGX 切到 max power”“开 MAXN”“确认现在是不是最大 clock”“恢复之前的 nvpmodel / clocks 状态”时使用
 **文件：**
@@ -481,13 +481,13 @@
 - `scripts/jetson_agx_max_power.sh` - 统一入口脚本，支持 `status|max|restore` 以及 `状态|最大|恢复`
 - `agents/openai.yaml` - skill 的 UI 元数据
 
-### 54. v2rayn-linux-github-install
+### 61. v2rayn-linux-github-install
 **功能：** 在 Linux 上直接从 GitHub Releases 安装指定版本的 `v2rayN`，并校验 GUI 客户端是否安装成功
 **用途：** 当用户要求安装 `v2rayN`、明确指定版本号（如 `7.20.2`）、要求使用 Linux `.deb` 包而不是 Windows 资产，或需要在 Ubuntu ARM64/x64 上完成下载、安装与验证时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（版本选择、GitHub 下载、`apt` 安装、结果校验与失败处理）
 
-### 55. lmstudio-brave-mcp-bootstrap
+### 62. lmstudio-brave-mcp-bootstrap
 **功能：** 为 LM Studio 一键安装 Brave Search MCP，写入本地 `mcp.json`、自定义 MCP server、启动脚本和凭证模板，支持代理、IPv4 与重试策略
 **用途：** 当用户需要把 Brave Search API 接入 LM Studio、希望把这套 MCP 搜索能力迁移到其他 Linux/macOS 设备、或希望把代理配置稳定固化到 LM Studio 子进程时使用
 **文件：**
@@ -500,14 +500,14 @@
 - `references/troubleshooting.md` - Brave MCP 常见超时、代理和套餐边界排障说明
 - `scripts/install_lmstudio_brave_mcp.sh` - 一键安装或更新 LM Studio Brave MCP 的入口脚本，支持 `custom` / `official` 模式，并可做链路自检
 
-### 56. chromium-v2ray-google-fix
+### 63. chromium-v2ray-google-fix
 **功能：** 修复 Linux 上 Chromium 通过 `v2rayN/xray` 访问 `www.google.com` 的问题，覆盖代理诊断、DNS 污染排查、Chromium 固定代理启动包装器，以及桌面快捷方式生成
 **用途：** 当用户遇到“Chromium 能开百度但打不开 Google”“需要把 Chromium 固定走本地 V2Ray 代理”“要生成指向 `~/.local/bin/chromium` 的桌面快捷方式”时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（触发条件、工作流、安全规则）
 - `scripts/fix_chromium_v2ray_google.sh` - 诊断/修复脚本，支持 `diagnose`、`apply-wrapper`、`desktop`、`set-dns`、`all`
 
-### 57. codex-safe-sandbox-no-approval
+### 64. codex-safe-sandbox-no-approval
 **功能：** 把 Codex 全局默认权限切到“相对安全的 sandbox + 不审批”组合，即 `sandbox_mode = "workspace-write"` 与 `approval_policy = "never"`，并保留 `~/.codex/config.toml` 里的其他设置
 **用途：** 当用户希望取消默认 `danger-full-access`、恢复到更安全的工作区写入沙箱，同时又不想每次手动批准命令时使用
 **文件：**
@@ -515,7 +515,7 @@
 - `scripts/manage_codex_safe_no_approval.sh` - 配置管理脚本，支持 `status` 和 `apply`，写入前自动备份现有 `config.toml`
 
 
-### 58. codex-rs-build-troubleshoot
+### 65. codex-rs-build-troubleshoot
 **功能：** 同步 `codex-rs` 最新代码、编译 `codex-cli`，并诊断 `core`、`tui`、`app-server`、`mcp` 等核心模块构建状态以及 `/loop`、二进制路径、feature 配置错位问题
 **用途：** 当需要从云端同步最新源码、开始编译、确认核心模块是否随依赖链成功编译，或排查“源码已改但运行行为没变”和 `/loop` alarm 功能异常时使用
 **文件：**
@@ -524,7 +524,7 @@
 - `references/troubleshooting.md` - 常见构建错位、feature gate、旧进程和 `/loop` 相关排障说明
 
 
-### 59. llama-cpp-minimax27-webui-brave
+### 66. llama-cpp-minimax27-webui-brave
 **功能：** 在 `llama.cpp` 中编译 CUDA 版 `llama-server`，启动 MiniMax-M2.7 WebUI，并接入 Brave MCP 搜索桥接
 **用途：** 当需要在本地 `llama.cpp` 里跑 Unsloth 的 `MiniMax-M2.7-GGUF`、启用 WebUI、保留已验证的 thinking 配置，并把 Brave MCP 联网搜索接进聊天界面时使用
 **文件：**
@@ -535,7 +535,7 @@
 
 
 
-### 60. lmstudio-auto-updater
+### 67. lmstudio-auto-updater
 **功能：** 为 Linux 上通过 AppImage 安装的 LM Studio 执行自动检查、下载、校验、切换软链和用户级 systemd 定时更新
 **用途：** 当需要检查本机 LM Studio 是否有新版本、执行安全升级、修复桌面启动器到最新 AppImage，或安装用户级自动更新定时器时使用
 **文件：**
@@ -544,21 +544,21 @@
 - `scripts/selftest.sh` - 无副作用自检脚本，验证 latest 跳转、版本探测与下载链路
 - `agents/openai.yaml` - skill 的 UI 元数据
 
-### 54. jetson-super-mode-upgrade
+### 68. jetson-super-mode-upgrade
 **功能：** 在 Jetson Orin Nano / Orin NX 上启用并验收真正可用的 Super Mode，覆盖 Super DTB、`nv_boot_control.conf`、bootloader capsule、双重启验证与回滚
 **用途：** 当系统里已经出现 `*_super.conf`、`nv-super.dtb` 或 super capsule，但仅靠 `nvpmodel` 切换并没有真正提频、GPU 仍卡在 `918000000`，需要把“伪 Super”升级成“真 Super”时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
 - `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
 
-### 61. pywxdump-linux-bootstrap
+### 69. pywxdump-linux-bootstrap
 **功能：** 为当前仓库的 Linux 微信工具链执行依赖检查、安装、修复和配置写入，并统一复用正式入口脚本
 **用途：** 当需要在新机器初始化 PyWxDump Linux 微信环境、排查 watcher/link-doc/ASR 前置依赖、执行 profile 化安装或补写配置时使用
 **文件：**
 - `SKILL.md` - 技能说明文档（适用场景、标准工作流、profile 规则与约束）
 - `scripts/bootstrap_with_profiles.sh` - 轻量入口脚本，自动定位仓库与 Python 并转调 `tools/bootstrap_linux_wechat_stack.py`
 
-### 62. pywxdump-obsidian-shortcut
+### 70. pywxdump-obsidian-shortcut
 **功能：** 为当前仓库生成“先增量导出 chat_archive，再打开 Obsidian Vault”的 Linux 桌面快捷方式，并统一复用正式入口脚本
 **用途：** 当需要在新机器上初始化微信知识库桌面入口、修复已有快捷方式，或在 Vault 路径迁移后重新生成启动入口时使用
 **文件：**
