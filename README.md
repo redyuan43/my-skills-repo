@@ -551,6 +551,20 @@
 - `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
 - `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
 
+### 61. pywxdump-linux-bootstrap
+**功能：** 为当前仓库的 Linux 微信工具链执行依赖检查、安装、修复和配置写入，并统一复用正式入口脚本
+**用途：** 当需要在新机器初始化 PyWxDump Linux 微信环境、排查 watcher/link-doc/ASR 前置依赖、执行 profile 化安装或补写配置时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用场景、标准工作流、profile 规则与约束）
+- `scripts/bootstrap_with_profiles.sh` - 轻量入口脚本，自动定位仓库与 Python 并转调 `tools/bootstrap_linux_wechat_stack.py`
+
+### 62. pywxdump-obsidian-shortcut
+**功能：** 为当前仓库生成“先增量导出 chat_archive，再打开 Obsidian Vault”的 Linux 桌面快捷方式，并统一复用正式入口脚本
+**用途：** 当需要在新机器上初始化微信知识库桌面入口、修复已有快捷方式，或在 Vault 路径迁移后重新生成启动入口时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（用途、默认参数、工作流与限制说明）
+- `scripts/install_shortcut.sh` - 轻量入口脚本，自动定位仓库与 Python 并转调 `tools/install_obsidian_vault_shortcut.py`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
