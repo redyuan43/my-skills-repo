@@ -544,6 +544,13 @@
 - `scripts/selftest.sh` - 无副作用自检脚本，验证 latest 跳转、版本探测与下载链路
 - `agents/openai.yaml` - skill 的 UI 元数据
 
+### 54. jetson-super-mode-upgrade
+**功能：** 在 Jetson Orin Nano / Orin NX 上启用并验收真正可用的 Super Mode，覆盖 Super DTB、`nv_boot_control.conf`、bootloader capsule、双重启验证与回滚
+**用途：** 当系统里已经出现 `*_super.conf`、`nv-super.dtb` 或 super capsule，但仅靠 `nvpmodel` 切换并没有真正提频、GPU 仍卡在 `918000000`，需要把“伪 Super”升级成“真 Super”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、两阶段升级流程、验收指标与回滚规则）
+- `references/runbook.md` - 命令清单、关键检查点、典型半成功现象与回滚示例
+
 ## 使用方法
 
 1. 克隆此仓库到本地
