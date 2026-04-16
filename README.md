@@ -545,6 +545,15 @@
 - `SKILL.md` - 技能说明文档（用途、默认参数、工作流与限制说明）
 - `scripts/install_shortcut.sh` - 轻量入口脚本，自动定位仓库与 Python 并转调 `tools/install_obsidian_vault_shortcut.py`
 
+### 69. android-tablet-sunshine-moonlight-ubuntu
+**功能：** 在 Ubuntu 24.x 上用 Sunshine + Moonlight 把当前桌面共享到 Android 平板，并用 `adb` 校验平板分辨率、前台应用与连通状态
+**用途：** 当用户想把当前 Ubuntu 屏幕共享到安卓平板、需要区分“当前桌面共享”与“VNC 独立桌面”、希望根据平板实际分辨率做判断，或要确认 Moonlight 是否真的连接到当前桌面时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、决策规则、标准工作流、分辨率指导与常见误区）
+- `references/apps-and-roles.md` - 记录 Ubuntu 端与 Android 端分别使用哪些 app、各自角色是什么，以及 Sunshine+Moonlight 与 TigerVNC+AVNC 的边界
+- `scripts/adb_tablet_display_info.sh` - 读取 Android 平板的 `wm size`、`wm density` 与 `dumpsys display` 关键信息，确认真实物理分辨率和横屏逻辑分辨率
+- `scripts/sunshine_moonlight_status.sh` - 汇总 ADB 连接、Android 前台 Moonlight 焦点、主机 `xrandr`、Sunshine 服务与最近日志，快速判断当前桌面共享链路是否正常
+
 ## 使用方法
 
 1. 克隆此仓库到本地
