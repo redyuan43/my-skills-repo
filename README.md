@@ -562,6 +562,13 @@
 - `scripts/adb_tablet_display_info.sh` - 读取 Android 平板的 `wm size`、`wm density` 与 `dumpsys display` 关键信息，确认真实物理分辨率和横屏逻辑分辨率
 - `scripts/sunshine_moonlight_status.sh` - 汇总 ADB 连接、Android 前台 Moonlight 焦点、主机 `xrandr`、Sunshine 服务与最近日志，快速判断当前桌面共享链路是否正常
 
+### 71. update-ai-dev-clis
+**功能：** 升级、安装并排障常见 AI/开发 CLI，重点覆盖 `codex`、`claude`、`kilo`、`opencode`
+**用途：** 当需要判断 CLI 的真实安装方式、修复 npm 全局安装冲突、处理 `codex` 的 `ENOTEMPTY` 残留目录错误、识别用户级与系统级双安装导致的“升级后仍是旧版”问题，或统一完成版本校验时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、标准工作流、失败分类与验证口径）
+- `references/commands.md` - 命令参考（含 `codex` 的 npm 前缀/路径诊断、`ENOTEMPTY` 与双安装恢复流程）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
