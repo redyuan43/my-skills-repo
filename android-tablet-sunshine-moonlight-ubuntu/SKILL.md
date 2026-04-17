@@ -1,3 +1,8 @@
+---
+name: android-tablet-sunshine-moonlight-ubuntu
+description: 在 Ubuntu 主机上通过 Sunshine + Moonlight 把当前桌面共享到 Android 平板，并区分镜像当前屏幕、独立远程桌面与真扩展副屏的边界。适用于用户希望用安卓平板查看当前 Ubuntu 桌面、通过 adb 读取平板分辨率、安装和配对 Moonlight、排查“看到的是另一个桌面而不是当前桌面”这类场景。
+---
+
 # android-tablet-sunshine-moonlight-ubuntu
 
 Use when the user wants to share the current Ubuntu desktop to an Android tablet, or is confused between "mirror/current screen share" and "true extended second monitor".
