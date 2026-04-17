@@ -569,6 +569,14 @@
 - `SKILL.md` - 技能说明文档（触发条件、标准工作流、失败分类与验证口径）
 - `references/commands.md` - 命令参考（含 `codex` 的 npm 前缀/路径诊断、`ENOTEMPTY` 与双安装恢复流程）
 
+### 72. linux-proxy-socks5-socket-fix
+**功能：** 修复 Linux 上因 `socks://127.0.0.1:PORT` 代理变量导致的 socket / proxy 兼容问题，并将 `ALL_PROXY` 规范到 `socks5://`
+**用途：** 当 Ubuntu/Linux 机器启用 `v2rayN`、`xray`、`Clash`、`sing-box` 等本地代理后，Python/httpx/Node/CLI 程序因代理 URL scheme 不兼容而报错时使用；支持诊断、自动修复和回滚
+**文件：**
+- `SKILL.md` - 技能说明文档（触发条件、标准工作流、验证方式与安全规则）
+- `references/proxy-socket-runbook.md` - 这类代理/socket 错误的成因、判断顺序和兼容性说明
+- `scripts/fix_linux_proxy_socket.sh` - 一键诊断/修复/导出/回滚脚本，自动处理 `~/.bashrc` 与 `~/.zshrc`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
