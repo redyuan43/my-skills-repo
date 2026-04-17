@@ -554,13 +554,23 @@
 - `scripts/install_shortcut.sh` - 轻量入口脚本，自动定位仓库与 Python 并转调 `tools/install_obsidian_vault_shortcut.py`
 
 ### 70. android-tablet-sunshine-moonlight-ubuntu
-**功能：** 在 Ubuntu 24.x 上用 Sunshine + Moonlight 把当前桌面共享到 Android 平板，并用 `adb` 校验平板分辨率、前台应用与连通状态
-**用途：** 当用户想把当前 Ubuntu 屏幕共享到安卓平板、需要区分“当前桌面共享”与“VNC 独立桌面”、希望根据平板实际分辨率做判断，或要确认 Moonlight 是否真的连接到当前桌面时使用
+**功能：** 在 Ubuntu 24 X11 主机上，把 Android 平板接成“第二屏风格”的显示目标，统一覆盖 `Sunshine + Moonlight` 当前桌面共享、`VKMS` 同会话虚拟副屏、`TigerVNC + AVNC` 独立工作区，以及重启后的恢复脚本
+**用途：** 当用户想把当前 Ubuntu 屏幕共享到安卓平板、没有 fake HDMI 但仍想拉起一个接近真实副屏的桌面区域、需要区分“当前桌面共享”和“VNC 独立桌面”、希望按平板真实分辨率调优，或要在电脑重启后快速恢复第二屏链路时使用
 **文件：**
-- `SKILL.md` - 技能说明文档（适用边界、决策规则、标准工作流、分辨率指导与常见误区）
-- `references/apps-and-roles.md` - 记录 Ubuntu 端与 Android 端分别使用哪些 app、各自角色是什么，以及 Sunshine+Moonlight 与 TigerVNC+AVNC 的边界
-- `scripts/adb_tablet_display_info.sh` - 读取 Android 平板的 `wm size`、`wm density` 与 `dumpsys display` 关键信息，确认真实物理分辨率和横屏逻辑分辨率
-- `scripts/sunshine_moonlight_status.sh` - 汇总 ADB 连接、Android 前台 Moonlight 焦点、主机 `xrandr`、Sunshine 服务与最近日志，快速判断当前桌面共享链路是否正常
+- `SKILL.md` - 技能说明文档（路由规则、三种模式、恢复流程、验证口径与误区）
+- `references/apps-and-roles.md` - Sunshine、Moonlight、AVNC、TigerVNC、VKMS 各自职责与边界
+- `references/modes.md` - 当前桌面共享、同会话虚拟副屏、独立工作区、真扩展显示之间的区别
+- `references/tablet-workspace.md` - TigerVNC 独立平板工作区的默认连接方式与口令文件位置
+- `references/vkms-virtual-monitor.md` - 在 AMD Ubuntu 24 X11 上启用 `VKMS` 虚拟显示器的验证记录和使用建议
+- `scripts/adb_tablet_display_info.sh` - 读取平板真实分辨率、密度、旋转与当前焦点
+- `scripts/sunshine_moonlight_status.sh` - 汇总 Sunshine、Moonlight、显示器布局和最近推流日志
+- `scripts/start_second_screen_stream.sh` - 一键启用 `VKMS`、重启 Sunshine，并可选拉起 Moonlight
+- `scripts/stop_second_screen_stream.sh` - 一键停止当前桌面第二屏链路并输出最终状态
+- `scripts/install_moonlight_apk.sh` - 下载并通过 `adb` 安装 Moonlight
+- `scripts/install_avnc_apk.sh` - 下载并通过 `adb` 安装 AVNC
+- `scripts/enable_vkms_virtual_monitor.sh` - 启用并布置 `Virtual-1-1`
+- `scripts/start_x11vnc_virtual_monitor.sh` - 将虚拟副屏区域通过 `x11vnc --clip` 暴露给 Android
+- `scripts/setup_tablet_workspace.sh` - 初始化 TigerVNC 独立工作区与 user service
 
 ### 71. update-ai-dev-clis
 **功能：** 升级、安装并排障常见 AI/开发 CLI，重点覆盖 `codex`、`claude`、`kilo`、`opencode`

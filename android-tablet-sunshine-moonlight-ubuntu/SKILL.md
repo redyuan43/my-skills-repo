@@ -1,168 +1,193 @@
 ---
-name: android-tablet-sunshine-moonlight-ubuntu
-description: 在 Ubuntu 主机上通过 Sunshine + Moonlight 把当前桌面共享到 Android 平板，并区分镜像当前屏幕、独立远程桌面与真扩展副屏的边界。适用于用户希望用安卓平板查看当前 Ubuntu 桌面、通过 adb 读取平板分辨率、安装和配对 Moonlight、排查“看到的是另一个桌面而不是当前桌面”这类场景。
+name: android-tablet-second-screen-ubuntu
+description: Configure an Android tablet as a second-screen-style display target for Ubuntu 24.x over USB and ADB. Use when the user wants current-desktop sharing with Sunshine and Moonlight, a near-real extra screen via VKMS on X11, or an independent fallback workspace via TigerVNC and AVNC, and needs install helpers, status checks, and clear routing between these modes.
 ---
 
-# android-tablet-sunshine-moonlight-ubuntu
+# Android Tablet Second Screen On Ubuntu
 
-Use when the user wants to share the current Ubuntu desktop to an Android tablet, or is confused between "mirror/current screen share" and "true extended second monitor".
+Use this skill for Ubuntu 24.x plus an ADB-connected Android tablet when the user says "把安卓平板当副屏", "共享当前桌面到平板", "没有 fake HDMI 也想多一个桌面", or is confused between mirror, virtual monitor, and independent VNC desktop.
 
-This skill is for Ubuntu 24.x + Android tablet + ADB-connected workflows.
+This skill bundles the practical paths that were validated in this workspace:
 
-## What This Skill Solves
+- `Sunshine + Moonlight` for sharing the current Ubuntu desktop
+- `VKMS + xrandr` for a same-session virtual monitor on X11 without a fake HDMI dongle
+- `TigerVNC + AVNC` for an independent tablet workspace when the first two are not suitable
+- `x11vnc --clip` as a transport fallback for the VKMS-created monitor region
+- one-command recovery helpers for "电脑重启后把副屏拉起来"
 
-- Install and verify Sunshine on Ubuntu.
-- Sideload Moonlight to Android through `adb`.
-- Pair the Android tablet with Sunshine.
-- Record exactly which Ubuntu-side and Android-side apps belong to each path.
-- Confirm whether the tablet is showing the current Ubuntu desktop.
-- Read the tablet's real display size and density through `adb`.
-- Explain the boundary between:
-  - current-screen sharing with Sunshine + Moonlight
-  - independent remote desktop with VNC
-  - true extended monitor output that usually needs a display sink, virtual display stack, or hardware workaround
+Read [references/modes.md](references/modes.md) if the user is mixing up "current desktop", "real extra monitor", and "independent remote desktop".
 
 ## Use This Skill For
 
-- "把当前 Ubuntu 屏幕共享到安卓平板"
-- "我想用平板当副屏，但先接受镜像/共享当前屏幕"
-- "用 adb 看一下平板分辨率，然后按这个分辨率调"
-- "Moonlight / Sunshine 装好并帮我验证是否真的连通"
-- "为什么我看到的是 VNC 独立桌面，不是当前桌面？"
+- The user wants the current Ubuntu desktop on the tablet.
+- The user wants "something like a second screen" without fake HDMI.
+- The user wants a deterministic fallback workspace on the tablet.
+- The user wants the Android and Ubuntu install helpers captured in a publishable skill.
+- The user wants ADB-based verification of tablet resolution, focus, and installed apps.
 
 ## Do Not Use This Skill For
 
-- Users who explicitly need a true OS-level extended monitor with separate mouse space and native display output path.
-- Users who only want an independent remote desktop session; use a VNC/XRDP-style skill instead.
+- Native OS-level extended display requirements that explicitly depend on hardware display sinks, DisplayLink, or compositor-specific Wayland features outside this workflow.
+- Non-Android tablets or no-ADB environments.
 
 ## Decision Rule
 
-1. If the user wants the current Ubuntu desktop on the tablet:
-   use Sunshine + Moonlight.
-2. If the user says "我看到的是另一个桌面，不是现在这个桌面":
-   stop using VNC as the primary path and switch back to Sunshine + Moonlight.
-3. If the user needs a true extended display:
-   explain that Sunshine/Moonlight is screen streaming, not a real Linux monitor.
-   A dummy HDMI/DisplayLink/virtual-display stack may be required.
-4. If there is no hardware display sink and the user still wants "something like a second screen":
-   the next-stable fallback is an independent VNC desktop, but it is not the current desktop and not a true extra monitor.
+1. If the user wants the current Ubuntu desktop:
+   use `Sunshine + Moonlight`.
+2. If the user wants a same-session extra desktop area on X11 and has no fake HDMI:
+   use `VKMS`, then stream or clip that monitor region.
+3. If the user can accept an independent desktop:
+   use `TigerVNC + AVNC`.
+4. If the user says "我看到的是另一个桌面，不是当前桌面":
+   stop treating VNC as the primary answer and move back to `Sunshine + Moonlight` or `VKMS`.
+
+## Bundled Scripts
+
+Baseline and app install:
+
+- `scripts/adb_tablet_display_info.sh`
+- `scripts/sunshine_moonlight_status.sh`
+- `scripts/second_screen_status.sh`
+- `scripts/install_moonlight_apk.sh`
+- `scripts/install_avnc_apk.sh`
+- `scripts/start_second_screen_stream.sh`
+- `scripts/stop_second_screen_stream.sh`
+
+VKMS virtual monitor:
+
+- `scripts/enable_vkms_virtual_monitor.sh`
+- `scripts/disable_vkms_virtual_monitor.sh`
+- `scripts/vkms_virtual_monitor_status.sh`
+- `scripts/start_x11vnc_virtual_monitor.sh`
+- `scripts/x11vnc_virtual_monitor_status.sh`
+
+Independent tablet workspace:
+
+- `scripts/setup_tablet_workspace.sh`
+- `scripts/start_tablet_workspace.sh`
+- `scripts/stop_tablet_workspace.sh`
+- `scripts/tablet_workspace_status.sh`
+- `scripts/run_in_tablet_workspace.sh`
 
 ## Standard Workflow
 
-Before operating, read:
-
-- `references/apps-and-roles.md`
-
-### A. Check host and tablet
+### 1. Baseline checks
 
 Run:
 
 ```bash
-adb devices -l
 scripts/adb_tablet_display_info.sh
 scripts/sunshine_moonlight_status.sh
 ```
 
 Confirm:
 
-- the tablet is listed as `device`, not `unauthorized`
-- Sunshine service is active
-- Sunshine Web UI is reachable
-- the current X11 display layout is visible in `xrandr`
+- the tablet is `device`, not `unauthorized`
+- Android package state for Moonlight or AVNC is visible
+- the Ubuntu display layout is visible in `xrandr`
+- Sunshine service and web UI state are visible when current-desktop sharing is in scope
 
-### B. Install Moonlight on Android
+### 2. Current desktop sharing with Sunshine and Moonlight
 
-Use the repo or local helper that downloads the latest official Moonlight Android non-root APK and installs it with `adb install -r`.
+Use this when the user wants the tablet to show the current desktop they are already using.
 
-If there is already an install helper available, reuse it instead of rewriting the logic.
+Recommended steps:
 
-### C. Pair Moonlight with Sunshine
-
-If the user provides a PIN shown on the tablet, pair via Sunshine's local API.
-
-Typical flow:
-
-- initialize Sunshine credentials if first run
-- call Sunshine `/api/pin`
-- verify the client appears in Sunshine's client list
-
-### D. Verify the tablet is showing the current desktop
-
-Do all of the following:
-
-1. Bring Moonlight to foreground on the tablet.
-2. Check Android focus:
+1. For reboot recovery or one-command bring-up, start with:
 
 ```bash
-adb shell dumpsys window | rg 'mCurrentFocus|mFocusedApp'
+scripts/start_second_screen_stream.sh
 ```
 
-3. Check recent Sunshine logs:
-
-```bash
-journalctl --user -u sunshine -n 80 --no-pager
-```
-
-Look for signals like:
-
-- `New streaming session started`
-- `CLIENT CONNECTED`
-- `Screencasting with KMS`
-
-4. Capture a tablet screenshot:
+2. Install Moonlight with `scripts/install_moonlight_apk.sh` if needed.
+3. Ensure Sunshine is active.
+4. Pair Moonlight with Sunshine using the PIN shown on the tablet.
+5. Verify Android focus and Sunshine logs with `scripts/sunshine_moonlight_status.sh`.
+6. If visual proof is needed, capture a tablet screenshot with:
 
 ```bash
 adb exec-out screencap -p > /tmp/tablet_verify.png
 ```
 
-Inspect the screenshot to confirm the visible content is the real current Ubuntu desktop, not a separate VNC/XFCE session.
+Use this path when the user says "当前屏幕共享" or rejects VNC because it opened a different desktop.
+
+To stop the recovery path cleanly:
+
+```bash
+scripts/stop_second_screen_stream.sh
+```
+
+### 3. Same-session virtual monitor on X11 without fake HDMI
+
+Use this when the host is on X11 and the user wants something closer to a real extra monitor.
+
+Steps:
+
+1. Enable the monitor:
+
+```bash
+scripts/enable_vkms_virtual_monitor.sh
+```
+
+2. Inspect the result:
+
+```bash
+scripts/vkms_virtual_monitor_status.sh
+```
+
+3. Move windows onto the new `Virtual-*` output.
+4. Prefer Sunshine if it can target that output cleanly.
+5. If Sunshine transport is flaky, start clipped VNC transport for just that region:
+
+```bash
+scripts/start_x11vnc_virtual_monitor.sh
+scripts/x11vnc_virtual_monitor_status.sh
+```
+
+This path gives same-session window movement semantics, but it is still not identical to a hardware monitor sink.
+
+### 4. Independent fallback workspace with TigerVNC and AVNC
+
+Use this when the user accepts "a separate desktop dedicated to the tablet".
+
+Steps:
+
+```bash
+scripts/setup_tablet_workspace.sh
+scripts/start_tablet_workspace.sh
+scripts/install_avnc_apk.sh
+scripts/tablet_workspace_status.sh
+```
+
+Launch tablet-only apps into that workspace with:
+
+```bash
+scripts/run_in_tablet_workspace.sh xfce4-terminal
+```
+
+Be explicit that this creates another desktop session, not the current one.
 
 ## Resolution Guidance
 
-- Read the physical size from Android with `adb shell wm size`.
-- Also inspect `adb shell dumpsys display`, because tablets may currently be rotated and the effective horizontal workspace can differ from the portrait physical value.
-- Use the tablet resolution as a target only when the host display path can actually expose that mode.
-- If `xrandr --addmode` succeeds but `xrandr --output ... --mode ...` fails with `Configure crtc failed`, the connector/GPU path likely does not accept that mode on the current sink.
-- For Sunshine current-screen streaming, a safe fallback such as `1920x1080` is often more stable than forcing an unsupported exact tablet mode.
-
-## Important Distinction
-
-- Sunshine + Moonlight:
-  shares the current host desktop.
-- TigerVNC/Xvnc:
-  creates an independent desktop session.
-- Dummy HDMI / some virtual display methods:
-  may allow a true extra monitor path.
-
-If the user says "我希望是当前屏幕能够共享一个屏幕", Sunshine + Moonlight is the correct path.
+- Read the tablet's real size and density from `scripts/adb_tablet_display_info.sh`.
+- Treat the tablet resolution as a target, not a guarantee that the host display path can expose that mode.
+- If `xrandr --output ... --mode ...` fails with `Configure crtc failed`, the current GPU/connector path likely cannot drive that mode.
+- For Sunshine streaming, default to stable modes such as `1920x1080` when exact tablet-native modes are unreliable.
 
 ## Common Pitfalls
 
-- Sunshine package mismatch on Ubuntu 24.x can fail with missing ICU libraries.
-  Prefer the official Ubuntu 24.04 package if the distro package is broken.
-- Android app installed but not paired:
-  Moonlight will open but cannot start the stream.
-- VNC works, but the user thinks it is "same screen sharing":
-  clarify that it is a separate desktop.
-- ADB text input into some Android forms is unreliable.
-  Prefer manual entry on-device when the app UI blocks reliable automation.
+- Ubuntu 24 package mismatches can break Sunshine; prefer the official Ubuntu 24.04 package when needed.
+- Moonlight installed but not paired still looks "working" until stream launch fails.
+- `TigerVNC` succeeding does not mean the user got current-desktop sharing.
+- Some Android text-entry fields reject reliable `adb shell input`; ask the user to enter PINs manually on-device when needed.
+- `VKMS` requires X11-style display handling; if the system is not in a compatible session, route back to Sunshine-only sharing or the independent workspace fallback.
 
 ## Completion Checklist
 
 - Tablet is visible in `adb devices -l`
-- Sunshine service is active
-- Moonlight is installed
-- Pairing completed
-- Sunshine log shows a live streaming session
-- Tablet screenshot confirms the current Ubuntu desktop is being shown
-- User is told clearly whether the result is:
-  - mirror/current-screen share
-  - independent desktop
-  - or true extended display
-
-## Files In This Skill
-
-- `SKILL.md`
-- `references/apps-and-roles.md`
-- `scripts/adb_tablet_display_info.sh`
-- `scripts/sunshine_moonlight_status.sh`
+- The selected path is stated clearly as one of:
+  - current desktop share
+  - same-session virtual monitor
+  - independent tablet workspace
+- The corresponding status script shows the expected service, display, and package state
+- The user is told any remaining boundary, especially that VNC workspace and Sunshine current-desktop sharing are different results

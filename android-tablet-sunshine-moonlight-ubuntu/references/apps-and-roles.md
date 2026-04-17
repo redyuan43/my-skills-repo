@@ -1,17 +1,17 @@
 # Apps And Roles
 
-This reference records the concrete apps used in the verified Ubuntu 24.x + Android tablet workflow.
+This reference records the concrete apps used in the validated Ubuntu 24.x plus Android tablet workflow.
 
 ## Recommended Primary Path
 
 ### Ubuntu host app
 
 - App: `Sunshine`
-- Role: host-side low-latency game/desktop streaming server
+- Role: host-side low-latency desktop streaming server
 - Why it is used:
   - shares the current Ubuntu desktop
-  - works well with Moonlight on Android
-  - exposes a local Web UI and API for pairing and verification
+  - can target the same live session, including a `VKMS` virtual monitor
+  - exposes a local Web UI and logs for pairing and verification
 
 Typical host checks:
 
@@ -28,8 +28,8 @@ journalctl --user -u sunshine -n 80 --no-pager
 - Role: Android streaming client for Sunshine
 - Why it is used:
   - shows the current Ubuntu desktop on the tablet
-  - supports pairing PIN flow with Sunshine
-  - suitable when the user wants "当前屏幕共享"
+  - works well for "当前屏幕共享"
+  - is the correct answer when the user rejects VNC because it opened a different desktop
 
 Typical tablet checks:
 
@@ -46,8 +46,8 @@ adb exec-out screencap -p > /tmp/tablet_verify.png
 - App: `TigerVNC` / `Xvnc`
 - Role: create an independent remote desktop session
 - Why it may still be used:
-  - useful when no hardware-backed real extra display exists
-  - useful as a "quasi second screen" fallback
+  - stable fallback when no hardware-backed real extra display exists
+  - useful for a dedicated tablet-only workspace
 
 Important limitation:
 
@@ -58,17 +58,34 @@ Important limitation:
 
 - App: `AVNC`
 - Android package: `com.gaurav.avnc`
-- Role: Android VNC client for connecting to the independent VNC desktop
+- Role: Android VNC client for the independent VNC desktop
 
 Important limitation:
 
-- if the user says they want the current screen mirrored/shared, AVNC is the wrong primary path
+- if the user wants the current screen mirrored or shared, AVNC is the wrong primary path
+
+## Same-Session Extra Desktop Area
+
+### Ubuntu host stack
+
+- Stack: `VKMS + xrandr`
+- Role: add a `Virtual-*` output into the current X11 desktop
+- Why it is used:
+  - allows window movement into a virtual side display
+  - gets closer to second-monitor semantics than `TigerVNC`
+
+Transport options:
+
+- `Sunshine + Moonlight` when the virtual output can be streamed cleanly
+- `x11vnc --clip` when the user only needs the virtual region transported to Android
 
 ## Decision Summary
 
 - Current desktop on tablet:
   use `Sunshine` + `Moonlight`
+- Same-session extra desktop area:
+  use `VKMS`, then choose `Sunshine` or clipped `x11vnc` as transport
 - Independent extra remote workspace:
   use `TigerVNC` + `AVNC`
-- True extended monitor:
-  may require dummy HDMI / DisplayLink / virtual display support outside the scope of this skill
+- True hardware-style extended monitor:
+  may require dummy HDMI, DisplayLink, or other display-sink support outside this skill
