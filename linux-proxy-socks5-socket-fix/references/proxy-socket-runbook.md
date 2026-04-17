@@ -36,7 +36,7 @@
 - 有的只接受 `socks5://`
 - 有的接受 `socks5h://`
 - 有的会自动读用户站点包，有的只看 venv
-- GUI 代理、GNOME `gsettings`、shell 环境变量、systemd user environment 可能不是同一层
+- GUI 代理、GNOME `gsettings`、shell 环境变量、`~/.config/environment.d`、systemd user environment 可能不是同一层
 
 因此排障时不要只看一处。
 
@@ -47,3 +47,44 @@
 3. 若 shell 变量错误，先修格式
 4. 若应用仍报错，再检查应用运行环境是否缺少 SOCKS 依赖
 5. 最后再考虑更深层的桌面会话或 systemd 环境问题
+
+## 分层修复建议
+
+### 第一层：shell 层
+
+作用对象：
+
+- 交互式 bash / zsh
+- 从终端直接启动的 Python / Node / CLI
+
+通常修：
+
+- `~/.bashrc`
+- `~/.zshrc`
+
+### 第二层：user session 层
+
+作用对象：
+
+- 桌面图标启动的 GUI 程序
+- `systemd --user` 服务
+- D-Bus 激活的桌面程序
+
+通常修：
+
+- `~/.config/environment.d/*.conf`
+- `systemctl --user import-environment`
+- `dbus-update-activation-environment --systemd`
+
+### 第三层：system 层
+
+作用对象：
+
+- 新登录用户会话
+- 需要从更稳定入口继承代理的系统环境
+
+通常修：
+
+- `/etc/environment.d/*.conf`
+
+这层影响更大，不适合默认就改。

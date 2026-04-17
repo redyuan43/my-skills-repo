@@ -1,6 +1,6 @@
 ---
 name: linux-proxy-socks5-socket-fix
-description: 当 Linux 机器因代理环境变量写成 `socks://127.0.0.1:PORT`、导致 Python/httpx/Node/CLI 程序报 Unknown scheme、SOCKS socket、代理握手或联网异常时使用。适用于 V2rayN/xray/Clash/sing-box 本地代理场景，支持诊断当前 shell、读取 V2rayN 端口、批量修正 `~/.bashrc`/`~/.zshrc`，并提供一键回滚。
+description: 当 Linux 机器因代理环境变量写成 `socks://127.0.0.1:PORT`、导致 Python/httpx/Node/CLI 程序报 Unknown scheme、SOCKS socket、代理握手或联网异常时使用。适用于 V2rayN/xray/Clash/sing-box 本地代理场景，支持诊断当前 shell、systemd user、environment.d，读取 V2rayN 端口，批量修正 `~/.bashrc`/`~/.zshrc` 与 `~/.config/environment.d`，并提供可选 `/etc/environment.d` 写入和一键回滚。
 ---
 
 # Linux Proxy SOCKS5 Socket Fix
@@ -18,8 +18,10 @@ description: 当 Linux 机器因代理环境变量写成 `socks://127.0.0.1:PORT
 - 把错误的 `socks://127.0.0.1:PORT` 规范成 `socks5://127.0.0.1:PORT`
 - 保持 `HTTP_PROXY` / `HTTPS_PROXY` / `NO_PROXY` 结构一致
 - 优先读取 V2rayN 的 `guiNConfig.json` 推断本地 SOCKS 端口
-- 把修复固化进 `~/.bashrc` 和 `~/.zshrc`
-- 提供 `diagnose` / `status` / `apply` / `revert` 四种模式
+- 把修复固化进 `~/.bashrc`、`~/.zshrc` 和 `~/.config/environment.d`
+- 尝试同步进 `systemd --user` 与 D-Bus 激活环境
+- 可选写入 `/etc/environment.d`
+- 提供 shell/user/system 分层的 `apply` / `revert`
 
 ## 何时使用
 
@@ -38,12 +40,14 @@ bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh diagnose
 重点看：
 
 - 当前 `ALL_PROXY` / `HTTP_PROXY` / `HTTPS_PROXY` / `NO_PROXY`
+- `systemd --user` 是否还保留旧代理值
 - 是否存在 `socks://...` 这类旧值
 - `v2rayN/xray/clash/sing-box` 进程和监听端口
 - GNOME `gsettings` 里的代理状态
+- `~/.config/environment.d` 和 `/etc/environment.d` 是否残留旧配置
 - V2rayN 的 `guiNConfig.json` 是否存在，以及 SOCKS 端口是多少
 
-2. 确认是 `socks://` 兼容问题后，执行自动修复：
+2. 确认是 `socks://` 兼容问题后，执行默认自动修复：
 
 ```bash
 bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh apply
@@ -58,6 +62,8 @@ bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh apply --por
 它会：
 
 - 给 `~/.bashrc` / `~/.zshrc` 写入一段带 marker 的托管块
+- 写入 `~/.config/environment.d/89-linux-proxy-socks5-socket-fix.conf`
+- 尝试导入到 `systemd --user` 和 D-Bus 激活环境
 - 将本地代理规范成：
   - `ALL_PROXY=socks5://127.0.0.1:<port>`
   - `HTTP_PROXY=http://127.0.0.1:<port>/`
@@ -65,19 +71,53 @@ bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh apply --por
   - `NO_PROXY=localhost,127.0.0.0/8,::1`
 - 保留现有用户文件其他内容不变
 
-3. 如果只想看当前应该如何导出，不写文件：
+3. 如果只想修 shell 层：
+
+```bash
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh apply-shell
+```
+
+4. 如果终端已正常，但桌面图标、GUI 程序、`systemd --user` 服务仍然异常，单独修用户会话层：
+
+```bash
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh apply-user
+```
+
+5. 如果明确要把规则固化到系统级新会话，再写 `/etc/environment.d`：
+
+```bash
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh apply-system
+```
+
+这一步需要 `sudo`，只对新登录会话和新启动的服务稳定生效，影响范围更大。
+
+6. 如果只想看当前应该如何导出，不写文件：
 
 ```bash
 bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh print-exports
 ```
 
-4. 若用户要回滚：
+7. 如果想看 `environment.d` 应写什么：
+
+```bash
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh print-envfile
+```
+
+8. 若用户要回滚：
 
 ```bash
 bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh revert
 ```
 
-它会删除自己写入 `~/.bashrc` / `~/.zshrc` 的托管块，不碰其他内容。
+它会删除 shell 层和用户会话层的托管内容。
+
+如需单独回滚：
+
+```bash
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh revert-shell
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh revert-user
+bash linux-proxy-socks5-socket-fix/scripts/fix_linux_proxy_socket.sh revert-system
+```
 
 ## 验证
 
@@ -104,11 +144,18 @@ eval "$(
 )"
 ```
 
+若要验证用户会话层，再检查：
+
+```bash
+systemctl --user show-environment | rg -i '^(all|http|https|no)_proxy='
+```
+
 ## 安全规则
 
-- 默认只改用户级 shell 配置，不改系统级 `/etc/environment`
+- 默认 `apply` 只改用户级 shell + user session，不默认写系统级 `/etc/environment.d`
 - 默认不关闭代理，不删除 V2rayN/Clash/sing-box，也不改系统 DNS
-- 若用户要求修改系统级环境变量、NetworkManager、systemd user environment，需要单独确认
+- `apply-system` / `revert-system` 会动 `/etc/environment.d`，影响更大，执行前应明确确认
+- 若用户要求修改 NetworkManager、GNOME 系统代理、`/etc/environment` 本体，需要单独确认
 
 ## 参考
 
