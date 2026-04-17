@@ -1,0 +1,12 @@
+[Unit]
+Description=Run my-skills-repo update_skill.sh every 4.5 hours
+
+[Timer]
+OnStartupSec=15m
+OnUnitActiveSec=4h30m
+RandomizedDelaySec=15m
+Unit=my-skills-repo-update-skill.service
+
+[Install]
+WantedBy=timers.target
+

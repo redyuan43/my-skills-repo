@@ -1,0 +1,13 @@
+[Unit]
+Description=Sync my-skills-repo via update_skill.sh
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/github/my-skills-repo
+ExecStart=%h/github/my-skills-repo/scripts/update_skill.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
