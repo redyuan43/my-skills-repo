@@ -577,6 +577,13 @@
 - `references/proxy-socket-runbook.md` - 这类代理/socket 错误的成因、判断顺序和兼容性说明
 - `scripts/fix_linux_proxy_socket.sh` - 一键诊断/修复/导出/回滚脚本，自动处理 `~/.bashrc`、`~/.zshrc`、`~/.config/environment.d`，并支持可选 `/etc/environment.d`
 
+### 73. lan-ssh-alias-and-key-setup
+**功能：** 扫描局域网 SSH 主机、识别同一机器的多网卡地址、校正 `~/.ssh/config` 别名，并恢复 `ssh-copy-id` 免密登录
+**用途：** 当局域网设备 IP 漂移、同一台主机同时出现在 Wi‑Fi 和有线网、需要把 `nx1`/`nx2` 之类的 SSH 别名修正到最新地址，且要明确区分“本机 SSH 别名”和“远端 Linux 用户名”时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（工作流、防误改规则和免密验证步骤）
+- `scripts/scan_lan_ssh_hosts.py` - 扫描子网、测试统一 SSH 账号口令并按 hostname 分组输出结果
+
 ## 使用方法
 
 1. 克隆此仓库到本地
