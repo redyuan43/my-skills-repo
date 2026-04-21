@@ -33,6 +33,15 @@ Read `references/my-skills-repo-format.md` for the observed structure and conven
 
 Confirm the source skill path (usually under `~/.codex/skills/<skill-name>`).
 
+Before copying files, distill the solved task into reusable operator knowledge:
+
+- Record the actual entry points that controlled the final behavior, not just the command the user mentioned.
+- Prefer product-native persistence points first, then desktop/session startup glue, then service managers.
+- Capture why one startup path was kept and why competing startup paths were removed.
+- Turn one-off troubleshooting into short, publishable rules and a small verification checklist.
+
+For Linux desktop auto-start cases, read `references/linux-desktop-autostart-case-notes.md` and extract the parts that belong in the published skill rather than leaving them only in chat history.
+
 Copy only the files needed by the public repo format:
 
 - Include: `SKILL.md`, `scripts/`, `references/`, `assets/` (if present), other skill runtime files
@@ -67,6 +76,8 @@ Recommended structure:
 
 The script prints a template block for fast copy/paste.
 
+If you added a new reference document while distilling field experience, include it in the README file list so the published repo exposes that operational knowledge explicitly.
+
 ## 4. Review and commit
 
 Check the target repo changes before committing:
@@ -93,3 +104,4 @@ git -C /path/to/my-skills-repo push origin main
 ## References
 
 - Read `references/my-skills-repo-format.md` for the target repo layout and README style.
+- Read `references/linux-desktop-autostart-case-notes.md` for an example of converting a real Linux startup fix into reusable published guidance.

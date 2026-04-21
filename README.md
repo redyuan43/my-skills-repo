@@ -28,6 +28,7 @@
 - `SKILL.md` - 技能说明文档
 - `scripts/import_skill_to_my_skills_repo.py` - 复制本地技能到仓库并生成 README 条目模板
 - `references/my-skills-repo-format.md` - `my-skills-repo` 的目录与 README 格式说明
+- `references/linux-desktop-autostart-case-notes.md` - 把一次 Linux 桌面开机自启动排障沉淀成可发布 skill 经验的案例说明
 
 
 ### 4. ai-team-skills
