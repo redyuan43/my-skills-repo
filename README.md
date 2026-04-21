@@ -601,6 +601,12 @@
 - `SKILL.md` - 技能说明文档（工作流、防误改规则和免密验证步骤）
 - `scripts/scan_lan_ssh_hosts.py` - 扫描子网、测试统一 SSH 账号口令并按 hostname 分组输出结果
 
+### 75. remote-hostname-rename-over-ssh
+**功能：** 通过 SSH 修改远端 Linux 机器的设备名称/hostname，并明确区分 SSH alias、远端用户名和真正的主机名
+**用途：** 当 `ssh nx1` 已经能登录，但远端机器仍显示 `BUS002-GPU` 这类旧设备名，用户真正想改的是远端 hostname 而不是本地 `~/.ssh/config` 别名时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（确认步骤、`hostnamectl` 修改流程、验证与 fallback 规则）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
