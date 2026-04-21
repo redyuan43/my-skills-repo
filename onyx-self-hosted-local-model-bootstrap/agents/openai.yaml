@@ -1,0 +1,4 @@
+interface:
+  display_name: "Onyx Local Bootstrap"
+  short_description: "Install Onyx and wire LM Studio plus Ollama"
+  default_prompt: "Use $onyx-self-hosted-local-model-bootstrap to install self-hosted Onyx, fix Docker daemon proxy pulls, and connect local LM Studio and Ollama models."
