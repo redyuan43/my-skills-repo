@@ -9,11 +9,17 @@ DOCS_ROOT="${HOME}/Documents"
 LEGACY_CONFIG_PATH=""
 LEGACY_APP_ROOT=""
 PYWXDUMP_ROOT="${PYWXDUMP_ROOT:-${HOME}/github/PyWxDump}"
+WECLAW_ROOT="${WECLAW_ROOT:-${HOME}/github/weclaw}"
+WECLAW_API_BASE="${WECHAT_WECLAW_API_BASE:-http://127.0.0.1:18012}"
+BOT_MEDIA_MODE="${WECHAT_BOT_MEDIA_MODE:-auto}"
+BOT_WAIT_CONTEXT_SECONDS="${WECHAT_BOT_WAIT_CONTEXT_SECONDS:-15}"
 WINDOW_CLASS="${WECHAT_WINDOW_CLASS:-wechat}"
 DISPLAY_VALUE="${WECHAT_X11_DISPLAY:-${DISPLAY:-:0}}"
 XAUTHORITY_VALUE="${WECHAT_X11_XAUTHORITY:-${XAUTHORITY:-/run/user/1000/gdm/Xauthority}}"
 PYTHON_BIN="${WECHAT_PYTHON_BIN:-${PYWXDUMP_ROOT}/.venv/bin/python}"
+WECLAW_BIN="${WECHAT_WECLAW_BIN:-${WECLAW_ROOT}/weclaw}"
 WINDOW_MODE="${WECHAT_SEND_WINDOW_MODE:-standalone}"
+SEND_VIA="${WECHAT_SEND_VIA:-auto}"
 SEND_STEP_DELAY_MS="${WECHAT_SEND_STEP_DELAY_MS:-220}"
 SEND_PASTE_SETTLE_MS="${WECHAT_SEND_PASTE_SETTLE_MS:-320}"
 POST_SEND_DELAY_MS="${WECHAT_SEND_POST_DELAY_MS:-1800}"
@@ -44,6 +50,7 @@ Options:
   --allow-jpeg        Allow jpg/jpeg when auto-picking from Documents.
   --documents-root D  Override the search root. Default: ~/Documents
   --window-class CLS  X11 微信窗口 class（默认: wechat）
+  --send-via MODE     Send path: auto | pywxdump | weclaw-bot. Default: auto
   --window-mode MODE  Window mode: standalone | main | auto. Default: standalone
   --send-gui-countdown-seconds N
                      Countdown seconds before GUI control. Default: 1
@@ -66,6 +73,12 @@ Options:
   --config PATH       Legacy compatibility option. Ignored.
   --app-root PATH     Legacy compatibility option. Ignored.
   --pywxdump-root P   Override the local PyWxDump project path.
+  --weclaw-root P     Override the local weclaw project path.
+  --weclaw-bin PATH   Override the local weclaw executable path.
+  --weclaw-api-base U Override the local weclaw HTTP API base URL.
+  --bot-media-mode M  Bot send media mode: auto | image | file. Default: auto
+  --bot-wait-context-seconds N
+                     Wait this many seconds for bot context token. Default: 15
   --display VALUE     Override the X11 DISPLAY used for sending.
   --xauthority PATH   Override the XAUTHORITY used for sending.
   --print-only        Print the resolved command without sending.
@@ -89,6 +102,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --window-class)
       WINDOW_CLASS="${2:-}"
+      shift 2
+      ;;
+    --send-via)
+      SEND_VIA="${2:-}"
       shift 2
       ;;
     --documents-root)
@@ -147,6 +164,26 @@ while [[ $# -gt 0 ]]; do
       PYWXDUMP_ROOT="${2:-}"
       shift 2
       ;;
+    --weclaw-root)
+      WECLAW_ROOT="${2:-}"
+      shift 2
+      ;;
+    --weclaw-bin)
+      WECLAW_BIN="${2:-}"
+      shift 2
+      ;;
+    --weclaw-api-base)
+      WECLAW_API_BASE="${2:-}"
+      shift 2
+      ;;
+    --bot-media-mode)
+      BOT_MEDIA_MODE="${2:-}"
+      shift 2
+      ;;
+    --bot-wait-context-seconds)
+      BOT_WAIT_CONTEXT_SECONDS="${2:-}"
+      shift 2
+      ;;
     --display)
       DISPLAY_VALUE="${2:-}"
       shift 2
@@ -199,6 +236,11 @@ if [[ "${WINDOW_MODE}" != "standalone" && "${WINDOW_MODE}" != "main" && "${WINDO
   exit 2
 fi
 
+if [[ "${SEND_VIA}" != "auto" && "${SEND_VIA}" != "pywxdump" && "${SEND_VIA}" != "weclaw-bot" ]]; then
+  echo "--send-via must be one of: auto, pywxdump, weclaw-bot" >&2
+  exit 2
+fi
+
 if ! [[ "${SEND_GUI_COUNTDOWN_SECONDS}" =~ ^[0-9]+$ ]]; then
   echo "--send-gui-countdown-seconds must be a non-negative integer" >&2
   exit 2
@@ -214,6 +256,16 @@ if [[ -z "${WINDOW_CLASS}" ]]; then
   exit 2
 fi
 
+if [[ "${BOT_MEDIA_MODE}" != "auto" && "${BOT_MEDIA_MODE}" != "image" && "${BOT_MEDIA_MODE}" != "file" ]]; then
+  echo "--bot-media-mode must be one of: auto, image, file" >&2
+  exit 2
+fi
+
+if ! [[ "${BOT_WAIT_CONTEXT_SECONDS}" =~ ^[0-9]+$ ]]; then
+  echo "--bot-wait-context-seconds must be a non-negative integer" >&2
+  exit 2
+fi
+
 if [[ -n "${WECHAT_PYTHON_BIN:-}" ]]; then
   PYTHON_BIN="${WECHAT_PYTHON_BIN}"
 elif [[ -z "${WECHAT_PYTHON_BIN:-}" ]]; then
@@ -221,17 +273,12 @@ elif [[ -z "${WECHAT_PYTHON_BIN:-}" ]]; then
 fi
 
 if [[ ! -x "${PYTHON_BIN}" ]]; then
-  PYTHON_BIN="$(command -v python3 || true)"
-fi
-if [[ -z "${PYTHON_BIN}" || ! -x "${PYTHON_BIN}" ]]; then
-  PYTHON_BIN="python3"
-fi
-if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
-  echo "Python not found" >&2
+  echo "Required PyWxDump python not found: ${PYTHON_BIN}" >&2
   exit 1
 fi
 
 RESOLVED_CHAT="${CHAT}"
+WECLAW_TARGET=""
 
 if [[ -n "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" ]] && ! [[ "${MAIN_WINDOW_VISION_TIMEOUT_SECONDS}" =~ ^[0-9]+$ ]]; then
   echo "--main-window-vision-timeout-seconds must be a non-negative integer" >&2
@@ -272,6 +319,152 @@ pick_file() {
   printf '%s\n' "${selected}"
 }
 
+resolve_weclaw_local_user_id() {
+  local config_path="${HOME}/.weclaw/config.json"
+  if [[ ! -f "${config_path}" ]]; then
+    echo "WeClaw config not found: ${config_path}" >&2
+    return 1
+  fi
+  python3 - "${config_path}" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as fp:
+    data = json.load(fp)
+value = (((data or {}).get("bridge") or {}).get("local_user_id") or "").strip()
+if not value:
+    raise SystemExit(1)
+print(value)
+PY
+}
+
+run_weclaw_send() {
+  if [[ -z "${WECLAW_TARGET}" ]]; then
+    echo "Resolved WeClaw target is empty" >&2
+    exit 1
+  fi
+
+  local request_media_mode="${BOT_MEDIA_MODE}"
+  if [[ "${request_media_mode}" == "auto" ]]; then
+    case "${FILE_PATH,,}" in
+      *.png|*.jpg|*.jpeg|*.gif|*.webp|*.bmp)
+        request_media_mode="image"
+        ;;
+      *)
+        request_media_mode="file"
+        ;;
+    esac
+  fi
+
+  local api_send=0
+  if curl -fsS --max-time 2 "${WECLAW_API_BASE}/health" >/dev/null 2>&1; then
+    api_send=1
+  fi
+
+  local weclaw_cmd=(
+    "${WECLAW_BIN}"
+    send
+    --to
+    "${WECLAW_TARGET}"
+    --file
+    "${FILE_PATH}"
+  )
+
+  echo "Resolved route: weclaw-bot"
+  echo "Resolved chat: ${RESOLVED_CHAT}"
+  echo "Original chat query: ${CHAT}"
+  echo "Resolved file: ${FILE_PATH}"
+  echo "Resolved WeClaw target: ${WECLAW_TARGET}"
+  echo "Resolved WeClaw API base: ${WECLAW_API_BASE}"
+  echo "Resolved bot media mode: ${request_media_mode}"
+  echo "Resolved bot wait context seconds: ${BOT_WAIT_CONTEXT_SECONDS}"
+  echo "Resolved WeClaw bin: ${WECLAW_BIN}"
+
+  if [[ "${PRINT_ONLY}" -eq 1 ]]; then
+    if [[ "${api_send}" -eq 1 ]]; then
+      printf 'Resolved API request: POST %s/api/send\n' "${WECLAW_API_BASE}"
+    else
+      printf 'Resolved command:'
+      printf ' %q' "${weclaw_cmd[@]}"
+      printf '\n'
+    fi
+    exit 0
+  fi
+
+  if [[ "${api_send}" -eq 1 ]]; then
+    local payload
+    payload="$(python3 - "${WECLAW_TARGET}" "${FILE_PATH}" "${request_media_mode}" "${BOT_WAIT_CONTEXT_SECONDS}" <<'PY'
+import json
+import sys
+
+print(json.dumps({
+    "to": sys.argv[1],
+    "media_path": sys.argv[2],
+    "media_mode": sys.argv[3],
+    "wait_context_token_seconds": int(sys.argv[4]),
+}, ensure_ascii=False))
+PY
+)"
+    local response_file
+    response_file="$(mktemp -t wechat-send-file-weclaw-api.XXXXXX)"
+    local status_code
+    set +e
+    status_code="$(curl -sS -o "${response_file}" -w "%{http_code}" \
+      -X POST "${WECLAW_API_BASE}/api/send" \
+      -H "Content-Type: application/json" \
+      -d "${payload}")"
+    local curl_status=$?
+    set -e
+    if [[ ${curl_status} -ne 0 ]]; then
+      rm -f "${response_file}"
+      echo "WeClaw API request failed" >&2
+      exit 1
+    fi
+    if [[ "${status_code}" != "200" ]]; then
+      if [[ "${request_media_mode}" == "image" ]]; then
+        local body_text
+        body_text="$(cat "${response_file}")"
+        if [[ "${body_text}" == *"send media failed"* ]]; then
+          rm -f "${response_file}"
+          echo "WeClaw image send failed, retrying as file..." >&2
+          payload="$(python3 - "${WECLAW_TARGET}" "${FILE_PATH}" "${BOT_WAIT_CONTEXT_SECONDS}" <<'PY'
+import json
+import sys
+
+print(json.dumps({
+    "to": sys.argv[1],
+    "media_path": sys.argv[2],
+    "media_mode": "file",
+    "wait_context_token_seconds": int(sys.argv[3]),
+}, ensure_ascii=False))
+PY
+)"
+          status_code="$(curl -sS -o "${response_file}" -w "%{http_code}" \
+            -X POST "${WECLAW_API_BASE}/api/send" \
+            -H "Content-Type: application/json" \
+            -d "${payload}")"
+        fi
+      fi
+    fi
+    if [[ "${status_code}" != "200" ]]; then
+      cat "${response_file}" >&2
+      rm -f "${response_file}"
+      exit 1
+    fi
+    cat "${response_file}"
+    rm -f "${response_file}"
+  else
+    if [[ ! -x "${WECLAW_BIN}" ]]; then
+      echo "WeClaw executable not found and API unavailable: ${WECLAW_BIN}" >&2
+      exit 1
+    fi
+    "${weclaw_cmd[@]}"
+  fi
+  echo "[skill][wechat-send-file] status=sent route=weclaw-bot target=${WECLAW_TARGET} file=${FILE_PATH}"
+  exit 0
+}
+
 if [[ -z "${FILE_PATH}" ]]; then
   FILE_PATH="$(pick_file "${DOCS_ROOT}")"
 fi
@@ -284,6 +477,34 @@ fi
 if [[ ! -f "${PYWXDUMP_ROOT}/tools/linux_wx_chat_daemon.py" ]]; then
   echo "PyWxDump not found: ${PYWXDUMP_ROOT}" >&2
   exit 1
+fi
+
+if [[ "${SEND_VIA}" == "auto" ]]; then
+  case "${CHAT}" in
+    bot|Bot|BOT|owner|me|self)
+      SEND_VIA="weclaw-bot"
+      ;;
+    *@im.wechat|*@im.bot)
+      SEND_VIA="weclaw-bot"
+      ;;
+    *)
+      SEND_VIA="pywxdump"
+      ;;
+  esac
+fi
+
+if [[ "${SEND_VIA}" == "weclaw-bot" ]]; then
+  case "${CHAT}" in
+    bot|Bot|BOT|owner|me|self)
+      WECLAW_TARGET="$(resolve_weclaw_local_user_id)"
+      RESOLVED_CHAT="bot(${WECLAW_TARGET})"
+      ;;
+    *)
+      WECLAW_TARGET="${CHAT}"
+      RESOLVED_CHAT="${CHAT}"
+      ;;
+  esac
+  run_weclaw_send
 fi
 
 CMD=(
@@ -352,6 +573,7 @@ echo "Resolved chat: ${RESOLVED_CHAT}"
 if [[ "${RESOLVED_CHAT}" == "${CHAT}" ]]; then
   echo "Original chat query: ${CHAT}"
 fi
+echo "Resolved route: pywxdump"
 echo "Resolved file: ${FILE_PATH}"
 echo "Resolved PyWxDump: ${PYWXDUMP_ROOT}"
 echo "Resolved window mode: ${WINDOW_MODE}"

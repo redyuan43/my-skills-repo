@@ -210,11 +210,12 @@
 - `scripts/set_ollama_gpu.sh` - 为 `ollama.service` 写入 GPU 绑定配置并重启服务
 
 ### 26. wechat-send-file
-**功能：** 使用本地 `PyWxDump` 发送链路把文件发到指定微信会话，并支持 `standalone/main/auto` 窗口模式、GUI 倒计时参数和 `restore_action` 输出
-**用途：** 当需要把本地文件发到某个微信联系人或群聊、希望从 `~/Documents` 自动挑选文件、需要直接走主界面搜索发送，或想在发送结束后看到窗口恢复结果时使用
+**功能：** 把本地文件发到指定微信目标；普通联系人/群聊走 `PyWxDump` GUI 发送链路，本地 WeClaw bot 会话优先走运行中的 `weclaw` API，并支持图片优先按图片消息发送、失败自动回退为文件消息
+**用途：** 当需要把本地文件发到某个微信联系人、群聊或本机 WeClaw bot，想从 `~/Documents` 自动挑选文件、直接走主界面搜索发送，或希望 bot 路径自动复用上下文 token 并处理图片/文件两种发送语义时使用
 **文件：**
-- `SKILL.md` - 技能说明文档（触发条件、工作流、窗口模式、`restore_action` 说明和命令示例）
-- `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、`--window-mode`、GUI 提示参数和包装层结果摘要
+- `SKILL.md` - 技能说明文档（触发条件、普通聊天与 bot 双路径工作流、窗口模式、图片/文件发送语义和命令示例）
+- `scripts/send_wechat_file.sh` - 发送脚本，支持显式路径、自动选文件、`--window-mode`、`--send-via`、bot 图片/文件模式与包装层结果摘要
+- `scripts/selftest.sh` - 真实/无副作用自检脚本，支持普通聊天和 bot 路径验证
 
 ### 27. linux-ntfs-offload-symlink
 **功能：** 把 Linux 主目录中的大型数据目录迁移到 NTFS 分区，并在原路径保留软链接，同时确保 `fstab` 自动挂载可靠生效
