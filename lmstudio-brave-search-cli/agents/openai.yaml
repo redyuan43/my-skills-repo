@@ -1,0 +1,6 @@
+interface:
+  display_name: "LM Studio Brave CLI"
+  short_description: "Use Brave MCP in LM Studio without the GUI"
+  default_prompt: "Use $lmstudio-brave-search-cli to enable Brave MCP in LM Studio, restart it if needed, and run a command-line brave_web_search test."
+policy:
+  allow_implicit_invocation: true

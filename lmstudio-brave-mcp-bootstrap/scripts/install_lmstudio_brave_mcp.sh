@@ -159,6 +159,7 @@ require_cmd() {
 }
 
 require_cmd "node"
+require_cmd "npm"
 require_cmd "curl"
 require_cmd "python3"
 
@@ -222,6 +223,15 @@ copy_if_needed() {
 if [[ "${MODE}" == "custom" ]]; then
   copy_if_needed "${SKILL_ROOT}/assets/brave-lmstudio-mcp.sh" "${WRAPPER_FILE}"
   copy_if_needed "${SKILL_ROOT}/assets/brave-lmstudio-mcp.mjs" "${SERVER_FILE}"
+  (
+    cd "${SERVER_DIR}"
+    if [[ ! -f package.json ]]; then
+      npm init -y >/dev/null
+    fi
+    if [[ ! -d node_modules/@modelcontextprotocol/sdk ]]; then
+      npm install @modelcontextprotocol/sdk@latest
+    fi
+  )
 else
   WRAPPER_FILE="${BIN_DIR}/brave-official-mcp.sh"
   copy_if_needed "${SKILL_ROOT}/assets/brave-official-mcp.sh" "${WRAPPER_FILE}"

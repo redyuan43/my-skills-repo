@@ -616,6 +616,14 @@
 - `SKILL.md` - 技能说明文档（适用边界、本机与远程部署流程、验证命令）
 - `scripts/setup-xfce-panel-monitors.sh` - 一键部署脚本（自动备份面板配置、写入轮播脚本并重启面板）
 
+### 77. lmstudio-brave-search-cli
+**功能：** 用命令行驱动 LM Studio 的 Brave Search MCP，并把检索结果交给本地 LM Studio 模型生成最终回答，避免依赖 LM Studio GUI 点选操作
+**用途：** 当用户想直接通过 `$lmstudio-brave-search-cli` 或 shell 命令完成 Brave 联网检索、本地模型问答、LM Studio 重启校验、100K context 本地推理，或希望把“Brave 检索 + 本地模型总结”做成可复用工作流时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（命令行问答主流程、行为约定、100K context 默认值与使用方式）
+- `scripts/lmstudio_brave_search.sh` - 统一入口脚本，支持 `status`、`ensure`、`restart`、`test`、`search`、`ask`，并串联 Brave MCP 与 LM Studio 本地 OpenAI 兼容 API
+- `agents/openai.yaml` - skill 的 UI 元数据，方便支持 skill 面板的平台直接触发
+
 ## 使用方法
 
 1. 克隆此仓库到本地
