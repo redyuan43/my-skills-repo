@@ -624,6 +624,12 @@
 - `scripts/lmstudio_brave_search.sh` - 统一入口脚本，支持 `status`、`ensure`、`restart`、`test`、`search`、`ask`，并串联 Brave MCP 与 LM Studio 本地 OpenAI 兼容 API
 - `agents/openai.yaml` - skill 的 UI 元数据，方便支持 skill 面板的平台直接触发
 
+### 78. lmstudio-remote-account-setup
+**功能：** 通过 SSH 为远端 Linux 设备安装/修复 LM Studio headless CLI，并使用官方 `lms login` pairing 链接切换到指定 LM Studio 账号
+**用途：** 当需要把 `nx1`、`nx2`、`nano` 等远端设备的 LM Studio 账号从旧账号或未登录状态切换到目标账号，并由用户在当前浏览器完成授权时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（远端设备映射、pairing 链接流程、Tailscale 直连 fallback、`Invalid passkey` 修复与验证清单）
+
 ## 使用方法
 
 1. 克隆此仓库到本地
