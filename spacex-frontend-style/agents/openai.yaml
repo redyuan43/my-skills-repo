@@ -1,0 +1,4 @@
+interface:
+  display_name: "SpaceX Frontend Style"
+  short_description: "Apply SpaceX-inspired UI style and install D-DIN fonts."
+  default_prompt: "Use this skill to apply a SpaceX-inspired frontend style, install D-DIN if needed, and verify the result with screenshots."
