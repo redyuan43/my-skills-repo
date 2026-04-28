@@ -630,6 +630,14 @@
 **文件：**
 - `SKILL.md` - 技能说明文档（远端设备映射、pairing 链接流程、Tailscale 直连 fallback、`Invalid passkey` 修复与验证清单）
 
+### 79. codex-fleet-update
+**功能：** 维护多台 SSH 设备上的 Codex CLI 版本一致性，并提供按需触发的 `codex-update` 全设备升级命令
+**用途：** 当某台设备发现 Codex 需要升级、远端 `codex` 只在交互式 bash/nvm 环境里可见、需要检查所有设备版本，或需要通过 SSH 反向代理让远端 Codex 访问 OpenAI 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（按需同步策略、交互式 bash 诊断、代理验证和发布经验）
+- `scripts/codex-update.sh` - 全设备 Codex 版本检查/升级脚本，支持 `--check`、`--hosts`、`--target`
+- `references/field-notes.md` - 本次 nano/nx2/nx1/agx/edge 等设备排障与沉淀规则
+
 ## 使用方法
 
 1. 克隆此仓库到本地
