@@ -610,10 +610,11 @@
 - `SKILL.md` - 技能说明文档（确认步骤、`hostnamectl` 修改流程、验证与 fallback 规则）
 
 ### 76. xfce-panel-monitors-setup
-**功能：** 在 XFCE 面板一键配置 CPU 图表、GPU/RAM 轮播和 IPv4 轮播，并支持重复执行不重复添加插件
-**用途：** 当需要把同一套状态栏监控快速部署到本机或多台 Linux/XFCE 设备（含通过 SSH 远程执行）时使用
+**功能：** 在 Linux 桌面状态栏配置 CPU、GPU/RAM 和 IPv4 监控；支持 XFCE 面板原生插件和 Ubuntu/GNOME 顶栏多项 AppIndicator
+**用途：** 当需要把同一套状态栏监控快速部署到本机或多台 Linux 桌面设备（含通过 SSH 远程执行 XFCE）时使用
 **文件：**
-- `SKILL.md` - 技能说明文档（适用边界、本机与远程部署流程、验证命令）
+- `SKILL.md` - 技能说明文档（适用边界、Ubuntu/GNOME 与 XFCE 部署流程、验证命令）
+- `scripts/setup-ubuntu-statusbar-monitors.sh` - Ubuntu/GNOME 顶栏多项 AppIndicator 部署脚本（写入用户级小程序和自启动项）
 - `scripts/setup-xfce-panel-monitors.sh` - 一键部署脚本（自动备份面板配置、写入轮播脚本并重启面板）
 
 ### 77. lmstudio-brave-search-cli
