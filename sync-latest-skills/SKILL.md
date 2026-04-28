@@ -1,11 +1,11 @@
 ---
 name: sync-latest-skills
-description: 从 `my-skills-repo` 拉取最新内容，并把仓库里的顶层技能目录同步到 `~/.codex/skills`；适用于需要一键刷新本地技能目录、修复旧版本、或把仓库更新反映到本机技能链接时使用。
+description: 从 `my-skills-repo` 拉取最新内容，并把仓库里的顶层技能目录同步到当前机器仓库的 `.codex/skills`；适用于需要刷新本机能力索引、修复旧版本、或把仓库更新反映到 ivan-SuperAI 路由技能时使用。
 ---
 
 # Sync Latest Skills
 
-当需要把 `my-skills-repo` 的最新 skills 同步到本机 `~/.codex/skills` 时使用这个 skill。
+当需要把 `my-skills-repo` 的最新 skills 同步到当前机器仓库 `/home/ivan/github/ivan-SuperAI/.codex/skills` 时使用这个 skill。
 
 ## 标准工作流
 
@@ -21,7 +21,7 @@ bash sync-latest-skills/scripts/sync_latest_skills.sh --dry-run
 bash sync-latest-skills/scripts/sync_latest_skills.sh
 ```
 
-3. 如果本机 `~/.codex/skills/<skill>` 已经是旧目录而不是链接，并且你确认可以被仓库版本替换，再加 `--force`：
+3. 如果目标 skill root 里的 `<skill>` 已经是旧目录而不是链接，并且你确认可以被仓库版本替换，再加 `--force`：
 
 ```bash
 bash sync-latest-skills/scripts/sync_latest_skills.sh --force
@@ -41,6 +41,7 @@ bash sync-latest-skills/scripts/sync_latest_skills.sh --rebase
 - 跳过 `README.md`、`.git`、`.serena`、`.codex` 等非技能项
 - 默认不会删除已有目录；遇到冲突会明确跳过并汇报
 - `--force` 仅用于把已有目录替换成指向仓库的符号链接
+- 如需临时安装到全局 Codex skill root，显式传 `--skill-root ~/.codex/skills`
 
 ## 适用边界
 
@@ -49,4 +50,4 @@ bash sync-latest-skills/scripts/sync_latest_skills.sh --rebase
 
 ## 文件
 
-- `scripts/sync_latest_skills.sh`：拉取仓库并同步顶层技能目录到 `~/.codex/skills`
+- `scripts/sync_latest_skills.sh`：拉取仓库并同步顶层技能目录到当前机器仓库 `.codex/skills`

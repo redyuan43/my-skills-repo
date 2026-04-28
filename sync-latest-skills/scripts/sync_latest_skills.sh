@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO="${HOME}/github/my-skills-repo"
-SKILL_ROOT="${HOME}/.codex/skills"
+SKILL_ROOT="${HOME}/github/ivan-SuperAI/.codex/skills"
 DO_PULL=1
 PULL_MODE="ff-only"
 FORCE=0
@@ -15,12 +15,12 @@ Usage:
 
 Defaults:
   --repo       ${HOME}/github/my-skills-repo
-  --skill-root ${HOME}/.codex/skills
+  --skill-root ${HOME}/github/ivan-SuperAI/.codex/skills
 
 Behavior:
   - Pull the repo with `git pull --ff-only` by default
   - Use `--rebase` to pull with `git pull --rebase --autostash`
-  - Sync top-level skill directories into the skill root as symlinks
+  - Sync top-level skill directories into the selected skill root as symlinks
   - Skip non-skill files such as README.md
   - Refuse to overwrite existing directories unless --force is set
 EOF
