@@ -639,6 +639,20 @@
 - `scripts/codex-update.sh` - 全设备 Codex 版本检查/升级脚本，支持 `--check`、`--hosts`、`--target`
 - `references/field-notes.md` - 本次 nano/nx2/nx1/agx/edge 等设备排障与沉淀规则
 
+### 80. markdown-to-pdf-cli
+**功能：** 使用 `npx md-to-pdf` 和系统 Chrome 将本地 Markdown 转成 PDF，并处理相对图片路径与远端 Linux 环境 PATH 问题
+**用途：** 当需要在本机或 AMD 远端机器把 Markdown 生成 PDF、保留本地图片、再传回桌面或指定目录时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（PDF 转换流程、Chrome/Puppeteer 规则、验证方式）
+- `scripts/md_to_pdf.sh` - Markdown 转 PDF 包装脚本，自动定位 Chrome、在 Markdown 原目录执行并支持指定输出路径
+
+### 81. markdown-to-longpng
+**功能：** 将本地 Markdown 渲染成一张连续长 PNG，避免 PDF 转 PNG 的分页空隙，并保留 Markdown 中相对路径图片
+**用途：** 当用户需要“长图”“单张 PNG”“不要分页空隙”，或 PDF 转 PNG 出现页面间隔/多张切片时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（HTML 全页截图流程、相对图片 `<base>` 修复、验证方式）
+- `scripts/md_to_longpng.sh` - Markdown 转连续长 PNG 包装脚本，使用 `mume-cli html` 与 Playwright/Chrome full-page screenshot
+
 ## 使用方法
 
 1. 克隆此仓库到本地

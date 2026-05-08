@@ -1,0 +1,49 @@
+---
+name: markdown-to-pdf-cli
+description: Convert local Markdown files to PDF from the command line, especially on Linux/AMD hosts with local images, Chrome/Puppeteer, and npx md-to-pdf path issues.
+---
+
+# Markdown To PDF CLI
+
+Use this skill when the user asks to convert a Markdown file into PDF, especially on a remote Linux host such as AMD.
+
+## Preferred Workflow
+
+Use the bundled wrapper first:
+
+```bash
+scripts/md_to_pdf.sh /path/to/input.md /path/to/output.pdf
+```
+
+If the skill is installed only as knowledge and the script is not copied into the target machine, run the same command shape manually:
+
+```bash
+cd "$(dirname "/path/to/input.md")"
+PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome \
+  npx --yes md-to-pdf "$(basename "/path/to/input.md")"
+```
+
+Then move or copy the generated PDF to the requested destination.
+
+## Rules
+
+- Run from the Markdown file's own directory so relative image paths such as `manual_assets/frame_009.jpg` resolve correctly.
+- Prefer system Chrome on AMD. Known path: `/usr/bin/google-chrome`.
+- If Chrome detection fails, check `google-chrome`, `google-chrome-stable`, `chromium`, then `chromium-browser`.
+- `md-to-pdf` writes the output next to the Markdown by default. The wrapper handles renaming to the requested output path.
+- Do not use this PDF path when the user wants one continuous long PNG; use the `markdown-to-longpng` skill instead.
+
+## Verification
+
+After conversion:
+
+```bash
+file /path/to/output.pdf
+ls -lh /path/to/output.pdf
+```
+
+For remote hosts, copy the result back with:
+
+```bash
+scp AMD:/path/to/output.pdf "$HOME/Desktop/"
+```
