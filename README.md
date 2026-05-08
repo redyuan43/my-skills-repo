@@ -653,6 +653,13 @@
 - `SKILL.md` - 技能说明文档（HTML 全页截图流程、相对图片 `<base>` 修复、验证方式）
 - `scripts/md_to_longpng.sh` - Markdown 转连续长 PNG 包装脚本，使用 `mume-cli html` 与 Playwright/Chrome full-page screenshot
 
+### 82. tmux-remote-bootstrap
+**功能：** 为本机或 SSH 远端 Linux 设备配置新手友好的 tmux，包括鼠标滚动、vi copy-mode、高对比度状态栏和常用快捷键提示
+**用途：** 当用户需要在新机器上设置 tmux、把配置推送到 `ai` 等远端主机、解释 session/window/pane 基础概念，或修复状态栏提示颜色不清楚时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发场景、远端部署流程、基础 tmux 教学和可读性规则）
+- `scripts/install_tmux_beginner_config.sh` - 一键安装脚本，支持本机或 `--host <ssh-host>` 远端部署，自动备份、重载并验证关键选项
+
 ## 使用方法
 
 1. 克隆此仓库到本地
