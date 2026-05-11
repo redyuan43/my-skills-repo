@@ -660,6 +660,15 @@
 - `SKILL.md` - 技能说明文档（触发场景、远端部署流程、基础 tmux 教学和可读性规则）
 - `scripts/install_tmux_beginner_config.sh` - 一键安装脚本，支持本机或 `--host <ssh-host>` 远端部署，自动备份、重载并验证关键选项
 
+### 83. edge-tailscale-proxy-ssh-bootstrap
+**功能：** 让 edge 设备无 GUI 复用当前机器 v2rayN 生成的 Xray 配置进入 Tailscale，并从 edge 批量给在线设备下发 SSH 公钥
+**用途：** 当 edge 需要先启动 headless Xray 代理才能登录 Tailscale，或需要从 edge 对 `nx1`、`nx2`、`agx`、`spark` 等设备批量恢复免密 SSH，同时跳过 Tailscale offline / SSH 不通设备时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（edge 代理、Tailscale 登录、批量免密与跳过规则）
+- `scripts/edge_tailscale_proxy_bootstrap.sh` - 本机执行的 edge 代理与 Tailscale bootstrap 脚本
+- `scripts/edge_copy_id_batch.sh` - edge 端批量 `ssh-copy-id` 脚本，读取临时密码 TSV 并跳过离线目标
+- `references/edge-spark-field-notes.md` - 本次 edge/spark 排障经验和沉淀规则
+
 ## 使用方法
 
 1. 克隆此仓库到本地
