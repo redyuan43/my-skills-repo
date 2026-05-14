@@ -15,6 +15,18 @@ Use the bundled wrapper:
 scripts/md_to_longpng.sh /path/to/input.md /path/to/output.png
 ```
 
+The wrapper supports fenced Mermaid diagrams such as:
+
+````markdown
+```mermaid
+graph TD
+  A --> B
+```
+````
+
+It renders each Mermaid block to a temporary local SVG before rendering the
+Markdown to HTML and taking the full-page screenshot.
+
 On AMD, an equivalent proven command is also installed as:
 
 ```bash
@@ -25,15 +37,17 @@ md-to-longpng /path/to/input.md /path/to/output.png
 
 The wrapper:
 
-1. Uses `npx --yes mume-cli html` to render Markdown into HTML.
-2. Injects `<base href="file://原Markdown目录/">` into the generated HTML so local relative images load correctly.
-3. Uses `npx --yes playwright screenshot --channel chrome --full-page --viewport-size=1280,900` to capture one continuous PNG.
+1. Pre-renders fenced Mermaid blocks to temporary local SVG files.
+2. Uses `npx --yes mume-cli html` to render Markdown into HTML.
+3. Injects `<base href="file://原Markdown目录/">` into the generated HTML so local relative images load correctly.
+4. Uses `npx --yes playwright screenshot --channel chrome --full-page --viewport-size=1280,900` to capture one continuous PNG.
 
 ## Rules
 
 - Use this instead of PDF plus `pdftoppm` when the user wants a long image.
 - Keep the Markdown's relative assets in place; paths like `manual_assets/...` are resolved from the Markdown directory.
 - If images are missing in the PNG, verify the generated HTML has a `<base href="file://.../">` tag and that the referenced image files exist.
+- Mermaid diagrams are rendered through `npx --yes @mermaid-js/mermaid-cli` and system Chrome into temporary SVG files.
 - On AMD, Chrome is available as `/usr/bin/google-chrome`; Playwright can use it via `--channel chrome`.
 - AMD's `node`/`npx` may live in `~/.local/bin`; the wrapper prepends that path automatically.
 

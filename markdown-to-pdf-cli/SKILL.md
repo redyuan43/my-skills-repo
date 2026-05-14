@@ -15,6 +15,18 @@ Use the bundled wrapper first:
 scripts/md_to_pdf.sh /path/to/input.md /path/to/output.pdf
 ```
 
+The wrapper supports fenced Mermaid diagrams such as:
+
+````markdown
+```mermaid
+graph TD
+  A --> B
+```
+````
+
+It renders each Mermaid block to a temporary local SVG before generating the
+PDF, so the PDF does not depend on CDN-loaded Mermaid JavaScript.
+
 If the skill is installed only as knowledge and the script is not copied into the target machine, run the same command shape manually:
 
 ```bash
@@ -31,6 +43,7 @@ Then move or copy the generated PDF to the requested destination.
 - Prefer system Chrome on AMD. Known path: `/usr/bin/google-chrome`.
 - If Chrome detection fails, check `google-chrome`, `google-chrome-stable`, `chromium`, then `chromium-browser`.
 - `md-to-pdf` writes the output next to the Markdown by default. The wrapper handles renaming to the requested output path.
+- Mermaid diagrams are rendered through `npx --yes @mermaid-js/mermaid-cli` and system Chrome into temporary SVG files.
 - Do not use this PDF path when the user wants one continuous long PNG; use the `markdown-to-longpng` skill instead.
 
 ## Verification
