@@ -669,6 +669,15 @@
 - `scripts/edge_copy_id_batch.sh` - edge 端批量 `ssh-copy-id` 脚本，读取临时密码 TSV 并跳过离线目标
 - `references/edge-spark-field-notes.md` - 本次 edge/spark 排障经验和沉淀规则
 
+### 84. video-link
+**功能：** 将 YouTube、Bilibili 等在线视频链接跑成可发布的视频分析产物集，包含操作手册、深度 Markdown、PDF、长图和配图提示词
+**用途：** 当需要复用 `video-analyzer` 的完整链接分析发布流程、区分 ASR/OCR/VL 失败阶段、从已有 `audio.wav` 或 `analysis.json` 续跑，或处理 VibeVoice/DotsMOCR 冷启动时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（链接分析发布流程、运行模式、失败恢复和验证清单）
+- `scripts/run_video_link_analysis_publisher.sh` - 一键编排链接分析、深度文档、导出和配图提示词生成
+- `scripts/prepare_baoyu_image_prompts.py` - 从视频分析 Markdown 产物生成 Baoyu 风格配图提示词
+- `references/output_contract.md` - 输出文件契约与重试/续跑说明
+
 ## 使用方法
 
 1. 克隆此仓库到本地
