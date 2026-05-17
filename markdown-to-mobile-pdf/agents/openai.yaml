@@ -1,0 +1,4 @@
+interface:
+  display_name: "Markdown to Mobile PDF"
+  short_description: "Render Markdown as a narrow mobile-readable PDF."
+  default_prompt: "Convert this Markdown file into a mobile-friendly PDF."

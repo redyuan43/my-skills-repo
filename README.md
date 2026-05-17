@@ -678,6 +678,15 @@
 - `scripts/prepare_baoyu_image_prompts.py` - 从视频分析 Markdown 产物生成 Baoyu 风格配图提示词
 - `references/output_contract.md` - 输出文件契约与重试/续跑说明
 
+### 85. markdown-to-mobile-pdf
+**功能：** 将本地 Markdown 渲染成适合手机阅读的窄版 PDF，复用 `video-analyzer` 已验证的 WeasyPrint 渲染器
+**用途：** 当用户需要“手机版 PDF”“手机阅读 PDF”“窄版 PDF”、中文 Markdown PDF，或需要保留本地相对图片并处理 Mermaid 图表时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（手机版 PDF 转换流程、依赖、Mermaid 与验证规则）
+- `scripts/md_to_mobile_pdf.sh` - Markdown 转手机版 PDF 包装脚本，自动选择可用 Python 环境并支持指定标题
+- `scripts/md_to_mobile_pdf.py` - WeasyPrint 渲染器，支持移动端页面尺寸、中文字体栈、代码高亮、相对图片和 Mermaid 处理
+- `agents/openai.yaml` - skill 的 UI 元数据
+
 ## 使用方法
 
 1. 克隆此仓库到本地
