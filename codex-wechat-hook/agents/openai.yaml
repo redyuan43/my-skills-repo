@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex WeChat Hook"
+  short_description: "安装和排查 Codex 完成时的微信文本通知 hook"
+  default_prompt: "使用 $codex-wechat-hook 为当前或远端 Codex 安装 Stop hook，把最终输出通过 WeClaw 发到微信。"
