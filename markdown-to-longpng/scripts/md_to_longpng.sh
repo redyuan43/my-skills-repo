@@ -77,6 +77,15 @@ target = Path(sys.argv[2])
 assets = Path(sys.argv[3])
 text = source.read_text(encoding="utf-8")
 pattern = re.compile(r"(^```mermaid[ \t]*\n)(.*?)(^```[ \t]*$)", re.M | re.S)
+
+def normalize_mermaid(diagram: str) -> str:
+    # Mermaid flowchart labels with parentheses or punctuation are safer quoted.
+    return re.sub(
+        r'(?<![\w])([A-Za-z][A-Za-z0-9_]*)\[([^"\]\n][^\]\n]*)\]',
+        lambda m: f'{m.group(1)}["{m.group(2).replace(chr(34), chr(92) + chr(34))}"]',
+        diagram,
+    )
+
 parts = []
 last = 0
 count = 0
@@ -86,7 +95,7 @@ for match in pattern.finditer(text):
     stem = f"mermaid_{count:03d}"
     mmd = assets / f"{stem}.mmd"
     svg = assets / f"{stem}.svg"
-    mmd.write_text(match.group(2).strip() + "\n", encoding="utf-8")
+    mmd.write_text(normalize_mermaid(match.group(2).strip()) + "\n", encoding="utf-8")
     rel_svg = svg.relative_to(target.parent).as_posix()
     parts.append(f"![Mermaid diagram {count}]({rel_svg})")
     last = match.end()
@@ -130,11 +139,43 @@ fi
 
 html_with_base="$workdir/html/with-base.html"
 base_href="file://$srcdir/"
-awk -v base_href="$base_href" '
+style_block=""
+if [ "${LONGPNG_NO_MARGIN:-0}" = "1" ]; then
+  padding="${LONGPNG_CONTENT_PADDING:-5}"
+  style_block="<style>
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: #fff !important;
+}
+body {
+  box-sizing: border-box !important;
+}
+.markdown-preview,
+.mume,
+body > div,
+body > main {
+  box-sizing: border-box !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: ${padding}px !important;
+}
+img, video, canvas, svg {
+  max-width: 100% !important;
+  height: auto;
+}
+</style>"
+fi
+awk -v base_href="$base_href" -v style_block="$style_block" '
   BEGIN { inserted = 0 }
   /<head[^>]*>/ && inserted == 0 {
     print
     print "  <base href=\"" base_href "\">"
+    if (style_block != "") {
+      print style_block
+    }
     inserted = 1
     next
   }
@@ -144,7 +185,7 @@ awk -v base_href="$base_href" '
 npx --yes playwright screenshot \
   --channel chrome \
   --full-page \
-  --viewport-size=1280,900 \
+  --viewport-size="${LONGPNG_VIEWPORT_SIZE:-1280,900}" \
   "file://$html_with_base" \
   "$output"
 
