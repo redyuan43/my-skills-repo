@@ -13,29 +13,19 @@
 
 `docs_analysis/operation_manual_review.md` may exist, but it is not exported by default.
 
-## Required Exports
+## Required Final Exports
 
-`tools/export_video_docs.sh RUN_DIR` should create:
+The final publish stage should create four PDF deliverables:
 
 - `exports/operation_manual.pdf`
-- `exports/operation_manual.long.png`
-- `exports/knowledge_notes.pdf`
-- `exports/knowledge_notes.long.png`
-- `exports/deep_report.pdf`
-- `exports/deep_report.long.png`
 - `exports/knowledge_notes_v2.pdf`
-- `exports/knowledge_notes_v2.long.png`
 - `exports/deep_report_v2.pdf`
-- `exports/deep_report_v2.long.png`
-- `exports/deep_report_v2.review.pdf`
-- `exports/deep_report_v2.review.long.png`
 - `exports/manual_evidence.pdf`
-- `exports/manual_evidence.long.png`
 
-Long PNG exports should use the wide no-margin defaults unless the user asks otherwise:
+Long PNG exports are optional. When requested, they should use the wide no-margin defaults:
 
 ```bash
-LONGPNG_VIEWPORT_SIZE=1600,1000 LONGPNG_NO_MARGIN=1 LONGPNG_CONTENT_PADDING=16 tools/export_video_docs.sh RUN_DIR
+tools/run_video_doc_final_publish.sh RUN_DIR --finalize-only --skip-send --long-png
 ```
 
 ## Image Prompt Outputs
@@ -47,9 +37,17 @@ LONGPNG_VIEWPORT_SIZE=1600,1000 LONGPNG_NO_MARGIN=1 LONGPNG_CONTENT_PADDING=16 t
 - `baoyu_images/prompts/03-infographic-deep-report.md`
 - `baoyu_images/prompts/04-infographic-manual-evidence.md`
 
+The final publish stage should then create:
+
+- `baoyu_images/final/01-image-cards-operation-manual.png`
+- `baoyu_images/final/02-infographic-knowledge-notes.png`
+- `baoyu_images/final/03-infographic-deep-report.png`
+- `baoyu_images/final/04-infographic-manual-evidence.png`
+- `final_publish_summary.json`
+
 ## Retry Notes
 
 - If operation manual generation fails before `RUN_DIR` is known, rerun with the same `--run-name`.
 - If multi-doc generation fails, rerun the skill script with `--skip-operation --run-dir RUN_DIR`.
 - If only exports fail, run `tools/export_video_docs.sh RUN_DIR` directly.
-- If image generation fails, keep prompt files and retry one prompt at a time.
+- If image generation or final publish fails, keep prompt files and retry the skill script with `--skip-operation --skip-multidoc --skip-deep-v2 --run-dir RUN_DIR`.

@@ -7,17 +7,22 @@ Usage:
   run_video_link_analysis_publisher.sh VIDEO_URL [options]
 
 Options:
-  --repo PATH              video-analyzer repo path (default: /home/ivan/github/video-analyzer)
-  --profile NAME           runtime profile (default: local_lan)
+  --repo PATH              video-analyzer repo path (default: auto-detect)
+  --profile NAME           runtime profile (default: deepseek_v4_pro)
   --analysis-mode MODE     auto|long-talk-fast|fast|balanced|deep (default: auto)
   --run-name NAME          operation run name (default: operation-manual)
+
+Advanced recovery options:
   --run-dir PATH           existing run directory; required with --skip-operation
   --operation-extra ARGS   extra args passed to tools/run_operation_manual_from_url.sh
   --skip-operation         reuse --run-dir and skip URL analysis
   --skip-multidoc          skip tools/run_multidoc_analysis.sh
   --skip-deep-v2           skip illustrated chapter deep report v2 generation
-  --skip-export            skip tools/export_video_docs.sh
-  --skip-images            skip Baoyu prompt preparation
+  --pre-export             export PDFs before final image publishing
+  --skip-export            skip preliminary tools/export_video_docs.sh
+  --skip-images            skip Baoyu prompt preparation and final image publishing
+  --skip-final-publish     prepare prompts but skip image generation/final publish
+  --final-publish-long-png also export long PNGs during final publish
   -h, --help               show help
 EOF
 }
@@ -29,8 +34,18 @@ if [[ "${url}" == "-h" || "${url}" == "--help" || -z "${url}" ]]; then
 fi
 shift
 
-repo="/home/ivan/github/video-analyzer"
-profile="local_lan"
+default_repo() {
+  if [[ -n "${VIDEO_ANALYZER_REPO:-}" ]]; then
+    echo "$VIDEO_ANALYZER_REPO"
+  elif [[ -d "/home/nx/github/video-analyzer" ]]; then
+    echo "/home/nx/github/video-analyzer"
+  else
+    echo "/home/ivan/github/video-analyzer"
+  fi
+}
+
+repo="$(default_repo)"
+profile="deepseek_v4_pro"
 analysis_mode="auto"
 run_name="operation-manual"
 run_dir=""
@@ -40,6 +55,9 @@ skip_multidoc=0
 skip_export=0
 skip_images=0
 skip_deep_v2=0
+skip_final_publish=0
+final_publish_long_png=0
+pre_export=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -81,12 +99,24 @@ while [[ $# -gt 0 ]]; do
       skip_deep_v2=1
       shift
       ;;
+    --pre-export)
+      pre_export=1
+      shift
+      ;;
     --skip-export)
       skip_export=1
       shift
       ;;
     --skip-images)
       skip_images=1
+      shift
+      ;;
+    --skip-final-publish)
+      skip_final_publish=1
+      shift
+      ;;
+    --final-publish-long-png)
+      final_publish_long_png=1
       shift
       ;;
     *)
@@ -100,9 +130,24 @@ done
 repo="$(realpath "$repo")"
 cd "$repo"
 
+PYTHON_BIN="${PYTHON:-$repo/.venv/bin/python}"
+if [[ ! -x "$PYTHON_BIN" ]]; then
+  PYTHON_BIN="$(command -v python3)"
+fi
+if [[ -d "$repo/.venv/bin" ]]; then
+  export PATH="$repo/.venv/bin:$PATH"
+fi
+
 if [[ -f "$repo/tools/operation_manual_no_proxy_env.sh" ]]; then
   # Keep LAN/Tailscale model services off local proxy routes.
   source "$repo/tools/operation_manual_no_proxy_env.sh"
+fi
+DEEPSEEK_ENV="${VIDEO_ANALYZER_DEEPSEEK_ENV:-$HOME/.config/video-analyzer/deepseek.env}"
+if [[ -f "$DEEPSEEK_ENV" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$DEEPSEEK_ENV"
+  set +a
 fi
 
 timestamp="$(date +%Y%m%d_%H%M%S)"
@@ -155,7 +200,7 @@ if [[ "$skip_operation" -eq 0 ]]; then
   operation_cmd=()
   case "$resolved_mode" in
     long-talk-fast)
-      operation_cmd=(tools/run_long_talk_fast_from_url.sh "$url" --run-name "$run_name")
+      operation_cmd=(tools/run_long_talk_fast_from_url.sh "$url" --profile "$profile" --run-name "$run_name")
       ;;
     fast|balanced|deep)
       operation_cmd=(
@@ -185,31 +230,74 @@ fi
 run_dir="$(realpath "$run_dir")"
 echo "RUN_DIR=$run_dir"
 
+multidoc_pid=""
+multidoc_log="$log_dir/multidoc_${timestamp}.log"
 if [[ "$skip_multidoc" -eq 0 ]]; then
   echo "[multidoc] generating knowledge_notes, deep_report, and review"
-  tools/run_multidoc_analysis.sh "$run_dir" --profile "$profile"
+  (set -o pipefail; tools/run_multidoc_analysis.sh "$run_dir" --profile "$profile" 2>&1 | tee "$multidoc_log") &
+  multidoc_pid=$!
+else
+  echo "[multidoc] skipped"
 fi
 
+deep_v2_pid=""
+deep_v2_log="$log_dir/deep_v2_${timestamp}.log"
 if [[ "$skip_deep_v2" -eq 0 ]]; then
   echo "[deep-v2] generating illustrated chapter report and review"
-  python3 tools/generate_chapter_deep_report.py "$run_dir" \
+  (set -o pipefail; "$PYTHON_BIN" tools/generate_chapter_deep_report.py "$run_dir" \
     --profile "$profile" \
     --deep-v2 \
     --no-final-synthesis \
-    --no-format-markdown-final
+    --no-format-markdown-final 2>&1 | tee "$deep_v2_log") &
+  deep_v2_pid=$!
+else
+  echo "[deep-v2] skipped"
 fi
 
-if [[ "$skip_export" -eq 0 ]]; then
-  echo "[export] generating PDFs and long PNGs"
+multidoc_status=0
+deep_v2_status=0
+if [[ -n "$multidoc_pid" ]]; then
+  wait "$multidoc_pid" || multidoc_status=$?
+fi
+if [[ -n "$deep_v2_pid" ]]; then
+  wait "$deep_v2_pid" || deep_v2_status=$?
+fi
+if [[ "$multidoc_status" -ne 0 ]]; then
+  echo "Multidoc stage failed. Log: $multidoc_log" >&2
+  exit "$multidoc_status"
+fi
+if [[ "$deep_v2_status" -ne 0 ]]; then
+  echo "Deep-v2 stage failed. Log: $deep_v2_log" >&2
+  exit "$deep_v2_status"
+fi
+
+if [[ "$skip_export" -eq 0 && ( "$pre_export" -eq 1 || "$skip_images" -eq 1 || "$skip_final_publish" -eq 1 ) ]]; then
+  echo "[export] generating preliminary PDFs"
   LONGPNG_VIEWPORT_SIZE="${LONGPNG_VIEWPORT_SIZE:-1600,1000}" \
     LONGPNG_NO_MARGIN="${LONGPNG_NO_MARGIN:-1}" \
     LONGPNG_CONTENT_PADDING="${LONGPNG_CONTENT_PADDING:-16}" \
     tools/export_video_docs.sh "$run_dir"
+elif [[ "$skip_export" -eq 1 ]]; then
+  echo "[export] preliminary export skipped by option"
+else
+  echo "[export] preliminary export skipped; final publish will export final PDFs"
 fi
 
 if [[ "$skip_images" -eq 0 ]]; then
   echo "[images] preparing Baoyu image prompts"
   "$HOME/.codex/skills/video-link/scripts/prepare_baoyu_image_prompts.py" "$run_dir"
+  if [[ "$skip_final_publish" -eq 0 ]]; then
+    echo "[final-publish] generating final images, augmenting docs, and exporting final PDFs"
+    final_publish_args=("$run_dir" --profile "$profile" --finalize-only --skip-send)
+    if [[ "$final_publish_long_png" -eq 1 ]]; then
+      final_publish_args+=(--long-png)
+    fi
+    tools/run_video_doc_final_publish.sh "${final_publish_args[@]}"
+  else
+    echo "[final-publish] skipped"
+  fi
+else
+  echo "[images] skipped; final publish skipped"
 fi
 
 echo "[done] RUN_DIR=$run_dir"
