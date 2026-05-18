@@ -15,6 +15,14 @@ Use the bundled wrapper first:
 scripts/md_to_pdf.sh /path/to/input.md /path/to/output.pdf
 ```
 
+The wrapper defaults to zero left/right page margin and a 5px left/right content
+padding so exported PDFs avoid wide gutters while keeping text off the edge.
+Override only when a specific document needs wider gutters:
+
+```bash
+PDF_SIDE_MARGIN=0.25in PDF_CONTENT_PADDING=16px scripts/md_to_pdf.sh input.md output.pdf
+```
+
 The wrapper supports fenced Mermaid diagrams such as:
 
 ````markdown

@@ -85,6 +85,15 @@ target = Path(sys.argv[2])
 assets = Path(sys.argv[3])
 text = source.read_text(encoding="utf-8")
 pattern = re.compile(r"(^```mermaid[ \t]*\n)(.*?)(^```[ \t]*$)", re.M | re.S)
+
+def normalize_mermaid(diagram: str) -> str:
+    # Mermaid flowchart labels with parentheses or punctuation are safer quoted.
+    return re.sub(
+        r'(?<![\w])([A-Za-z][A-Za-z0-9_]*)\[([^"\]\n][^\]\n]*)\]',
+        lambda m: f'{m.group(1)}["{m.group(2).replace(chr(34), chr(92) + chr(34))}"]',
+        diagram,
+    )
+
 parts = []
 last = 0
 count = 0
@@ -94,7 +103,7 @@ for match in pattern.finditer(text):
     stem = f"mermaid_{count:03d}"
     mmd = assets / f"{stem}.mmd"
     svg = assets / f"{stem}.svg"
-    mmd.write_text(match.group(2).strip() + "\n", encoding="utf-8")
+    mmd.write_text(normalize_mermaid(match.group(2).strip()) + "\n", encoding="utf-8")
     rel_svg = svg.relative_to(target.parent).as_posix()
     parts.append(f"![Mermaid diagram {count}]({rel_svg})")
     last = match.end()
@@ -143,7 +152,56 @@ restore_backup() {
 }
 trap 'restore_backup; cleanup_mermaid' EXIT
 
-PUPPETEER_EXECUTABLE_PATH="$chrome" npx --yes md-to-pdf "$convert_name"
+pdf_side_margin="${PDF_SIDE_MARGIN:-0}"
+pdf_vertical_margin="${PDF_VERTICAL_MARGIN:-0.25in}"
+pdf_content_padding="${PDF_CONTENT_PADDING:-5px}"
+pdf_css="
+html, body {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+body,
+.markdown-body,
+.markdown-preview,
+.mume,
+body > div,
+body > main {
+  box-sizing: border-box !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: ${pdf_content_padding} !important;
+  padding-right: ${pdf_content_padding} !important;
+}
+img, video, canvas, svg {
+  max-width: 100% !important;
+  height: auto;
+}
+"
+pdf_options="$(python3 - "$pdf_side_margin" "$pdf_vertical_margin" <<'PY'
+import json
+import sys
+
+side = sys.argv[1]
+vertical = sys.argv[2]
+print(json.dumps({
+    "margin": {
+        "top": vertical,
+        "right": side,
+        "bottom": vertical,
+        "left": side,
+    }
+}))
+PY
+)"
+
+PUPPETEER_EXECUTABLE_PATH="$chrome" npx --yes md-to-pdf \
+  --css "$pdf_css" \
+  --pdf-options "$pdf_options" \
+  "$convert_name"
 
 if [ ! -s "$generated" ]; then
   echo "PDF output not found: $generated" >&2
