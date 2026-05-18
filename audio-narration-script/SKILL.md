@@ -1,11 +1,19 @@
 ---
 name: audio-narration-script
-description: "Use when the user wants to turn a Markdown article, analysis report, notes, transcript, PDF-extracted text, or long-form document into a vivid, easy-to-understand Chinese narration script and generate WAV audio through the Ivan Qwen3-TTS API. Triggers include 音频稿, 讲解稿, 口播稿, 朗读稿, 把文章讲得更生动, Markdown 转音频讲稿, report to audio, report to narration script."
+description: "Use when the user wants to turn a Markdown article, analysis report, notes, transcript, PDF-extracted text, or long-form document into a vivid, easy-to-understand Chinese narration script and generate WAV audio through the Ivan Qwen3-TTS API. Triggers include 音频稿, 讲解稿, 讲解音频, 口播稿, 生成 WAV, 朗读稿, 把文章讲得更生动, Markdown 转音频讲稿, report to audio, report to narration script."
 ---
 
 # Audio Narration Script
 
 将长文、Markdown、分析报告或笔记改写成适合朗读的中文讲解稿，并调用 `ssh ivan` 设备上的 Qwen3-TTS HTTP API 生成 WAV 音频。
+
+## 自然语言触发
+
+当用户没有显式输入 `$audio-narration-script`，但消息里出现以下意图时，也应该优先使用这个 skill：
+
+- 想把文章、报告、笔记、Markdown 或长文改成音频稿、讲解稿、口播稿、朗读稿。
+- 想生成讲解音频、朗读音频、播客独白或 WAV 文件。
+- 出现“音频稿”“讲解音频”“口播稿”“生成 WAV”“朗读稿”“把这篇文章讲给我听”“把这个报告做成音频”等表达。
 
 ## 参考做法
 
@@ -136,7 +144,7 @@ python3 scripts/render_with_ivan_tts.py \
 可用环境变量：
 
 - `IVAN_TTS_ENDPOINT`：覆盖 gateway endpoint。
-- `NARRATION_TTS_CONCURRENCY`：默认 `1`；仅用户明确需要时设为 `2`。
+- `NARRATION_TTS_CONCURRENCY`：默认 `2`，用于吃满当前 gateway 后面的两个 Qwen3-TTS workers；需要降低负载时可设为 `1`。
 - `NARRATION_TTS_JOIN_SILENCE_MS`：合并音频时段间静音，默认 `180`。
 - `NARRATION_TTS_MAX_RETRIES`：每段音频质量检查失败后的重试次数，默认 `3`。
 
@@ -148,7 +156,7 @@ audio_output/
 └── narration_full.wav
 ```
 
-脚本按自然语义句群分块。分块是为了绕开单次 TTS token/时长限制，默认只是内部临时文件，不作为交付物保留。需要排错时加 `--keep-chunks`，才会保留 `tts_chunks/` 和 `audio_chunks/`。小任务默认串行生成，避免占满两个 worker。
+脚本按自然语义句群分块。分块是为了绕开单次 TTS token/时长限制，默认只是内部临时文件，不作为交付物保留。需要排错时加 `--keep-chunks`，才会保留 `tts_chunks/` 和 `audio_chunks/`。默认并发为 2，用于吃满当前 gateway 后面的两个 worker；需要降低负载时显式设为 1。
 
 TTS 前会做通用安全处理：
 

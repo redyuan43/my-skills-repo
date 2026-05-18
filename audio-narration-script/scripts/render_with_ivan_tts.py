@@ -314,7 +314,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--language", default=os.getenv("IVAN_TTS_LANGUAGE", "Chinese"))
     parser.add_argument("--speed", type=float, default=float(os.getenv("IVAN_TTS_SPEED", "1.0")))
     parser.add_argument("--max-chars", type=int, default=int(os.getenv("NARRATION_TTS_MAX_CHARS", "90")))
-    parser.add_argument("--concurrency", type=int, default=int(os.getenv("NARRATION_TTS_CONCURRENCY", "1")))
+    parser.add_argument("--concurrency", type=int, default=int(os.getenv("NARRATION_TTS_CONCURRENCY", "2")))
     parser.add_argument("--join-silence-ms", type=int, default=int(os.getenv("NARRATION_TTS_JOIN_SILENCE_MS", "180")))
     parser.add_argument("--timeout", type=float, default=float(os.getenv("NARRATION_TTS_TIMEOUT", "180")))
     parser.add_argument("--max-retries", type=int, default=int(os.getenv("NARRATION_TTS_MAX_RETRIES", "3")))
@@ -434,6 +434,9 @@ def main() -> int:
                 args.language,
                 args.timeout,
             )
+            trimmed_sub_path = sub_path.with_name(f"{sub_path.stem}.trimmed{sub_path.suffix}")
+            trim_wav_silence(sub_path, trimmed_sub_path)
+            shutil.move(trimmed_sub_path, sub_path)
             sub_quality = wav_quality(sub_path)
             if not sub_quality["ok"]:
                 raise RuntimeError(
