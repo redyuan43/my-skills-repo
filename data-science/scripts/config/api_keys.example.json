@@ -1,0 +1,5 @@
+{
+  "finnhub_api_key": "your_finnhub_api_key",
+  "fred_api_key": "your_fred_api_key",
+  "tushare_token": "your_tushare_token"
+}

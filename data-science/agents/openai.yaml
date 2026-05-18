@@ -1,0 +1,4 @@
+interface:
+  display_name: "Data Science"
+  short_description: "金融数据采集、估值分析、Jupyter探索与投资报告生成"
+  default_prompt: "Use $data-science to fetch market data and draft a reproducible investment analysis."

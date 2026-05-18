@@ -1,0 +1,6 @@
+.env
+.env.local
+scripts/config/api_keys.json
+out/
+**/__pycache__/
+*.pyc
