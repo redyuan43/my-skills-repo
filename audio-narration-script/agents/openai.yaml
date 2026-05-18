@@ -1,0 +1,4 @@
+interface:
+  display_name: "音频讲解稿"
+  short_description: "把长文改写成中文讲稿并生成 WAV"
+  default_prompt: "Use $audio-narration-script to turn this Markdown report into a vivid Chinese narration script and generate WAV audio with Ivan TTS."
