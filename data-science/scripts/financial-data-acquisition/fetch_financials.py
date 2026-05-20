@@ -17,6 +17,7 @@ import os
 import sys
 import warnings
 from datetime import datetime
+from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
@@ -1227,20 +1228,63 @@ def enrich_with_finnhub(data):
 
 
 def _read_api_key(key_name):
-    """从配置文件读取 API Key"""
+    """从环境变量、skill 本地配置和 Hermes 旧配置读取 API Key"""
     import json
-    import os
 
-    config_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..", "config", "api_keys.json"
-    )
-    try:
-        with open(config_path) as f:
-            config = json.load(f)
-        return config.get(key_name, "")
-    except Exception:
-        return ""
+    env_names = {
+        "finnhub_api_key": ["FINNHUB_API_KEY", "FINNHUB_TOKEN"],
+        "fred_api_key": ["FRED_API_KEY"],
+        "tushare_token": ["TUSHARE_TOKEN"],
+        "mx_api_key": ["MX_APIKEY", "MX_API_KEY"],
+        "polygon_api_key": ["POLYGON_API_KEY"],
+    }
+    for env_name in env_names.get(key_name, []):
+        value = os.environ.get(env_name)
+        if value:
+            return value
+
+    script_path = Path(__file__).resolve()
+    skill_root = script_path.parents[2]
+    config_paths = [
+        script_path.parent.parent / "config" / "api_keys.json",
+        skill_root / ".env.local",
+        Path.home() / ".hermes" / "skills" / "data-science" /
+        "financial-data-acquisition" / "config" / "api_keys.json",
+        Path.home() / ".hermes" / ".env",
+    ]
+
+    def load_env_file(path):
+        data = {}
+        for raw_line in path.read_text(errors="ignore").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            data[key.strip()] = value.strip().strip('"').strip("'")
+        return data
+
+    for path in config_paths:
+        if not path.exists():
+            continue
+        try:
+            if path.suffix == ".json":
+                config = json.loads(path.read_text())
+                value = config.get(key_name, "")
+                if value:
+                    return value
+                for env_name in env_names.get(key_name, []):
+                    value = config.get(env_name, "")
+                    if value:
+                        return value
+            else:
+                config = load_env_file(path)
+                for env_name in env_names.get(key_name, []):
+                    value = config.get(env_name, "")
+                    if value:
+                        return value
+        except Exception:
+            continue
+    return ""
 
 
 # ═══════════════════════════════════════════════════════

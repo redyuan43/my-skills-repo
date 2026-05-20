@@ -13,18 +13,57 @@ Polygon.io 金融数据采集器
 
 import os, sys, json, argparse
 from datetime import datetime, timedelta
+from pathlib import Path
 import urllib.request
 import urllib.error
 
 BASE_URL = "https://api.polygon.io"
-API_KEY = os.environ.get("POLYGON_API_KEY", "")
 CACHE_DIR = os.path.expanduser("~/.polygon_data/output")
+
+def read_polygon_api_key():
+    """按本机约定自动查找 Polygon API Key"""
+    value = os.environ.get("POLYGON_API_KEY")
+    if value:
+        return value
+
+    script_path = Path(__file__).resolve()
+    skill_root = script_path.parents[2]
+    config_paths = [
+        skill_root / ".env.local",
+        script_path.parent.parent / "config" / "api_keys.json",
+        Path.home() / ".hermes" / "skills" / "data-science" /
+        "financial-data-acquisition" / "config" / "api_keys.json",
+        Path.home() / ".hermes" / ".env",
+    ]
+
+    for path in config_paths:
+        if not path.exists():
+            continue
+        try:
+            if path.suffix == ".json":
+                config = json.loads(path.read_text())
+                value = config.get("polygon_api_key") or config.get("POLYGON_API_KEY")
+                if value:
+                    return value
+            else:
+                for raw_line in path.read_text(errors="ignore").splitlines():
+                    line = raw_line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, value = line.split("=", 1)
+                    if key.strip() == "POLYGON_API_KEY" and value.strip():
+                        return value.strip().strip('"').strip("'")
+        except Exception:
+            continue
+    return ""
+
+API_KEY = read_polygon_api_key()
 
 def api_get(path, params=None):
     """调用 Polygon.io REST API"""
     if not API_KEY:
         print("❌ POLYGON_API_KEY 未设置")
-        print("   请 export POLYGON_API_KEY=your_key_here")
+        print("   请 export POLYGON_API_KEY=your_key_here，或配置 data-science/.env.local / scripts/config/api_keys.json")
         sys.exit(1)
     
     url = f"{BASE_URL}{path}"

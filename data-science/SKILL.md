@@ -7,11 +7,11 @@ description: Financial data science workflows for market data acquisition, Polyg
 
 ## 快速入口
 
-先确认密钥来自环境变量，不要把真实 key 写入输出报告或可提交文件：
+先确认密钥来自环境变量或本机私有配置，不要把真实 key 写入输出报告或可提交文件。优先使用环境变量；如果没有，脚本会自动查找本 skill 的私有配置和本机 Hermes/Mi 旧配置：
 
 ```bash
 set -a
-source data-science/.env.local
+test -f data-science/.env.local && source data-science/.env.local
 set +a
 ```
 
@@ -31,7 +31,15 @@ set +a
 
 `data-science/.env.local` 可保存本机私有密钥，已被 `.gitignore` 忽略。可提交的模板是 `data-science/.env.example`。
 
-部分旧脚本会从 `scripts/config/api_keys.json` 读取 Finnhub、FRED、Tushare 等 key。不要提交真实文件；需要时复制模板：
+API 查找顺序：
+
+1. 当前进程环境变量：`FINNHUB_API_KEY`、`FRED_API_KEY`、`POLYGON_API_KEY`、`MX_APIKEY`、`TUSHARE_TOKEN`
+2. `data-science/scripts/config/api_keys.json`
+3. `data-science/.env.local`
+4. 本机 Hermes/Mi 旧配置：`~/.hermes/skills/data-science/financial-data-acquisition/config/api_keys.json`
+5. `~/.hermes/.env`
+
+部分旧脚本会从 `scripts/config/api_keys.json` 读取 Finnhub、FRED、Tushare、Polygon、MX 等 key。不要提交真实文件；需要时复制模板：
 
 ```bash
 cp data-science/scripts/config/api_keys.example.json data-science/scripts/config/api_keys.json
@@ -42,7 +50,7 @@ cp data-science/scripts/config/api_keys.example.json data-science/scripts/config
 Polygon 全量查询：
 
 ```bash
-set -a; source data-science/.env.local; set +a
+set -a; test -f data-science/.env.local && source data-science/.env.local; set +a
 python3 data-science/scripts/polygon-data/polygon_data.py --ticker AAPL --type all
 ```
 
