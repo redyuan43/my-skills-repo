@@ -1,0 +1,3 @@
+display_name: Meshy Image to 3D
+short_description: Clean an image background, preview it, then generate GLB and OBJ with Meshy.
+default_prompt: Use Meshy to turn this image into a 3D model after background cleanup and preview confirmation.
