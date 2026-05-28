@@ -42,6 +42,13 @@ RISK_PATTERNS = [
     (re.compile(r"\bsystemctl\s+(start|stop|enable|disable|restart|daemon-reload)\b"), "systemctl control"),
     (re.compile(r"\bmkfs\.|\bfdisk\b|\bparted\b"), "disk operation"),
     (re.compile(r"\btee\s+(/etc|/root|/boot)"), "direct writes under system paths"),
+    (re.compile(r"\bsudo\s+"), "sudo command"),
+    (re.compile(r"\bssh-copy-id\b"), "ssh-copy-id"),
+    (re.compile(r"\bgit\s+(push|reset)\b"), "git state mutation"),
+    (re.compile(r"\btailscale\s+(up|set|logout)\b"), "tailscale state mutation"),
+    (re.compile(r"\b(curl|wget)\b[^\n|]*\|\s*(bash|sh)\b"), "pipe remote script to shell"),
+    (re.compile(r"\b(npm|pnpm|yarn)\s+.*\s(-g|--global)\b"), "global package install"),
+    (re.compile(r"\bsystemctl\s+set-default\b"), "system default target mutation"),
 ]
 
 
@@ -145,6 +152,9 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
     name = skill_dir.name
     doc_text = read_text(skill_md)
     script_dir = skill_dir / "scripts"
+    agents_file = skill_dir / "agents" / "openai.yaml"
+    references_dir = skill_dir / "references"
+    eval_items = skill_dir / "eval" / "val" / "items.json"
     script_files = (
         sorted([p for p in script_dir.iterdir() if p.is_file()]) if script_dir.exists() else []
     )
@@ -156,11 +166,16 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
     has_scripts_dir = script_dir.exists()
     has_script_files = len(script_files) > 0
     has_selftest = selftest.exists()
+    has_agents = agents_file.exists()
+    has_eval = eval_items.exists()
+    has_gate_reference = (references_dir / "gate_checklist.md").exists()
+    has_rejected_edits = (references_dir / "rejected_edits.md").exists()
+    has_optimizer_memory = (references_dir / "optimizer_memory.md").exists()
     structure_checks = [
         SkillCheck(
             name="has_skill_md",
-            score=20,
-            max_score=20,
+            score=16,
+            max_score=16,
             status="pass",
             message="SKILL.md exists",
         ),
@@ -180,10 +195,24 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
         ),
         SkillCheck(
             name="has_selftest",
-            score=10 if has_selftest else 0,
-            max_score=10,
+            score=8 if has_selftest else 0,
+            max_score=8,
             status="pass" if has_selftest else "warn",
             message="selftest.sh exists" if has_selftest else "selftest.sh missing",
+        ),
+        SkillCheck(
+            name="has_openai_yaml",
+            score=4 if has_agents else 0,
+            max_score=4,
+            status="pass" if has_agents else "warn",
+            message="agents/openai.yaml exists" if has_agents else "agents/openai.yaml missing",
+        ),
+        SkillCheck(
+            name="has_eval_items",
+            score=2 if has_eval else 0,
+            max_score=2,
+            status="pass" if has_eval else "warn",
+            message="eval/val/items.json exists" if has_eval else "eval/val/items.json missing",
         ),
     ]
     structure = sum(item.score for item in structure_checks)
@@ -199,15 +228,15 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
     docs_checks = [
         SkillCheck(
             name="doc_has_purpose",
-            score=8 if docs_map["has_purpose"] else 0,
-            max_score=8,
+            score=6 if docs_map["has_purpose"] else 0,
+            max_score=6,
             status="pass" if docs_map["has_purpose"] else "warn",
             message="purpose/use case description present" if docs_map["has_purpose"] else "missing purpose/use case description",
         ),
         SkillCheck(
             name="doc_has_trigger",
-            score=8 if docs_map["has_trigger"] else 0,
-            max_score=8,
+            score=6 if docs_map["has_trigger"] else 0,
+            max_score=6,
             status="pass" if docs_map["has_trigger"] else "warn",
             message="trigger scenario description present"
             if docs_map["has_trigger"]
@@ -222,12 +251,39 @@ def score_skill(skill_md: Path, parallel: int, with_safe_check: bool) -> dict:
         ),
         SkillCheck(
             name="doc_has_safety",
-            score=6 if docs_map["has_safety"] else 0,
-            max_score=6,
+            score=4 if docs_map["has_safety"] else 0,
+            max_score=4,
             status="pass" if docs_map["has_safety"] else "warn",
             message="safety/confirm guidance present"
             if docs_map["has_safety"]
             else "safety/confirm guidance missing",
+        ),
+        SkillCheck(
+            name="has_gate_checklist",
+            score=3 if has_gate_reference else 0,
+            max_score=3,
+            status="pass" if has_gate_reference else "warn",
+            message="references/gate_checklist.md exists"
+            if has_gate_reference
+            else "references/gate_checklist.md missing",
+        ),
+        SkillCheck(
+            name="has_rejected_edits",
+            score=2 if has_rejected_edits else 0,
+            max_score=2,
+            status="pass" if has_rejected_edits else "warn",
+            message="references/rejected_edits.md exists"
+            if has_rejected_edits
+            else "references/rejected_edits.md missing",
+        ),
+        SkillCheck(
+            name="has_optimizer_memory",
+            score=1 if has_optimizer_memory else 0,
+            max_score=1,
+            status="pass" if has_optimizer_memory else "warn",
+            message="references/optimizer_memory.md exists"
+            if has_optimizer_memory
+            else "references/optimizer_memory.md missing",
         ),
     ]
     documentation = sum(item.score for item in docs_checks)
