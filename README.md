@@ -687,6 +687,19 @@
 - `scripts/md_to_mobile_pdf.py` - WeasyPrint 渲染器，支持移动端页面尺寸、中文字体栈、代码高亮、相对图片和 Mermaid 处理
 - `agents/openai.yaml` - skill 的 UI 元数据
 
+### 86. cfo-check
+**功能：** CFO/买方研究视角的企业基本面分析、估值校验与投研备忘录工作流
+**用途：** 当需要分析公司财务质量、商业模式、ROIC/WACC、资本配置、Greenwald/Buffett/McKinsey 估值，或把妙想 mx-* 数据接入投研报告时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（CFO 分析流程、数据/API 路由、报告骨架和纪律）
+- `references/api-data-sources.md` - 参考 data-science 的 API、密钥、MX 数据源和脚本入口索引
+- `references/gate_checklist.md` - 报告交付前的数据完整性、API 安全和分析质量检查清单
+- `references/optimizer_memory.md` - 基于 SkillOpt 思路保留的后续优化记忆
+- `references/rejected_edits.md` - 已拒绝的过度修改方向，避免反复引入
+- `eval/val/items.json` - CFO 分析、筛选、事件检查和外部状态变更的验证样例
+- `scripts/selftest.sh` - skill 结构与密钥泄漏轻量自检脚本
+- `agents/openai.yaml` - skill 的 UI 元数据
+
 ## 使用方法
 
 1. 克隆此仓库到本地

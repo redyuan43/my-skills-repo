@@ -1,0 +1,4 @@
+interface:
+  display_name: "CFO Check"
+  short_description: "CFO视角基本面分析、估值校验与投研备忘录"
+  default_prompt: "Use $cfo-check to analyze this company from a CFO-style fundamental and valuation perspective."
