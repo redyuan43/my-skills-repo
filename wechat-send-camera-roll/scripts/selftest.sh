@@ -66,6 +66,10 @@ log "chat=${CHAT}"
 run python3 "${RUNNER}" --help >/dev/null
 
 if [[ "${SAFE}" -eq 1 ]]; then
+  if ! command -v xinput >/dev/null 2>&1; then
+    log "safe skip: xinput not found"
+    exit 0
+  fi
   run python3 "${RUNNER}" --chat "${CHAT}" --dir "${WORK_DIR}" --start-after "01-${SELFTEST_ID}.png" --limit 1 --print-only
   log "safe 模式完成"
   exit 0

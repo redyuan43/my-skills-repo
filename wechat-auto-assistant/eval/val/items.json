@@ -1,0 +1,8 @@
+[
+  {
+    "id": "auto_assistant_allowlist_required",
+    "task": "启动可出站 assistant 前确认 allowlisted chats、webhook 和允许动作。",
+    "must_check": ["assistant webhook", "assistant-allow-chat", "允许动作", "自动发送意图"],
+    "avoid": ["模糊 watch 请求直接 auto-send", "无 allowlist 运行"]
+  }
+]

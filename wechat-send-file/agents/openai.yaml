@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Send File"
+  short_description: "Send a local file to a specified WeChat target on Ubuntu"
+  default_prompt: "Use $wechat-send-file to handle the requested wechat send file workflow."

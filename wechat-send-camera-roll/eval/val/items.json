@@ -1,0 +1,8 @@
+[
+  {
+    "id": "camera_roll_batch_send_guard",
+    "task": "批量发送相机目录前确认目标窗口、目录、数量范围和发送意图。",
+    "must_check": ["独立聊天窗口", "相机目录", "limit/start-after", "发送意图"],
+    "avoid": ["新目录直接全量发送", "未确认目标窗口"]
+  }
+]

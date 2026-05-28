@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Chat Watch"
+  short_description: "Watch one WeChat chat or all chats on Linux through PyWxDump..."
+  default_prompt: "Use $wechat-chat-watch to handle the requested wechat chat watch workflow."

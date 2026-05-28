@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Auto Assistant"
+  short_description: "Run the PyWxDump event-driven WeChat assistant loop with an e..."
+  default_prompt: "Use $wechat-auto-assistant to handle the requested wechat auto assistant workflow."

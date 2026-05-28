@@ -112,6 +112,10 @@ log "chat=${CHAT}"
 run "${RUNNER}" --help >/dev/null
 
 if [[ "${SAFE}" -eq 1 ]]; then
+  if [[ ! -d "${PYWXDUMP_ROOT}" ]]; then
+    log "safe skip: PyWxDump not found at ${PYWXDUMP_ROOT}"
+    exit 0
+  fi
   if "${RUNNER}" --target "${CHAT}" >/dev/null 2>&1; then
     echo "缺少 assistant 参数时不应成功" >&2
     exit 1

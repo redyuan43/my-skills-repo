@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Send Text"
+  short_description: "Send text to a specified WeChat chat or group on Ubuntu X11 t..."
+  default_prompt: "Use $wechat-send-text to handle the requested wechat send text workflow."

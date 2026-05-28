@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Send Camera Roll"
+  short_description: "Batch-send camera photos from a mounted DCIM folder to an alr..."
+  default_prompt: "Use $wechat-send-camera-roll to handle the requested wechat send camera roll workflow."

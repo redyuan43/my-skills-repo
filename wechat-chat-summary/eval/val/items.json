@@ -1,0 +1,8 @@
+[
+  {
+    "id": "summary_default_read_only",
+    "task": "总结聊天默认只生成本地输出，不回发微信。",
+    "must_check": ["目标聊天", "时间范围或 limit", "是否明确要求回发"],
+    "avoid": ["默认加 --send-back", "总结范围不清仍回发"]
+  }
+]

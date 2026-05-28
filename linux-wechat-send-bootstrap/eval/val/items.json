@@ -1,0 +1,8 @@
+[
+  {
+    "id": "linux_send_bootstrap_safe_static_only",
+    "task": "safe selftest 只做脚本语法和 Python 编译检查，不发消息、不安装依赖、不改 ptrace。",
+    "must_check": ["bash -n", "py_compile", "ptrace confirmation guard"],
+    "avoid": ["safe 模式发送文本", "safe 模式修改 kernel.yama.ptrace_scope"]
+  }
+]

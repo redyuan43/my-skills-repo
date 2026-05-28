@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Wechat Send Bootstrap"
+  short_description: "Bootstrap PyWxDump Linux WeChat text sending for new users on..."
+  default_prompt: "Use $linux-wechat-send-bootstrap to handle the requested linux wechat send bootstrap workflow."

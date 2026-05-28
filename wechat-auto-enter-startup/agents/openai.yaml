@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Auto Enter Startup"
+  short_description: "Install a vision-based Linux WeChat auto-enter flow that star..."
+  default_prompt: "Use $wechat-auto-enter-startup to handle the requested wechat auto enter startup workflow."

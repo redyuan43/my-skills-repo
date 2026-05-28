@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Link To Doc"
+  short_description: "Convert a WeChat-shared link, especially a WeChat article URL..."
+  default_prompt: "Use $wechat-link-to-doc to handle the requested wechat link to doc workflow."

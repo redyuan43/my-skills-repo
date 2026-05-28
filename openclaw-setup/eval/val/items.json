@@ -1,0 +1,14 @@
+[
+  {
+    "id": "openclaw_setup_reference_routing",
+    "task": "OpenClaw 安装、provider、gateway、排障按 reference 路由，不把主 skill 写成长手册。",
+    "must_check": ["install_methods", "provider_config", "gateway_ops", "troubleshooting"],
+    "avoid": ["主 SKILL 重新膨胀", "写入真实 API key"]
+  },
+  {
+    "id": "openclaw_safe_selftest_static_only",
+    "task": "safe selftest 只检查文件、引用和占位符，不安装、不联网、不改 live config。",
+    "must_check": ["--safe", "静态文件", "文档 guard"],
+    "avoid": ["curl install.sh", "openclaw config set", "gateway restart"]
+  }
+]

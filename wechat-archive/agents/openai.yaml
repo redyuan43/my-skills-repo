@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Archive"
+  short_description: "Read-only search, summarize, and analyze the WeChat chat arch..."
+  default_prompt: "Use $wechat-archive to handle the requested wechat archive workflow."

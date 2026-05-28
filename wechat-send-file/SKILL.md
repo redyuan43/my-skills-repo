@@ -11,7 +11,17 @@ Use `scripts/send_wechat_file.sh` to send a local file. For normal WeChat chats/
 
 在这台机器上，执行环境必须固定使用 `~/github/PyWxDump/.venv/bin/python`。不要使用系统 `python3`，否则容易再次触发 `Cryptodome` / `Pillow` 之类的依赖缺失问题。
 
-默认行为是**直接发送**（除非你传 `--print-only`）。普通聊天在 `standalone/auto` 模式下会做窗口名模糊匹配，并在成功后默认走 `--post-send-force-minimize`。如果目标是 `bot` / `owner` / `me` 或显式 `@im.wechat` / `@im.bot` ID，则自动改走 `weclaw` 出站发送，不依赖 GUI 聊天窗口。
+## Send Safety Gate
+
+只有同时满足三要素时才允许发送：
+
+- 目标明确：用户明确给出微信联系人、群名或 bot/owner 目标。
+- 文件明确：用户明确给出本地路径，或明确授权从指定目录/默认规则中自动选择文件。
+- 意图明确：用户明确要求“发送/发给/转发/通知”等真实出站动作。
+
+任一要素不清楚时，先停下确认；不要猜收件人，不要把最近生成的文件自动发出，也不要在用户只说“准备/看看/检查”时发送。安全预检和验证优先使用 `--print-only` 或 `scripts/selftest.sh --safe`。
+
+脚本本身默认行为是发送（除非传 `--print-only`），所以调用脚本前必须由 agent 完成上面的 gate。普通聊天在 `standalone/auto` 模式下会做窗口名模糊匹配，并在成功后默认走 `--post-send-force-minimize`。如果目标是 `bot` / `owner` / `me` 或显式 `@im.wechat` / `@im.bot` ID，则自动改走 `weclaw` 出站发送，不依赖 GUI 聊天窗口。
 
 Standalone/auto 模式下支持独立窗口名模糊匹配：输入聊天名片段就能匹配到具体独立窗口，如 `meeting` 匹配 `meeting` 群窗口。
 
@@ -22,10 +32,12 @@ When `--window-mode main` is used for a target that has not been warmed before, 
 ## Workflow
 
 1. Determine whether the target is a normal WeChat chat/group or the local WeClaw bot conversation.
-2. If the target is `bot` / `owner` / `me` or an explicit `@im.wechat` / `@im.bot` ID, route through the local `weclaw` send path.
-3. Otherwise, `standalone|auto` 下先做聊天窗口模糊匹配，仅用于独立窗口发送。
-4. If the user provided a file path, use it directly.
-5. If the user only said “随便找个文件”, let the script auto-pick from `~/Documents`.
+2. Confirm the exact file path or the user's explicit auto-pick instruction.
+3. Confirm the user intends to send now; otherwise stop with a concise confirmation question.
+4. If the target is `bot` / `owner` / `me` or an explicit `@im.wechat` / `@im.bot` ID, route through the local `weclaw` send path.
+5. Otherwise, `standalone|auto` 下先做聊天窗口模糊匹配，仅用于独立窗口发送。
+6. If the user provided a file path, use it directly.
+7. If the user only said “随便找个文件”, let the script auto-pick from `~/Documents`.
 6. Exclude `jpg/jpeg` by default. Only include them when the user explicitly allows JPEG.
 7. For normal chats, choose `--window-mode standalone|main|auto` depending on whether the chat is already open as an independent window.
 8. Read the final summary line. `PyWxDump` 路径关注 `post_send_check` / `matched_local_id` / `restore_action`，`weclaw` 路径关注 `status=sent route=weclaw-bot`。
@@ -135,7 +147,7 @@ skills/wechat-send-file/scripts/send_wechat_file.sh \
 - For `--window-mode main` with Coding Plan, prefer `https://coding.dashscope.aliyuncs.com/apps/anthropic/v1` instead of the older OpenAI-compatible `/v1` endpoint.
 - The underlying CLI now supports `--main-window-vision-timeout-seconds`, `--main-window-vision-thinking-budget-tokens`, and `--main-window-vision-disable-thinking`.
 - JPEG is excluded by default because the current workflow often needs “send anything except JPEG”.
-- 默认行为会直接发送（非 `--print-only`），`restore_action` 由下游 `PyWxDump` 返回，当前默认值为 `minimized`（成功后发送窗口回退到后台）。
+- Agent 必须先完成发送安全 gate；脚本默认行为会直接发送（非 `--print-only`），`restore_action` 由下游 `PyWxDump` 返回，当前默认值为 `minimized`（成功后发送窗口回退到后台）。
 
 ## Selftest
 

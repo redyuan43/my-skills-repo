@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Linux Official Setup"
+  short_description: "Install the official Linux WeChat client on ARM Ubuntu, launc..."
+  default_prompt: "Use $wechat-linux-official-setup to handle the requested wechat linux official setup workflow."

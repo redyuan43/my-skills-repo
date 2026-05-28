@@ -1,0 +1,4 @@
+interface:
+  display_name: "Openclaw Wechat Linux Local Launcher"
+  short_description: "Openclaw Wechat Linux Local Launcher 专用工作流和工具入口"
+  default_prompt: "Use $openclaw-wechat-linux-local-launcher to handle the requested openclaw wechat linux local launcher workflow."

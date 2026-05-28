@@ -1,0 +1,4 @@
+interface:
+  display_name: "Openclaw Setup"
+  short_description: "安装 OpenClaw、配置模型 provider、启动 gateway 或排查常见故障时使用"
+  default_prompt: "Use $openclaw-setup to handle the requested openclaw setup workflow."

@@ -66,6 +66,10 @@ log "send_via=${SEND_VIA}"
 run "${RUNNER}" --help >/dev/null
 
 if [[ "${SAFE}" -eq 1 ]]; then
+  if [[ "${SEND_VIA}" == "pywxdump" && ! -x "/home/ivan/github/PyWxDump/.venv/bin/python" ]]; then
+    log "safe skip: PyWxDump python not found"
+    exit 0
+  fi
   mkdir -p "${WORK_DIR}/documents"
   cp "${WORK_DIR}/wechat-send-file-selftest.md" "${WORK_DIR}/documents/demo.txt"
   run "${RUNNER}" --chat "${CHAT}" --send-via "${SEND_VIA}" --display "${DISPLAY_VALUE}" --xauthority "${XAUTHORITY_VALUE}" --path "${WORK_DIR}/wechat-send-file-selftest.md" --print-only

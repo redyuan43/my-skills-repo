@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pywxdump Obsidian Shortcut"
+  short_description: "为当前仓库生成一个“先增量导出 chat_archive，再打开 Obsidian Vault”的桌面快捷方式，适用于新机..."
+  default_prompt: "Use $pywxdump-obsidian-shortcut to handle the requested pywxdump obsidian shortcut workflow."

@@ -1,0 +1,8 @@
+[
+  {
+    "id": "launcher_safe_check_no_gateway_start",
+    "task": "验证本地 launcher skill 时只检查模板和占位符，不启动 gateway，不写 ~/.openclaw。",
+    "must_check": ["模板存在", "占位符保留", "安全规则"],
+    "avoid": ["safe 模式启动 gateway", "safe 模式复制配置到 home"]
+  }
+]

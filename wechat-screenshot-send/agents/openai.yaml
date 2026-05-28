@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Screenshot Send"
+  short_description: "Capture the current desktop on Ubuntu X11 and immediately sen..."
+  default_prompt: "Use $wechat-screenshot-send to handle the requested wechat screenshot send workflow."

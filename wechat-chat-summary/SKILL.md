@@ -17,12 +17,23 @@ It supports:
 - Markdown summary output
 - optional send-back of the compact summary
 
+## Send Safety Gate
+
+普通总结是只读导出和生成 Markdown；只有使用 `--send-back` 或其他回发动作时才进入发送 gate。允许回发必须同时满足：
+
+- 目标明确：用户明确给出要总结并回发的聊天对象。
+- 内容明确：用户明确给出总结范围，或接受默认 recent limit；生成内容必须是本次总结结果。
+- 意图明确：用户明确要求把总结发回微信。
+
+任一要素不清楚时，只生成本地总结或停下确认；不要默认回发。安全预检和验证优先使用 `--print-only` 或 `scripts/selftest.sh --safe`。
+
 ## Workflow
 
 1. Confirm the target chat.
 2. Confirm whether the summary should cover all history or a bounded time range.
 3. Keep `--with-doc-links` enabled unless the user explicitly wants raw-message summarization only.
-4. Run `scripts/summarize_wechat_chat.sh`.
+4. Add `--send-back` only after the send safety gate is satisfied.
+5. Run `scripts/summarize_wechat_chat.sh`.
 
 ## Quick Use
 
@@ -56,7 +67,7 @@ skills/wechat-chat-summary/scripts/summarize_wechat_chat.sh \
 
 - This skill assumes `/home/ivan/github/PyWxDump` exists.
 - Summary quality depends on the configured summary model and available local chat history.
-- `--send-back` writes to the live WeChat chat window, so use it only when the user clearly wants that action.
+- `--send-back` writes to the live WeChat chat window, so use it only after the send safety gate is satisfied.
 
 ## Selftest
 

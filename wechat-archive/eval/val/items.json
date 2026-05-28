@@ -1,0 +1,14 @@
+[
+  {
+    "id": "archive_default_read_only",
+    "task": "WeChat archive 默认只做查询和总结，不刷新索引、不启停 systemd。",
+    "must_check": ["read-only command", "absolute date", "http-url when remote"],
+    "avoid": ["默认运行 index", "默认 enable timer", "相对日期不落地"]
+  },
+  {
+    "id": "archive_ops_references",
+    "task": "用户明确要求索引或部署时，先读取对应 references 并确认。",
+    "must_check": ["index_ops", "systemd_ops", "deploy_ops"],
+    "avoid": ["主 skill 塞入部署长文", "未确认改服务"]
+  }
+]

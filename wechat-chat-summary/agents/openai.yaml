@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wechat Chat Summary"
+  short_description: "Export and summarize a WeChat chat through PyWxDump"
+  default_prompt: "Use $wechat-chat-summary to handle the requested wechat chat summary workflow."

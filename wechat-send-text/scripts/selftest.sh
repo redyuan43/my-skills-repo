@@ -22,6 +22,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "${SAFE_MODE}" -eq 1 ]]; then
+  if [[ ! -d "/home/ivan/github/PyWxDump" ]]; then
+    echo "safe skip: PyWxDump not found at /home/ivan/github/PyWxDump"
+    exit 0
+  fi
   OUTPUT="$("${RUNNER}" --chat "${CHAT}" --text "${TEXT}" --print-only)"
   printf '%s\n' "${OUTPUT}"
   printf '%s\n' "${OUTPUT}" | rg -q "Resolved window mode: standalone"

@@ -120,6 +120,10 @@ run "${RUNNER}" --help >/dev/null
 
 TODAY="$(date +%F)"
 if [[ "${SAFE}" -eq 1 ]]; then
+  if [[ ! -d "${PYWXDUMP_ROOT}" ]]; then
+    log "safe skip: PyWxDump not found at ${PYWXDUMP_ROOT}"
+    exit 0
+  fi
   run "${RUNNER}" --target "${CHAT}" --since "${TODAY}" --until "${TODAY}" --limit 20 --send-back --print-only
   log "safe 模式完成"
   exit 0

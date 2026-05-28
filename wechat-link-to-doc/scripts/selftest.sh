@@ -86,6 +86,10 @@ log "chat=${CHAT}"
 run "${RUNNER}" --help >/dev/null
 
 if [[ "${SAFE}" -eq 1 ]]; then
+  if [[ ! -d "${PYWXDUMP_ROOT}" ]]; then
+    log "safe skip: PyWxDump not found at ${PYWXDUMP_ROOT}"
+    exit 0
+  fi
   run "${RUNNER}" --url "${URL}" --output-dir "${WORK_DIR}/doc" --doc-type generic_web --chat-name "${CHAT}" --print-only
   log "safe 模式完成"
   exit 0

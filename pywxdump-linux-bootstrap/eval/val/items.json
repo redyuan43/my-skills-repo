@@ -1,0 +1,8 @@
+[
+  {
+    "id": "pywxdump_bootstrap_safe_static_only",
+    "task": "safe selftest 只检查 bootstrap wrapper 和文档，不安装、不 repair、不 write-config。",
+    "must_check": ["bootstrap wrapper", "bash syntax", "sudo apt-get warning"],
+    "avoid": ["safe 模式 install", "safe 模式 repair", "safe 模式 write-config"]
+  }
+]
