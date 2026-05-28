@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gh Repo Maintenance"
+  short_description: "Audit and maintain GitHub repositories with gh CLI"
+  default_prompt: "Use $gh-repo-maintenance to handle the requested gh repo maintenance workflow."

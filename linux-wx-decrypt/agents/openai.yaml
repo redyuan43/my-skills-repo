@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Wx Decrypt"
+  short_description: "Export and decrypt Linux WeChat local databases through the e..."
+  default_prompt: "Use $linux-wx-decrypt to handle the requested linux wx decrypt workflow."

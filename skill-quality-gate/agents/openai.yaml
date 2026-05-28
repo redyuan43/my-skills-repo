@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Quality Gate"
+  short_description: "对 my-skills-repo 里的顶层 skills 做静态质量检查和评分，覆盖结构、SkillOpt-lite re..."
+  default_prompt: "Use $skill-quality-gate to handle the requested skill quality gate workflow."

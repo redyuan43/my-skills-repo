@@ -1,0 +1,4 @@
+interface:
+  display_name: "Analyze Video File"
+  short_description: "Analyze local video files with ffprobe and ffmpeg, extract me..."
+  default_prompt: "Use $analyze-video-file to handle the requested analyze video file workflow."

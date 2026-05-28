@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lmstudio Llmster Gui Reconcile"
+  short_description: "Lmstudio Llmster Gui Reconcile 专用工作流和工具入口"
+  default_prompt: "Use $lmstudio-llmster-gui-reconcile to handle the requested lmstudio llmster gui reconcile workflow."

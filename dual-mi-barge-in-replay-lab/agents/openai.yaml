@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dual Mi Barge In Replay Lab"
+  short_description: "用两台 MI Speakphone 做自动化 barge-in 真实回放实验：speaker1 负责助手播报，speake..."
+  default_prompt: "Use $dual-mi-barge-in-replay-lab to handle the requested dual mi barge in replay lab workflow."

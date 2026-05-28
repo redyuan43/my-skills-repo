@@ -1,9 +1,7 @@
 ---
 name: tts
 description: "文字转语音（Text-to-Speech）：将文字合成为语音并播放。使用本地 Qwen3-TTS 模型，默认音色 Vivian。用法：/tts 你好世界"
-disable-model-invocation: true
 allowed-tools: "Bash(curl:*), Bash(aplay:*), Bash(paplay:*), Bash(ffplay:*)"
-argument-hint: "[text] [speaker:Name] [speed:1.0]"
 ---
 
 # 文字转语音 (TTS)

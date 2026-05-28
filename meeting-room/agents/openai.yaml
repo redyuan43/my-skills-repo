@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meeting Room"
+  short_description: "在 Ubuntu 上执行会议室会议纪要脚本：启动会议、停止会议、查看状态、抓取日志，并在 stop 后自动等待 diari..."
+  default_prompt: "Use $meeting-room to handle the requested meeting room workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remote Hostname Rename Over SSH"
+  short_description: "Rename a remote Linux machine's device name or hostname over..."
+  default_prompt: "Use $remote-hostname-rename-over-ssh to handle the requested remote hostname rename over ssh workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Auto Shutdown Triage"
+  short_description: "排查 Linux 机器“过一会儿自动关机、自动重启、像关机一样消失”的问题"
+  default_prompt: "Use $linux-auto-shutdown-triage to handle the requested linux auto shutdown triage workflow."

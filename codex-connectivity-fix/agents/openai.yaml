@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Connectivity Fix"
+  short_description: "修复 Linux 机器上 Codex CLI “命令找不到 / 启动即崩 / 能登录但连不上 OpenAI / SSH 上..."
+  default_prompt: "Use $codex-connectivity-fix to handle the requested codex connectivity fix workflow."

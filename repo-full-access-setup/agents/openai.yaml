@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repo Full Access Setup"
+  short_description: "为当前仓库或指定仓库生成 Codex 全权限配置，适合需要把某个工程目录切到 danger-full-access 并关闭..."
+  default_prompt: "Use $repo-full-access-setup to handle the requested repo full access setup workflow."

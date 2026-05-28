@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lmstudio Remote Account Setup"
+  short_description: "Configure or switch LM Studio accounts on remote Linux device..."
+  default_prompt: "Use $lmstudio-remote-account-setup to handle the requested lmstudio remote account setup workflow."

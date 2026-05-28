@@ -1,0 +1,4 @@
+interface:
+  display_name: "Baidunetdisk Upload"
+  short_description: "Upload local files to Baidu Netdisk through the installed Lin..."
+  default_prompt: "Use $baidunetdisk-upload to handle the requested baidunetdisk upload workflow."

@@ -1,9 +1,7 @@
 ---
 name: diarization
 description: 说话人分离（Speaker Diarization）：对本地音频或视频文件生成 speaker turns、RTTM 和 speaker transcript。用法：/diarization /path/to/audio-or-video
-disable-model-invocation: true
 allowed-tools: Bash(ffmpeg:*), Bash(bash:*), Bash(curl:*)
-argument-hint: [audio-or-video-path]
 ---
 
 # Speaker Diarization

@@ -1,9 +1,7 @@
 ---
 name: emeet-record-av-toggle
 description: EMEET PIXY 开始/停止录制：输入“开始”时后台启动人脸跟踪 + 视频 + 麦克风录音；输入“停止”时优雅停止并封装 MP4；也可查询状态。适用于“开始录制”“停止录制”“持续录到我叫停”为止这类请求。用法：/emeet-record-av-toggle [开始|停止|状态] [output.mp4]
-disable-model-invocation: true
 allowed-tools: "Bash(bash:*,ls:*,cat:*,kill:*)"
-argument-hint: "[开始|停止|状态] [output.mp4]"
 ---
 
 # EMEET PIXY 开始/停止录制

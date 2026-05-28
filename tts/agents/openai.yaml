@@ -1,0 +1,4 @@
+interface:
+  display_name: "TTS"
+  short_description: "文字转语音（Text-to-Speech）：将文字合成为语音并播放"
+  default_prompt: "Use $tts to handle the requested tts workflow."

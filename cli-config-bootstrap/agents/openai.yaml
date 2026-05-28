@@ -1,0 +1,4 @@
+interface:
+  display_name: "CLI Config Bootstrap"
+  short_description: "Create portable, sanitized configuration templates for AI CLI..."
+  default_prompt: "Use $cli-config-bootstrap to handle the requested cli config bootstrap workflow."

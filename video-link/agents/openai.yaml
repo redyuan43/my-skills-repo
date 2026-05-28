@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Link"
+  short_description: "Use when the user provides a YouTube, Bilibili, or other onli..."
+  default_prompt: "Use $video-link to handle the requested video link workflow."

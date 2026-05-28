@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Persona Manager"
+  short_description: "Install and manage cat-persona templates across Codex, Claude..."
+  default_prompt: "Use $codex-persona-manager to handle the requested codex persona manager workflow."

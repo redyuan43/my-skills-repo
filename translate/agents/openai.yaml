@@ -1,0 +1,4 @@
+interface:
+  display_name: "Translate"
+  short_description: "语义翻译（Semantic Translation）：使用本地 Ollama 模型 huihui_ai/hy-mt1"
+  default_prompt: "Use $translate to handle the requested translate workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deskflow Linux Setup"
+  short_description: "Install, run, and troubleshoot Deskflow on Linux using Flatpa..."
+  default_prompt: "Use $deskflow-linux-setup to handle the requested deskflow linux setup workflow."

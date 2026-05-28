@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Proxy Socks5 Socket Fix"
+  short_description: "当 Linux 机器因代理环境变量写成 socks://127"
+  default_prompt: "Use $linux-proxy-socks5-socket-fix to handle the requested linux proxy socks5 socket fix workflow."

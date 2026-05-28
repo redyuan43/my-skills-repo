@@ -1,0 +1,4 @@
+interface:
+  display_name: "ASR"
+  short_description: "语音识别（Speech-to-Text）：输入音频文件，直接输出转写文本"
+  default_prompt: "Use $asr to handle the requested asr workflow."

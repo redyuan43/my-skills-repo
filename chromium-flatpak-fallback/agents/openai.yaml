@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chromium Flatpak Fallback"
+  short_description: "Chromium Flatpak Fallback 专用工作流和工具入口"
+  default_prompt: "Use $chromium-flatpak-fallback to handle the requested chromium flatpak fallback workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Ai Dev Clis"
+  short_description: "Update, install, and troubleshoot AI/developer CLI tools (esp..."
+  default_prompt: "Use $update-ai-dev-clis to handle the requested update ai dev clis workflow."

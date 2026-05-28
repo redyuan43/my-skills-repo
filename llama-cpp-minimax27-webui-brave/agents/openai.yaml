@@ -1,0 +1,4 @@
+interface:
+  display_name: "Llama Cpp Minimax27 Webui Brave"
+  short_description: "Llama Cpp Minimax27 Webui Brave 专用工作流和工具入口"
+  default_prompt: "Use $llama-cpp-minimax27-webui-brave to handle the requested llama cpp minimax27 webui brave workflow."

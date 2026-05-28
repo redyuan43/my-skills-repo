@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Safe Sandbox No Approval"
+  short_description: "把 Codex 全局默认权限切到“相对安全的 sandbox + 不审批”组合：sandbox_mode = \"works..."
+  default_prompt: "Use $codex-safe-sandbox-no-approval to handle the requested codex safe sandbox no approval workflow."

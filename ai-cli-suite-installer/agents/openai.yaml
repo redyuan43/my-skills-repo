@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ai CLI Suite Installer"
+  short_description: "Install, upgrade, and troubleshoot six AI CLIs (claude, kilo,..."
+  default_prompt: "Use $ai-cli-suite-installer to handle the requested ai cli suite installer workflow."

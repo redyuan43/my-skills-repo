@@ -1,0 +1,4 @@
+interface:
+  display_name: "Baidunetdisk Remote Image Search"
+  short_description: "Search image content inside Baidu Netdisk folders through the..."
+  default_prompt: "Use $baidunetdisk-remote-image-search to handle the requested baidunetdisk remote image search workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sudo Nopasswd Toggle"
+  short_description: "Configure or remove passwordless sudo (NOPASSWD) for a local..."
+  default_prompt: "Use $sudo-nopasswd-toggle to handle the requested sudo nopasswd toggle workflow."

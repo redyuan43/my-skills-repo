@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chromium V2ray Google Fix"
+  short_description: "当 Linux 上的 Chromium 在已启动 v2rayN/xray 的情况下仍打不开 www"
+  default_prompt: "Use $chromium-v2ray-google-fix to handle the requested chromium v2ray google fix workflow."

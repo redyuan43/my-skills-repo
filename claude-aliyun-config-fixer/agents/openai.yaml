@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude Aliyun Config Fixer"
+  short_description: "配置和排障 Claude Code 对接阿里云百炼 / Coding Plan（DashScope Anthropic 兼..."
+  default_prompt: "Use $claude-aliyun-config-fixer to handle the requested claude aliyun config fixer workflow."

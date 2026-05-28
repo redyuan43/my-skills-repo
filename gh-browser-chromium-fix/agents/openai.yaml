@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gh Browser Chromium Fix"
+  short_description: "配置 GitHub CLI 和系统默认 Web 处理器一起打开 Chromium，而不是 Firefox 或一个不可用的..."
+  default_prompt: "Use $gh-browser-chromium-fix to handle the requested gh browser chromium fix workflow."

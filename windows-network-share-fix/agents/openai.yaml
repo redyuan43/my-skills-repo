@@ -1,0 +1,4 @@
+interface:
+  display_name: "Windows Network Share Fix"
+  short_description: "Fixes Windows 11 network share access issues due to guest aut..."
+  default_prompt: "Use $windows-network-share-fix to handle the requested windows network share fix workflow."

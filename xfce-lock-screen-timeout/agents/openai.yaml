@@ -1,0 +1,4 @@
+interface:
+  display_name: "XFCE Lock Screen Timeout"
+  short_description: "在 XFCE 桌面中检查并设置空闲锁屏时间，优先识别 xfce4-screensaver 和当前 X11 会话 xset..."
+  default_prompt: "Use $xfce-lock-screen-timeout to handle the requested xfce lock screen timeout workflow."

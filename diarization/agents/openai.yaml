@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diarization"
+  short_description: "说话人分离（Speaker Diarization）：对本地音频或视频文件生成 speaker turns、RTTM 和..."
+  default_prompt: "Use $diarization to handle the requested diarization workflow."

@@ -1,9 +1,7 @@
 ---
 name: asr
 description: 语音识别（Speech-to-Text）：输入音频文件，直接输出转写文本。当前默认后端使用本地 SenseVoiceSmall 模型，支持中英文。用法：/asr /path/to/audio.wav
-disable-model-invocation: true
 allowed-tools: Bash(curl:*)
-argument-hint: [audio-file-path]
 ---
 
 # 语音识别 (ASR)

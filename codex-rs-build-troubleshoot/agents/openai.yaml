@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Rs Build Troubleshoot"
+  short_description: "同步 codex-rs 最新代码并编译 codex-cli，同时判断 core、tui、app-server、mcp 等核..."
+  default_prompt: "Use $codex-rs-build-troubleshoot to handle the requested codex rs build troubleshoot workflow."

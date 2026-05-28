@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linux Ntfs Offload Symlink"
+  short_description: "将 Linux 主目录下的大型数据目录迁移到已挂载或待挂载的 NTFS 分区，并在原位置保留软链接"
+  default_prompt: "Use $linux-ntfs-offload-symlink to handle the requested linux ntfs offload symlink workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "V2rayn Linux Github Install"
+  short_description: "Install v2rayN on Linux directly from the official GitHub Rel..."
+  default_prompt: "Use $v2rayn-linux-github-install to handle the requested v2rayn linux github install workflow."

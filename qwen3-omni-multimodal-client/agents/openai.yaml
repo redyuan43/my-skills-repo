@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qwen3 Omni Multimodal Client"
+  short_description: "Call the local Qwen3-Omni deployment with text, audio, image,..."
+  default_prompt: "Use $qwen3-omni-multimodal-client to handle the requested qwen3 omni multimodal client workflow."

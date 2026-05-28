@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ollama GPU Pinning"
+  short_description: "Pin Ollama to a specific NVIDIA GPU on multi-GPU Linux hosts,..."
+  default_prompt: "Use $ollama-gpu-pinning to handle the requested ollama gpu pinning workflow."

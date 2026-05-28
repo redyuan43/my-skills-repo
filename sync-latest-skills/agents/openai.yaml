@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync Latest Skills"
+  short_description: "从 my-skills-repo 拉取最新内容，并把仓库里的顶层技能目录同步到当前机器仓库的"
+  default_prompt: "Use $sync-latest-skills to handle the requested sync latest skills workflow."

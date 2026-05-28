@@ -1,0 +1,4 @@
+interface:
+  display_name: "XFCE Panel Monitors Setup"
+  short_description: "在 Linux 桌面状态栏配置 CPU、GPU/RAM 和 IPv4 监控；支持 XFCE 面板原生插件，也支持 Ubun..."
+  default_prompt: "Use $xfce-panel-monitors-setup to handle the requested xfce panel monitors setup workflow."

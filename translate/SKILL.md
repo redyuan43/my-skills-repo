@@ -1,9 +1,7 @@
 ---
 name: translate
 description: "语义翻译（Semantic Translation）：使用本地 Ollama 模型 `huihui_ai/hy-mt1.5-abliterated:1.8b` 翻译文本，支持中英文互译。用法：/translate Hello World [to:zh|to:en]"
-disable-model-invocation: true
 allowed-tools: "Bash(curl:*)"
-argument-hint: "[text] [to:zh|to:en]"
 ---
 
 # 语义翻译 (Translate)

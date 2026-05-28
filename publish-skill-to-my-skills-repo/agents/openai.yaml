@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish Skill To My Skills Repo"
+  short_description: "Publish a local Codex skill into the user's GitHub skills rep..."
+  default_prompt: "Use $publish-skill-to-my-skills-repo to handle the requested publish skill to my skills repo workflow."

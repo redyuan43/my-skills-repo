@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jtop Desktop Launcher"
+  short_description: "为 Linux 桌面创建可双击的 jtop 启动器：自动重启 jtop"
+  default_prompt: "Use $jtop-desktop-launcher to handle the requested jtop desktop launcher workflow."

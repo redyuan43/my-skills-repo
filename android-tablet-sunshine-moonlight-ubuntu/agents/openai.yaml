@@ -1,0 +1,4 @@
+interface:
+  display_name: "Android Tablet Second Screen Ubuntu"
+  short_description: "Configure an Android tablet as a second-screen-style display..."
+  default_prompt: "Use $android-tablet-second-screen-ubuntu to handle the requested android tablet second screen ubuntu workflow."

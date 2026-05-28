@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Fleet Update"
+  short_description: "Maintain Codex CLI across multiple SSH-accessible Linux devices"
+  default_prompt: "Use $codex-fleet-update to handle the requested codex fleet update workflow."

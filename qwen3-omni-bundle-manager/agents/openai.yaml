@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qwen3 Omni Bundle Manager"
+  short_description: "Safely quarantine unusable Qwen3-Omni model caches, create a..."
+  default_prompt: "Use $qwen3-omni-bundle-manager to handle the requested qwen3 omni bundle manager workflow."
