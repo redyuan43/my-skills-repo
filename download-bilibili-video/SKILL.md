@@ -79,15 +79,29 @@ python3 scripts/download_bilibili.py \
 
 ## Failure handling
 
+- Cookie / 登录态确认规则：
+  - 只有在用户明确确认可使用本机浏览器登录态，或明确提供 cookie 文件时，才启用 cookie 路径。
+  - 优先使用 wrapper 的浏览器 profile 选项；raw cookie file 只用于用户主动提供的文件。
+  - 不把 cookie、profile 内容或登录态信息写入仓库、日志或最终交付。
 - If a `b23.tv` link fails directly, keep short-link expansion enabled and use the resolved `bilibili.com/video/BV...` URL.
 - If Bilibili returns `412 Precondition Failed`, prefer Chromium cookies via `--cookies-from-browser`.
 - If the machine uses Snap Chromium, set `--browser-profile "$HOME/snap/chromium/common/chromium"` or let the script auto-detect it.
 - If content is private, region-restricted, members-only, or DRM-protected, report the exact `yt-dlp` error instead of retrying blindly.
 - Keep playlist behavior disabled unless the user explicitly asks for an anthology or playlist-style download.
 
+## Eval / Selftest
+
+```bash
+bash download-bilibili-video/scripts/selftest.sh --safe
+```
+
+Safe selftest only checks local files, Python syntax, eval JSON, failure taxonomy, and optional dependency presence. It does not contact Bilibili, read browser cookies, or write system state.
+
 ## Resources
 
 - `scripts/download_bilibili.py`: Wrapper around `yt-dlp` for Bilibili downloads.
+- `references/failure_taxonomy.md`: Failure classes, cookie confirmation rules, and output gates.
+- `eval/val/items.json`: Validation prompts for short-link and login-gated behavior.
 
 ## Notes
 

@@ -67,7 +67,18 @@ bash jetson-agx-max-power/scripts/jetson_agx_max_power.sh 恢复
 - `max` 后 `jetson_clocks --show` 里的 CPU/GPU/EMC 上限被锁到高档位。
 - `restore` 后 mode 与 clocks 回到执行 `max` 前的状态。
 
+## Gate / Selftest
+
+- 状态、修改和回滚 gate 见 `references/gate_checklist.md`。
+- 已拒绝的过度修改方向见 `references/rejected_edits.md`。
+- 结构和语法安全自检：
+
+```bash
+bash jetson-agx-max-power/scripts/selftest.sh --safe
+```
+
 ## 文件
 
 - `scripts/jetson_agx_max_power.sh`：状态查看、切到 MAXN、恢复快照的唯一入口
+- `eval/val/items.json`：状态优先和回滚行为验证样例
 - `agents/openai.yaml`：本地 UI metadata

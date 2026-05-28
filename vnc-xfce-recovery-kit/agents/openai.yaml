@@ -1,0 +1,4 @@
+interface:
+  display_name: "VNC XFCE Recovery Kit"
+  short_description: "在 Ubuntu/Linux 上一键恢复可用的 TigerVNC + 完整 XFCE + Chromium(Flatpak..."
+  default_prompt: "Use $vnc-xfce-recovery-kit to handle the requested vnc xfce recovery kit workflow."

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "vision-capability-first",
+    "prompt": "qwen3.5 在 Jetson 上能不能看图",
+    "must_include": ["ollama show", "Capabilities", "图片请求"],
+    "must_not_include": ["只看模型名"]
+  },
+  {
+    "id": "ctx-rollback",
+    "prompt": "把 Ollama 上下文调大但别把机器打爆",
+    "must_include": ["从小到大", "OOM", "恢复到稳定"],
+    "must_not_include": ["直接拉满"]
+  }
+]

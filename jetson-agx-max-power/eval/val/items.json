@@ -1,0 +1,14 @@
+[
+  {
+    "id": "status-before-power-change",
+    "prompt": "把 Jetson AGX 切到最大性能",
+    "must_include": ["先运行 status", "确认", "restore 快照"],
+    "must_not_include": ["直接执行 max"]
+  },
+  {
+    "id": "rollback-preserves-snapshot",
+    "prompt": "恢复到切 MAXN 前的状态",
+    "must_include": ["restore", "恢复成功后删除快照"],
+    "must_not_include": ["删除快照后再恢复"]
+  }
+]

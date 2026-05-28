@@ -1,0 +1,4 @@
+interface:
+  display_name: "SSH Monitor Cycle"
+  short_description: "Cycle through SSH hosts from ~/"
+  default_prompt: "Use $ssh-monitor-cycle to handle the requested ssh monitor cycle workflow."

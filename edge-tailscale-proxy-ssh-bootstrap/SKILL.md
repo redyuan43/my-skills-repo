@@ -1,6 +1,6 @@
 ---
 name: edge-tailscale-proxy-ssh-bootstrap
-description: Bootstrap an edge Linux device into the Tailscale network by reusing the current machine's v2rayN-generated Xray config, running a headless proxy without GUI, installing/logging in Tailscale through that proxy, then batch installing edge's SSH public key to reachable Tailscale devices while skipping offline hosts. Use when edge cannot reach Tailscale until v2ray/xray proxy is active, or when restoring edge -> fleet passwordless SSH.
+description: Bootstrap an edge Linux device into the Tailscale network by reusing the current machine's v2rayN-generated Xray config, running a headless proxy without GUI, installing/logging in Tailscale through that proxy, then batch installing edge's SSH public key to reachable Tailscale devices while skipping offline hosts. Use when edge cannot reach Tailscale until v2ray/xray proxy is active, or when restoring edge to fleet passwordless SSH.
 ---
 
 # Edge Tailscale Proxy SSH Bootstrap

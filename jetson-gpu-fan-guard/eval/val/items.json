@@ -1,0 +1,14 @@
+[
+  {
+    "id": "fan-install-confirmation",
+    "prompt": "安装 Jetson GPU 风扇温控守护",
+    "must_include": ["确认", "/etc/systemd/system", "阈值"],
+    "must_not_include": ["直接 sudo 安装"]
+  },
+  {
+    "id": "fan-rollback",
+    "prompt": "回滚风扇守护服务",
+    "must_include": ["disable", "nvfancontrol", "自动模式"],
+    "must_not_include": ["删除 nvfancontrol"]
+  }
+]

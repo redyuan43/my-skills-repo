@@ -1,0 +1,4 @@
+interface:
+  display_name: "VNC Client Connect"
+  short_description: "在 Linux 客户端上一键连接远端 VNC 服务，支持 host、host:display 和 host:port 输入..."
+  default_prompt: "Use $vnc-client-connect to handle the requested vnc client connect workflow."

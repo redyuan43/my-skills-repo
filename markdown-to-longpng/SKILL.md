@@ -72,6 +72,19 @@ file /path/to/output.png
 identify /path/to/output.png 2>/dev/null || true
 ```
 
+Output gate:
+
+- PNG must be non-empty.
+- `file` should identify it as PNG image data.
+- Width and height must both be greater than 0.
+- Full rules live in `references/output_gate.md`.
+
+Safe local smoke:
+
+```bash
+bash markdown-to-longpng/scripts/selftest.sh --safe
+```
+
 Previously verified on AMD:
 
 - Input: `/home/ivan/github/video-analyzer/downloads/url-videos/BV1EGdrBQEVN/operation-manual/operation_manual.md`

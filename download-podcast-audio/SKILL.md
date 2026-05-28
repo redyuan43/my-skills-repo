@@ -68,16 +68,30 @@ python3 scripts/download_podcast.py \
 
 ## Failure handling
 
+- Cookie / 登录态确认规则：
+  - 只有在用户明确确认可使用本机浏览器登录态，或明确提供 cookie 文件时，才使用 cookie 参数。
+  - 不保存、打印、提交或复述 cookie 内容。
+  - 如果站点需要登录、地区权限或订阅权限，先说明限制，再让用户决定是否授权 cookie 路径。
 - If `yt-dlp` falls back to the generic extractor but still resolves a direct audio file, accept that path. For podcast pages this is often enough.
 - If the page resolves to audio but the audio download fails, report the exact `yt-dlp` stderr instead of assuming the episode is unavailable.
 - If the site requires login or region access, retry with `--cookies-from-browser` or a user-provided `--cookies` file.
 - Keep playlist behavior disabled unless the user explicitly wants a full feed or series.
 - Do not promise DRM-protected or streaming-only content when `yt-dlp` cannot produce a downloadable file.
 
+## Eval / Selftest
+
+```bash
+bash download-podcast-audio/scripts/selftest.sh --safe
+```
+
+Safe selftest only checks local files, Python syntax, eval JSON, failure taxonomy, and optional dependency presence. It does not contact podcast sites, read browser cookies, or write system state.
+
 ## Resources
 
 - `scripts/download_podcast.py`: Wrapper around `yt-dlp` for podcast pages and direct audio URLs.
 - `references/presets.md`: Quick command presets and operating rules.
+- `references/failure_taxonomy.md`: Failure classes, cookie confirmation rules, and output gates.
+- `eval/val/items.json`: Validation prompts for login-gated and generic-extractor behavior.
 
 ## Notes
 

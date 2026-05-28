@@ -68,7 +68,18 @@ systemctl is-enabled jetson-gpu-fan-guard.service
 systemctl is-active jetson-gpu-fan-guard.service
 ```
 
+## Gate / Selftest
+
+- 状态、修改和回滚 gate 见 `references/gate_checklist.md`。
+- 已拒绝的过度修改方向见 `references/rejected_edits.md`。
+- 结构和语法安全自检：
+
+```bash
+bash jetson-gpu-fan-guard/scripts/selftest.sh --safe
+```
+
 ## 文件
 
 - `scripts/jetson_gpu_fan_guard.sh`：常驻监控 GPU 温度并切换风扇模式
 - `scripts/install_jetson_gpu_fan_guard.sh`：把脚本安装到 `/usr/local/bin`，写入 `systemd` 服务并启用开机自启
+- `eval/val/items.json`：安装确认和回滚行为验证样例

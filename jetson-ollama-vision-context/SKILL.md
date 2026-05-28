@@ -52,3 +52,14 @@ scripts/ollama_context_probe.sh --model "qwen3.5:latest" --ctx-list "4096,8192,1
 - `scripts/ollama_vision_perf.sh`: 单图识别 + 实时流式输出（thinking/content）+ 性能统计（load/total/prompt/eval/token/s）+ 内存快照。
 - `scripts/ollama_context_probe.sh`: 批量探测不同 `num_ctx` 的可用性。
 - `references/jetson-findings.md`: Jetson 16G 的已验证参数与故障特征。
+- `references/gate_checklist.md`: 状态、修改和回滚 gate。
+- `references/rejected_edits.md`: 已拒绝的过度修改方向。
+- `eval/val/items.json`: vision 能力确认和上下文回滚验证样例。
+
+## Selftest
+
+```bash
+bash jetson-ollama-vision-context/scripts/selftest.sh --safe
+```
+
+Safe selftest only checks local files, shell syntax, eval JSON, and optional dependency presence. It does not call Ollama, download models, or occupy GPU.

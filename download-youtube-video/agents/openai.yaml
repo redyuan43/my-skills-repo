@@ -1,0 +1,4 @@
+interface:
+  display_name: "Download Youtube Video"
+  short_description: "Download YouTube videos, playlists, audio tracks, subtitles,..."
+  default_prompt: "Use $download-youtube-video to handle the requested download youtube video workflow."

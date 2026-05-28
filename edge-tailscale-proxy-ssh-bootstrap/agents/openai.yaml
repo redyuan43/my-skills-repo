@@ -1,0 +1,4 @@
+interface:
+  display_name: "Edge Tailscale Proxy SSH Bootstrap"
+  short_description: "Bootstrap an edge Linux device into the Tailscale network by..."
+  default_prompt: "Use $edge-tailscale-proxy-ssh-bootstrap to handle the requested edge tailscale proxy ssh bootstrap workflow."

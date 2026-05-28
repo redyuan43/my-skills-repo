@@ -37,6 +37,17 @@ description: 排查和修复 Jetson 上 GNOME/Weston 图形栈启动失败、黑
 - `ps -eo pid,cmd | rg 'gdm|Xorg|gnome-shell|Xwayland|weston'` 应能看到 GNOME 会话，而不是只有守护进程。
 - 日志里不应再持续出现 `drmSetMaster failed`、`Device or resource busy`，或者 `gdm3` 启动后立即退出。
 
+## Gate / Selftest
+
+- 状态、修改和回滚 gate 见 `references/gate_checklist.md`。
+- 已拒绝的过度修改方向见 `references/rejected_edits.md`。
+- 结构和语法安全自检：
+
+```bash
+bash jetson-display-stack-repair/scripts/selftest.sh --safe
+```
+
 ## Resources
 
 - See [references/jetson-display-stack-repair.md](references/jetson-display-stack-repair.md) for the exact command sequence and log patterns.
+- `eval/val/items.json`: validation prompts for state-first diagnosis and rollback behavior.

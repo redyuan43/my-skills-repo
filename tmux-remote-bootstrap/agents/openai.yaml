@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tmux Remote Bootstrap"
+  short_description: "Configure tmux for beginner-friendly local or remote Linux ho..."
+  default_prompt: "Use $tmux-remote-bootstrap to handle the requested tmux remote bootstrap workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tailscale Login Helper"
+  short_description: "检查 Linux 机器在重启后是否仍保持 Tailscale 登录，必要时触发重新登录并输出授权链接；也适用于排查 tai..."
+  default_prompt: "Use $tailscale-login-helper to handle the requested tailscale login helper workflow."

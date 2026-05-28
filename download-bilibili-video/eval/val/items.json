@@ -1,0 +1,14 @@
+[
+  {
+    "id": "bilibili-412-cookie-confirmation",
+    "prompt": "B 站下载遇到 412",
+    "must_include": ["确认", "浏览器登录态", "cookies"],
+    "must_not_include": ["直接读取 cookie"]
+  },
+  {
+    "id": "b23-expand-first",
+    "prompt": "b23.tv 短链下载失败",
+    "must_include": ["展开短链", "BV", "解析阶段"],
+    "must_not_include": ["直接判定视频不可用"]
+  }
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Markdown To PDF CLI"
+  short_description: "Convert local Markdown files to PDF from the command line, es..."
+  default_prompt: "Use $markdown-to-pdf-cli to handle the requested markdown to pdf cli workflow."

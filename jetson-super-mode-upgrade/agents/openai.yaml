@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jetson Super Mode Upgrade"
+  short_description: "在 Jetson Orin Nano / Orin NX 上启用并验证真正可用的 Super Mode"
+  default_prompt: "Use $jetson-super-mode-upgrade to handle the requested jetson super mode upgrade workflow."

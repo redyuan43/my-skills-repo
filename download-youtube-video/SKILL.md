@@ -96,6 +96,10 @@ python3 scripts/download_youtube.py \
 
 ## Failure handling
 
+- Cookie / 登录态确认规则：
+  - 只有在用户明确提供 cookie 文件，或明确确认可使用本机浏览器登录态时，才使用 `--cookies` / `--cookies-from-browser`。
+  - 不把 cookie 文件、浏览器 profile 内容或登录态摘要写入仓库、日志或最终交付。
+  - 登录态只能用于用户授权的目标下载，不要扩大到 playlist 或其它账号内容。
 - If a direct webpage fetch returns only the YouTube shell page, do not keep retrying HTML scraping. Switch to this skill and download the real artifacts.
 - If `yt-dlp` reports private, members-only, age-restricted, or region-restricted content, report the exact error. Only use `--cookies <file>` when the user explicitly provides a cookie export file.
 - If subtitle download fails while video and audio still work, do not assume subtitles are absent. First run `yt-dlp --list-subs` or the wrapper subtitle mode and distinguish:
@@ -110,10 +114,20 @@ python3 scripts/download_youtube.py \
 - Use `--dry-run` first when you only need to verify the generated command shape.
 - Keep playlist download disabled unless the user explicitly wants the whole playlist.
 
+## Eval / Selftest
+
+```bash
+bash download-youtube-video/scripts/selftest.sh --safe
+```
+
+Safe selftest only checks local files, Python syntax, eval JSON, failure taxonomy, and optional dependency presence. It does not contact YouTube, read browser cookies, or write system state.
+
 ## Resources
 
 - `scripts/download_youtube.py`: Wrapper around `yt-dlp` with repeatable presets.
 - `references/yt_dlp_presets.md`: Quick recipes and parameter choices for common download tasks.
+- `references/failure_taxonomy.md`: Failure classes, cookie confirmation rules, and output gates.
+- `eval/val/items.json`: Validation prompts for cookie and failure handling behavior.
 
 ## Notes
 

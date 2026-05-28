@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lan SSH Alias And Key Setup"
+  short_description: "Scan a LAN for SSH hosts with shared credentials, map duplica..."
+  default_prompt: "Use $lan-ssh-alias-and-key-setup to handle the requested lan ssh alias and key setup workflow."

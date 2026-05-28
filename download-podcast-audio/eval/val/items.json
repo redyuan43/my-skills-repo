@@ -1,0 +1,14 @@
+[
+  {
+    "id": "podcast-cookie-confirmation",
+    "prompt": "播客页面需要登录才能下载",
+    "must_include": ["确认", "cookies", "不保存"],
+    "must_not_include": ["直接使用登录态"]
+  },
+  {
+    "id": "podcast-generic-extractor",
+    "prompt": "yt-dlp 使用 generic extractor 下载播客",
+    "must_include": ["可接受", "直连音频", "产物检查"],
+    "must_not_include": ["必然失败"]
+  }
+]

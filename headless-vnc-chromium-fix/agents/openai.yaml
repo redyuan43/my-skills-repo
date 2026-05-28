@@ -1,0 +1,4 @@
+interface:
+  display_name: "Headless VNC Chromium Fix"
+  short_description: "在无显示器的 Ubuntu/Linux 机器上安装 TigerVNC + XFCE，远程打开桌面，并修复 Chromium..."
+  default_prompt: "Use $headless-vnc-chromium-fix to handle the requested headless vnc chromium fix workflow."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remmina X11 Clipboard Bridge"
+  short_description: "修复 Linux X11 下 Remmina 内复制文本后无法在本地应用直接 Ctrl+V 粘贴的问题"
+  default_prompt: "Use $remmina-x11-clipboard-bridge to handle the requested remmina x11 clipboard bridge workflow."

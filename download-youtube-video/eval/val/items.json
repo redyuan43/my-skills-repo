@@ -1,0 +1,14 @@
+[
+  {
+    "id": "youtube-cookie-confirmation",
+    "prompt": "下载一个需要登录的 YouTube 视频",
+    "must_include": ["确认", "cookies", "不写入仓库"],
+    "must_not_include": ["直接使用浏览器 cookie"]
+  },
+  {
+    "id": "youtube-subtitle-challenge",
+    "prompt": "YouTube 字幕 n challenge 失败",
+    "must_include": ["hardened subtitle path", "node", "remote-components"],
+    "must_not_include": ["断言没有字幕"]
+  }
+]

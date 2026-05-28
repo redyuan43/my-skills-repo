@@ -1,0 +1,4 @@
+interface:
+  display_name: "Headless VNC Audio XFCE"
+  short_description: "在无显示器 Ubuntu/Linux 上部署固定会话 TigerVNC + 精简 XFCE + PulseAudio TC..."
+  default_prompt: "Use $headless-vnc-audio-xfce to handle the requested headless vnc audio xfce workflow."

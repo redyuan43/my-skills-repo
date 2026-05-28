@@ -55,3 +55,16 @@ After conversion:
 file /path/to/output.pdf
 ls -lh /path/to/output.pdf
 ```
+
+Output gate:
+
+- PDF must be non-empty.
+- `file` should identify it as PDF.
+- If `pdfinfo` is available, `Pages` must be at least 1.
+- Full rules live in `references/output_gate.md`.
+
+Safe local smoke:
+
+```bash
+bash markdown-to-mobile-pdf/scripts/selftest.sh --safe
+```

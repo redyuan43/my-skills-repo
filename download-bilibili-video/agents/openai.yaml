@@ -1,0 +1,4 @@
+interface:
+  display_name: "Download Bilibili Video"
+  short_description: "Download Bilibili videos, audio, subtitles, danmaku, and meta..."
+  default_prompt: "Use $download-bilibili-video to handle the requested download bilibili video workflow."

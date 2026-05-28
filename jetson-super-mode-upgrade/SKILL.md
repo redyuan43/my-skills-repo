@@ -99,3 +99,14 @@ description: 在 Jetson Orin Nano / Orin NX 上启用并验证真正可用的 Su
 
 - 需要具体命令顺序、检查点和回滚示例时，读 [references/runbook.md](references/runbook.md)。
 - 需要半自动检查当前状态时，运行 [scripts/check_jetson_super_mode.py](scripts/check_jetson_super_mode.py)。
+- 状态、修改和回滚 gate 见 [references/gate_checklist.md](references/gate_checklist.md)。
+- 已拒绝的过度修改方向见 [references/rejected_edits.md](references/rejected_edits.md)。
+- 验证样例见 `eval/val/items.json`。
+
+## Selftest
+
+```bash
+bash jetson-super-mode-upgrade/scripts/selftest.sh --safe
+```
+
+Safe selftest only checks local files, Python syntax, eval JSON, and gate references. It does not modify bootloader, extlinux, EFI, nvpmodel, or reboot.

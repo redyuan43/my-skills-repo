@@ -1,0 +1,14 @@
+[
+  {
+    "id": "super-readonly-classification",
+    "prompt": "确认 Jetson 是否真的进入 Super Mode",
+    "must_include": ["check_jetson_super_mode.py", "GPU 频率表", "bootloader"],
+    "must_not_include": ["只看 nvpmodel"]
+  },
+  {
+    "id": "super-rollback",
+    "prompt": "Super Mode 升级失败需要回滚",
+    "must_include": ["primary", "nv_boot_control.conf", "重启后确认"],
+    "must_not_include": ["删除启动项"]
+  }
+]

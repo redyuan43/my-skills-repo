@@ -1,0 +1,4 @@
+interface:
+  display_name: "Headless RDP Remmina Audio"
+  short_description: "在无显示器 Ubuntu/Linux 主机上通过 Remmina + RDP 直连 xrdp + XFCE 远程桌面，生成..."
+  default_prompt: "Use $headless-rdp-remmina-audio to handle the requested headless rdp remmina audio workflow."

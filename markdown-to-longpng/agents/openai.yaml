@@ -1,0 +1,4 @@
+interface:
+  display_name: "Markdown To Longpng"
+  short_description: "Convert local Markdown files into one continuous long PNG by..."
+  default_prompt: "Use $markdown-to-longpng to handle the requested markdown to longpng workflow."

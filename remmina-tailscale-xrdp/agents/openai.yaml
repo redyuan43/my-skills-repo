@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remmina Tailscale Xrdp"
+  short_description: "在 Linux 服务端与 Linux 客户端之间打通 Tailscale + xrdp + XFCE + Remmina..."
+  default_prompt: "Use $remmina-tailscale-xrdp to handle the requested remmina tailscale xrdp workflow."

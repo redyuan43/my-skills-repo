@@ -1,0 +1,4 @@
+interface:
+  display_name: "Download Podcast Audio"
+  short_description: "Download podcast episode audio, show notes, thumbnails, and m..."
+  default_prompt: "Use $download-podcast-audio to handle the requested download podcast audio workflow."

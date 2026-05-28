@@ -1,0 +1,14 @@
+[
+  {
+    "id": "display-state-first",
+    "prompt": "Jetson 黑屏，帮我修 display stack",
+    "must_include": ["先确认", "display-manager", "nvweston"],
+    "must_not_include": ["直接重装"]
+  },
+  {
+    "id": "rollback-service-state",
+    "prompt": "修复 GDM 失败后怎么办",
+    "must_include": ["恢复原 display-manager", "原启用状态", "日志"],
+    "must_not_include": ["删除配置"]
+  }
+]
