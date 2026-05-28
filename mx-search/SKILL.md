@@ -73,19 +73,21 @@ python3 scripts/mx_search.py "格力电器最新研报" /path/to/output
 
 ## 依赖检查
 
-脚本依赖 `requests` 库。macOS 系统 Python 可能未预装，首次运行报 `ModuleNotFoundError: No module named 'requests'` 时：
+脚本依赖 `requests` 库。首次运行报 `ModuleNotFoundError: No module named 'requests'` 时，优先使用项目虚拟环境：
 
 ```bash
-pip3 install --break-system-packages requests
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install requests
 ```
 
-> 如遇 `error: externally-managed-environment`（PEP 668），`--break-system-packages` 是 macOS 上的标准绕过方式，无副作用。
+如不能创建虚拟环境，再按所在系统的 Python 包管理策略处理；不要默认使用 `--break-system-packages`。
 
 ## 异常情形与处理方式
 
 | 异常情形 | 可能原因 | 处理方式 |
 |----------|----------|----------|
-| **ModuleNotFoundError: No module named 'requests'** | 缺少 HTTP 请求库 | `pip3 install --break-system-packages requests` |
+| **ModuleNotFoundError: No module named 'requests'** | 缺少 HTTP 请求库 | 先创建 venv，再执行 `python3 -m pip install requests` |
 | **connect: Connection refused** | 网络无法访问 mkapi2.dfcfs.com | 检查服务器网络配置，确保能访问公网 |
 | **401 Unauthorized / API密钥不存在** | API Key 错误或已失效 | 前往妙想Skills页面重新获取 API Key 并更新环境变量 |
 | **code=113 / 今日调用次数已达上限** | 当日调用次数超限 | 前往妙想Skills页面获取更多调用次数 |

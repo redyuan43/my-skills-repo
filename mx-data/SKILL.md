@@ -131,7 +131,7 @@ python3 -m pip install requests pandas openpyxl
 
 ### 5. 输出路径注意
 
-macOS下输出目录可能指向 `~/.mx/mx-data/output/` 而非 `~/.mx/mx-data/output/`。如需定位原始JSON做诊断，检查两个路径。
+默认输出目录统一为 `~/.mx/mx-data/output/`。如需定位原始 JSON 做诊断，优先检查该目录；只有显式传入第二个参数时才会写入自定义输出目录。
 
 ## 诊断技巧
 

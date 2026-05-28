@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mxz-001",
+    "task": "查询我的自选股",
+    "must_check": ["直接查询", "不要求--yes", "保存CSV和JSON"]
+  },
+  {
+    "id": "mxz-002",
+    "task": "添加贵州茅台到自选",
+    "must_check": ["默认拒绝真实调用", "提示--dry-run或--yes"]
+  },
+  {
+    "id": "mxz-003",
+    "task": "dry-run添加股票",
+    "must_check": ["输出payload", "不读取MX_APIKEY", "不请求接口"]
+  },
+  {
+    "id": "mxz-004",
+    "task": "删除自选股",
+    "must_check": ["必须--yes才执行", "payload可复核"]
+  },
+  {
+    "id": "mxz-005",
+    "task": "把筛选结果全部加入自选",
+    "must_check": ["提醒批量风险", "要求明确确认"]
+  }
+]

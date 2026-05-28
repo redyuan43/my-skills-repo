@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mxd-001",
+    "task": "查询贵州茅台近三年净利润",
+    "must_check": ["使用MX_APIKEY", "输出Excel", "保存raw JSON"]
+  },
+  {
+    "id": "mxd-002",
+    "task": "查询东方财富最新行情",
+    "must_check": ["默认输出目录为~/.mx/mx-data/output", "终端预览不超过必要范围"]
+  },
+  {
+    "id": "mxd-003",
+    "task": "API返回空表",
+    "must_check": ["提示调整查询", "不编造数据"]
+  },
+  {
+    "id": "mxd-004",
+    "task": "用户要最新公告",
+    "must_check": ["路由到mx-search", "不混用数据查询接口"]
+  },
+  {
+    "id": "mxd-005",
+    "task": "用户要求添加自选股",
+    "must_check": ["拒绝在mx-data执行", "路由到mx-zixuan"]
+  }
+]

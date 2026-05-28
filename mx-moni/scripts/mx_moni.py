@@ -19,8 +19,16 @@ MX_API_URL = os.environ.get('MX_API_URL', 'https://mkapi2.dfcfs.com/finskillshub
 OUTPUT_DIR = os.path.expanduser('~/.mx/mx-moni/output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+def require_api_key():
+    """真实请求前检查 API Key。"""
+    if not MX_APIKEY:
+        print("[ERROR] MX_APIKEY 环境变量未配置，请先配置妙想API密钥")
+        print("请执行：export MX_APIKEY=your_api_key_here")
+        sys.exit(1)
+
 def api_request(endpoint, payload):
     """发送 API 请求到妙想服务器"""
+    require_api_key()
     url = f"{MX_API_URL}{endpoint}"
     cmd = [
         'curl', '-s', '-X', 'POST', url,
@@ -43,6 +51,33 @@ def api_request(endpoint, payload):
     except Exception as e:
         print(f"[ERROR] API request failed: {e}")
         return None
+
+def print_dry_run(intent, endpoint, payload):
+    """输出有状态操作的请求载荷，不发送请求。"""
+    print("DRY-RUN: no request sent")
+    print(json.dumps({
+        "intent": intent,
+        "method": "POST",
+        "url": f"{MX_API_URL}{endpoint}",
+        "payload": payload,
+    }, ensure_ascii=False, indent=2))
+
+def guarded_api_request(intent, endpoint, payload, dry_run=False, yes=False):
+    """状态变更接口必须显式 --yes；--dry-run 只展示 payload。"""
+    if dry_run:
+        print_dry_run(intent, endpoint, payload)
+        return None
+    if not yes:
+        print("[ERROR] REFUSED: state-changing action requires explicit --yes", file=sys.stderr)
+        print("Use --dry-run to inspect payload or --yes to execute.", file=sys.stderr)
+        print(json.dumps({
+            "intent": intent,
+            "method": "POST",
+            "url": f"{MX_API_URL}{endpoint}",
+            "payload": payload,
+        }, ensure_ascii=False, indent=2), file=sys.stderr)
+        sys.exit(2)
+    return api_request(endpoint, payload)
 
 def parse_query(query_text):
     """解析自然语言查询，识别意图"""
@@ -90,11 +125,13 @@ def extract_trade_info(query_text, intent):
     # 提取数量
     quantity_matches = re.findall(r'(\d+)\s*(股|手)', query_text)
     quantity = None
+    quantity_from_unit = False
     if quantity_matches:
         qty = int(quantity_matches[0][0])
         if quantity_matches[0][1] == '手':
             qty *= 100
         quantity = qty
+        quantity_from_unit = True
     # 如果没找到单位，尝试直接找数字
     if not quantity:
         num_matches = re.findall(r'\b(\d+)\b', query_text)
@@ -114,7 +151,12 @@ def extract_trade_info(query_text, intent):
         # 排除代码和数量
         nums = [float(n) for n in num_matches if len(n) != 6]
         if nums:
-            price = nums[-1]
+            if quantity_from_unit and len(nums) >= 2:
+                price = nums[-2]
+            elif quantity is not None and len(nums) >= 2:
+                price = nums[-2]
+            else:
+                price = nums[-1]
     
     # 判断是否市价
     use_market = any(keyword in query_text.lower() for keyword in ['市价', 'market', '现价'])
@@ -132,7 +174,7 @@ def extract_trade_info(query_text, intent):
         'is_all': '一键' in query_text or '所有' in query_text
     }
 
-def auto_post_at_close():
+def auto_post_at_close(dry_run=False, yes=False):
     """自动收盘发帖：检查今日是否有操作，有则生成总结并发帖"""
     print("🔍 检查今日是否有调仓操作...")
     result = api_request('/api/claw/mockTrading/orders', {
@@ -165,7 +207,10 @@ def auto_post_at_close():
         print("[ERROR] 发帖内容不能为空")
         return False
     
-    result = api_request('/api/claw/mockTrading/newPost', {'text': text})
+    payload = {'text': text}
+    result = guarded_api_request('newPost', '/api/claw/mockTrading/newPost', payload, dry_run=dry_run, yes=yes)
+    if dry_run:
+        return True
     if result and (result.get('code') == '0' or result.get('code') == 200):
         print("\n🎉 发帖成功！")
         if result.get('data') and result.get('data').get('postId'):
@@ -181,17 +226,13 @@ def main():
     parser = argparse.ArgumentParser(description='mx-moni 妙想模拟组合管理')
     parser.add_argument('query', nargs='*', help='查询文本/自然语言指令')
     parser.add_argument('--auto-post', action='store_true', help='自动收盘发帖：今日有操作则请输入内容发帖')
+    parser.add_argument('--dry-run', action='store_true', help='仅输出 buy/sell/cancel/newPost payload，不发送请求')
+    parser.add_argument('--yes', action='store_true', help='确认执行 buy/sell/cancel/newPost 等状态变更')
     args = parser.parse_args()
-    
-    # 检查 API Key
-    if not MX_APIKEY:
-        print("[ERROR] MX_APIKEY 环境变量未配置，请先配置妙想API密钥")
-        print("请执行：export MX_APIKEY=your_api_key_here")
-        sys.exit(1)
     
     # 自动发帖模式
     if args.auto_post:
-        auto_post_at_close()
+        auto_post_at_close(dry_run=args.dry_run, yes=args.yes)
         sys.exit(0)
     
     # 拼接查询文本
@@ -228,7 +269,10 @@ def main():
         if not text:
             print("[ERROR] 发帖内容不能为空")
             sys.exit(1)
-        result = api_request('/api/claw/mockTrading/newPost', {'text': text})
+        payload = {'text': text}
+        result = guarded_api_request(intent, '/api/claw/mockTrading/newPost', payload, dry_run=args.dry_run, yes=args.yes)
+        if args.dry_run:
+            return
     elif intent in ['buy', 'sell']:
         info = extract_trade_info(query_text, intent)
         if not info['stock_code'] or not info['quantity']:
@@ -249,7 +293,9 @@ def main():
             decimal_places = 2 if info['stock_code'][0] in ['6', '9'] else 3
             payload['price'] = int(round(info['price'] * (10 ** decimal_places)))
         
-        result = api_request('/api/claw/mockTrading/trade', payload)
+        result = guarded_api_request(intent, '/api/claw/mockTrading/trade', payload, dry_run=args.dry_run, yes=args.yes)
+        if args.dry_run:
+            return
     elif intent == 'cancel':
         info = extract_trade_info(query_text, intent)
         if info['is_all'] or not info['order_id']:
@@ -257,7 +303,9 @@ def main():
             payload = {'type': 'all'}
         else:
             payload = {'type': 'order', 'orderId': info['order_id'], 'stockCode': info['stock_code']}
-        result = api_request('/api/claw/mockTrading/cancel', payload)
+        result = guarded_api_request(intent, '/api/claw/mockTrading/cancel', payload, dry_run=args.dry_run, yes=args.yes)
+        if args.dry_run:
+            return
     else:
         result = None
     

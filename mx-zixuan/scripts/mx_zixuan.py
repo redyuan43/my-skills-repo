@@ -66,6 +66,37 @@ def query_self_select(apikey: str) -> Dict:
         print(f"❌ 查询自选股失败: {e}", file=sys.stderr)
         sys.exit(1)
 
+def mutation_payload(query: str) -> Dict[str, str]:
+    """Build the self-select mutation payload."""
+    return {"query": query}
+
+def print_dry_run(action: str, url: str, payload: Dict[str, Any]) -> None:
+    """Print mutation payload without sending a request."""
+    print("DRY-RUN: no request sent")
+    print(json.dumps({
+        "action": action,
+        "method": "POST",
+        "url": url,
+        "payload": payload,
+    }, ensure_ascii=False, indent=2))
+
+def guard_mutation(action: str, payload: Dict[str, Any], dry_run: bool, yes: bool) -> bool:
+    """Return True only when a mutation is explicitly allowed to execute."""
+    if dry_run:
+        print_dry_run(action, MANAGE_URL, payload)
+        return False
+    if not yes:
+        print("REFUSED: state-changing action requires explicit --yes", file=sys.stderr)
+        print("Use --dry-run to inspect payload or --yes to execute.", file=sys.stderr)
+        print(json.dumps({
+            "action": action,
+            "method": "POST",
+            "url": MANAGE_URL,
+            "payload": payload,
+        }, ensure_ascii=False, indent=2), file=sys.stderr)
+        sys.exit(2)
+    return True
+
 def manage_self_select(apikey: str, query: str) -> Dict:
     """添加或删除自选股"""
     headers = {
@@ -73,9 +104,7 @@ def manage_self_select(apikey: str, query: str) -> Dict:
         "apikey": apikey
     }
     
-    data = {
-        "query": query
-    }
+    data = mutation_payload(query)
     
     try:
         response = requests.post(MANAGE_URL, headers=headers, json=data, timeout=30)
@@ -189,6 +218,8 @@ def main():
     parser.add_argument("command", nargs="?", help="命令: query/add/delete 或自然语言指令")
     parser.add_argument("stock", nargs="?", help="股票名称或代码（可选）")
     parser.add_argument("--output-dir", dest="output_dir", help=f"输出目录，默认 {Path('~/.mx/mx-zixuan/output')}")
+    parser.add_argument("--dry-run", action="store_true", help="仅输出 add/delete payload，不发送管理请求")
+    parser.add_argument("--yes", action="store_true", help="确认执行 add/delete 等状态变更")
     
     args = parser.parse_args()
     
@@ -196,8 +227,6 @@ def main():
     default_output = Path.home() / ".mx/mx-zixuan/output"
     output_dir = Path(args.output_dir) if args.output_dir else default_output
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    apikey = get_apikey()
     
     # 处理命令
     if not args.command:
@@ -213,16 +242,25 @@ def main():
     
     if command in ["query", "list", "查询", "列表"]:
         # 查询自选股
+        apikey = get_apikey()
         result = query_self_select(apikey)
         format_query_result(result, output_dir)
     elif command in ["add", "添加", "增加"] and args.stock:
         # 添加股票
         query = f"把{args.stock}添加到我的自选股列表"
+        payload = mutation_payload(query)
+        if not guard_mutation("add", payload, args.dry_run, args.yes):
+            return
+        apikey = get_apikey()
         result = manage_self_select(apikey, query)
         format_manage_result(result, query)
     elif command in ["delete", "del", "remove", "删除", "移除"] and args.stock:
         # 删除股票
         query = f"把{args.stock}从我的自选股列表删除"
+        payload = mutation_payload(query)
+        if not guard_mutation("delete", payload, args.dry_run, args.yes):
+            return
+        apikey = get_apikey()
         result = manage_self_select(apikey, query)
         format_manage_result(result, query)
     else:
@@ -233,9 +271,14 @@ def main():
         
         # 判断是查询还是管理操作
         if any(keyword in query for keyword in ["查询", "列表", "我的自选", "有哪些"]):
+            apikey = get_apikey()
             result = query_self_select(apikey)
             format_query_result(result, output_dir)
         else:
+            payload = mutation_payload(query)
+            if not guard_mutation("manage", payload, args.dry_run, args.yes):
+                return
+            apikey = get_apikey()
             result = manage_self_select(apikey, query)
             format_manage_result(result, query)
 

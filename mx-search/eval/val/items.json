@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mxs-001",
+    "task": "搜索贵州茅台最新公告",
+    "must_check": ["调用news-search", "保存txt", "保存json"]
+  },
+  {
+    "id": "mxs-002",
+    "task": "用户问财务指标数值",
+    "must_check": ["路由到mx-data", "不使用资讯摘要替代数据"]
+  },
+  {
+    "id": "mxs-003",
+    "task": "缺少requests依赖",
+    "must_check": ["建议venv", "不默认使用break-system-packages"]
+  },
+  {
+    "id": "mxs-004",
+    "task": "搜索政策解读",
+    "must_check": ["保留来源日期", "避免过时结论"]
+  },
+  {
+    "id": "mxs-005",
+    "task": "搜索结果为空",
+    "must_check": ["提示换关键词", "不编造结果"]
+  }
+]
