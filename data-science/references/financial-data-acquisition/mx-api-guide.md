@@ -12,39 +12,39 @@
 
 ```bash
 # 写入 profile 的 .env
-echo 'MX_APIKEY=mkt_xxxxx' >> ~/.hermes/profiles/cfo/.env
+echo 'MX_APIKEY=mkt_xxxxx' >> /home/ivan/github/my-skills-repo/data-science/.env.local
 ```
 
 ## 5 个 MX 技能清单
 
 | 技能名称 | 功能 | 安装路径 | 脚本 |
 |---------|------|---------|------|
-| mx-data | 行情/财务/股东/关联数据查询 | `~/.hermes/skills/mx-data/` | `mx_data.py` |
-| mx-search | 新闻/公告/研报/政策搜索 | `~/.hermes/skills/mx-search/` | `mx_search.py` |
-| mx-xuangu | 按条件选股（PE/ROE/行业等） | `~/.hermes/skills/mx-xuangu/` | `mx_xuangu.py` |
-| mx-zixuan | 东方财富自选股管理 | `~/.hermes/skills/mx-zixuan/` | `mx_zixuan.py` |
-| mx-moni | 模拟组合（买卖/持仓） | `~/.hermes/skills/mx-moni/` | `mx_moni.py` |
+| mx-data | 行情/财务/股东/关联数据查询 | `/home/ivan/github/my-skills-repo/mx-data/` | `mx_data.py` |
+| mx-search | 新闻/公告/研报/政策搜索 | `/home/ivan/github/my-skills-repo/mx-search/` | `mx_search.py` |
+| mx-xuangu | 按条件选股（PE/ROE/行业等） | `/home/ivan/github/my-skills-repo/mx-xuangu/` | `mx_xuangu.py` |
+| mx-zixuan | 东方财富自选股管理 | `/home/ivan/github/my-skills-repo/mx-zixuan/` | `mx_zixuan.py` |
+| mx-moni | 模拟组合（买卖/持仓） | `/home/ivan/github/my-skills-repo/mx-moni/` | `mx_moni.py` |
 
 ## 使用示例
 
 ### 查询个股行情+财务
 
 ```bash
-cd ~/.hermes/skills/mx-data
+cd /home/ivan/github/my-skills-repo/mx-data
 MX_APIKEY=mkt_xxxxx python3 mx_data.py "东鹏饮料 最新价 总市值 PE PB ROE 营收增速"
 ```
 
 ### 搜索新闻
 
 ```bash
-cd ~/.hermes/skills/mx-search
+cd /home/ivan/github/my-skills-repo/mx-search
 MX_APIKEY=mkt_xxxxx python3 mx_search.py "贵州茅台 2025年最新公告 产能扩建"
 ```
 
 ### 智能选股
 
 ```bash
-cd ~/.hermes/skills/mx-xuangu
+cd /home/ivan/github/my-skills-repo/mx-xuangu
 MX_APIKEY=mkt_xxxxx python3 mx_xuangu.py "筛选PE<20且ROE>15%的白酒行业股票"
 ```
 
@@ -73,7 +73,7 @@ news = client.news_search("东鹏饮料 最新公告")
 
 ## 输出文件说明
 
-默认输出目录：`~/.mx_data/output/`（已从 `/root/.openclaw/workspace/mx_data/output/` 修补）
+默认输出目录：`~/.mx/mx-data/output/`（已从旧 OpenClaw 硬编码路径修补）
 
 每次查询生成：
 - `mx_data_{query}.xlsx` — Excel 文件（多 sheet）

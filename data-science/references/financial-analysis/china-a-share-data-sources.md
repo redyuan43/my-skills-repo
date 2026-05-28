@@ -92,14 +92,14 @@ A股自动采集 → yfinance（基础数据）+ akshare 同花顺通道（财�
 ### mx_data.py 用法
 
 ```bash
-cd ~/.hermes/skills/mx-data
+cd /home/ivan/github/my-skills-repo/mx-data
 MX_APIKEY=your_key python3 mx_data.py "东鹏饮料 最新价 总市值 PE ROE 营收增速"
 ```
 
 输出：
 - 终端预览前20行
-- Excel 文件存储到 `~/.mx_data/output/`
-- 原始 JSON 到 `~/.mx_data/output/mx_data_{query}_raw.json`
+- Excel 文件存储到 `~/.mx/mx-data/output/`
+- 原始 JSON 到 `~/.mx/mx-data/output/mx_data_{query}_raw.json`
 
 ### mx-data 原始 JSON 数据提取指南
 
@@ -170,6 +170,6 @@ implied_depreciation = pp_e_begin + additions - pp_e_end
 如果 mx-data 查询失败：
 
 1. 确认 `MX_APIKEY` 环境变量已设置
-2. 确认 `~/.hermes/skills/mx-data/mx_data.py` 存在
-3. 确认输出路径已修正（非 `/root/.openclaw/...` 而是 `~/.mx_data/`）
+2. 确认 `/home/ivan/github/my-skills-repo/mx-data/scripts/mx_data.py` 存在
+3. 确认输出路径是 `~/.mx/mx-data/output/`
 4. 测试连通性：见上方 curl 命令

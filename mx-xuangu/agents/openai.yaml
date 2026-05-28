@@ -1,0 +1,4 @@
+interface:
+  display_name: "妙想智能选股"
+  short_description: "按行情、财务、行业和指数条件筛选股票"
+  default_prompt: "Use $mx-xuangu to screen stocks that match these financial conditions."

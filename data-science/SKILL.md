@@ -21,7 +21,7 @@ set +a
 
 - 拉取基础财务数据：读 `references/original-skills/financial-data-acquisition.md`，优先运行 `scripts/financial-data-acquisition/fetch_financials.py`。
 - 查询 Polygon.io：读 `references/original-skills/polygon-data.md`，运行 `scripts/polygon-data/polygon_data.py`，必须设置 `POLYGON_API_KEY`。
-- A 股自然语言查询或东方财富妙想：读 `references/financial-data-acquisition/mx-api-guide.md` 和 `references/financial-analysis/china-a-share-data-sources.md`，必须设置 `MX_APIKEY`。
+- A 股自然语言查询或东方财富妙想：优先直接调用本仓库/全局的 `$mx-data`、`$mx-search`、`$mx-xuangu`、`$mx-zixuan`、`$mx-moni`；需要背景说明时再读 `references/financial-data-acquisition/mx-api-guide.md` 和 `references/financial-analysis/china-a-share-data-sources.md`，必须设置 `MX_APIKEY`。
 - 生成投资备忘录或估值分析：读 `references/original-skills/financial-analysis.md`，按里面的脚本顺序运行 `scripts/financial-analysis/`。
 - 巴菲特视角、批判性审查、推理追踪：分别读 `references/original-skills/buffett-review.md`、`critical-review.md`、`reasoning-review.md`。
 - Jupyter 交互式探索：读 `references/original-skills/jupyter-live-kernel.md`，仅在需要持久 Python 状态时使用。

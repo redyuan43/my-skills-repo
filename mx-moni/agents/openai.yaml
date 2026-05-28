@@ -1,0 +1,4 @@
+interface:
+  display_name: "妙想模拟组合"
+  short_description: "查询和操作东方财富妙想模拟组合账户"
+  default_prompt: "Use $mx-moni to query my simulated portfolio status."

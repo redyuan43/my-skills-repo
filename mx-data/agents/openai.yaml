@@ -1,0 +1,4 @@
+interface:
+  display_name: "妙想金融数据"
+  short_description: "东方财富妙想行情、财务、股东与关联数据查询"
+  default_prompt: "Use $mx-data to query current financial data for this company."

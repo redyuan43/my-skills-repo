@@ -1,0 +1,4 @@
+interface:
+  display_name: "妙想资讯搜索"
+  short_description: "东方财富妙想新闻、公告、研报与政策搜索"
+  default_prompt: "Use $mx-search to search recent financial news and reports for this topic."
