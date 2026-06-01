@@ -1,19 +1,20 @@
 ---
 name: audio-narration-script
-description: "Use when the user wants to turn a Markdown article, analysis report, notes, transcript, PDF-extracted text, or long-form document into a vivid, easy-to-understand Chinese narration script and generate WAV audio through the Ivan Qwen3-TTS API. Triggers include 音频稿, 讲解稿, 讲解音频, 口播稿, 生成 WAV, 朗读稿, 把文章讲得更生动, Markdown 转音频讲稿, report to audio, report to narration script."
+description: "Use when the user wants to turn a Markdown article, analysis report, notes, transcript, chat history, the current/above conversation, PDF-extracted text, or long-form document into a vivid, easy-to-understand Chinese narration script, listenable summary, podcast/dialogue script, and WAV audio through the Ivan Qwen3-TTS API. Triggers include 音频稿, 讲解稿, 讲解音频, 口播稿, 生成 WAV, 朗读稿, 把文章讲得更生动, 把上面的对话总结成能听的内容, 对话总结成音频, 聊天记录转播客, Markdown 转音频讲稿, report to audio, conversation to audio, report to narration script."
 ---
 
 # Audio Narration Script
 
-将长文、Markdown、分析报告或笔记改写成适合朗读的中文讲解稿，并调用 `ssh ivan` 设备上的 Qwen3-TTS HTTP API 生成 WAV 音频。
+将长文、Markdown、分析报告、笔记、聊天记录、会议转写或当前对话改写成适合朗读的中文讲解稿，也可以压缩成双人/多人播客对话稿，并调用 `ssh ivan` 设备上的 Qwen3-TTS HTTP API 生成 WAV 音频。
 
 ## 自然语言触发
 
 当用户没有显式输入 `$audio-narration-script`，但消息里出现以下意图时，也应该优先使用这个 skill：
 
 - 想把文章、报告、笔记、Markdown 或长文改成音频稿、讲解稿、口播稿、朗读稿。
-- 想生成讲解音频、朗读音频、播客独白或 WAV 文件。
-- 出现“音频稿”“讲解音频”“口播稿”“生成 WAV”“朗读稿”“把这篇文章讲给我听”“把这个报告做成音频”等表达。
+- 想把“上面的对话”“当前聊天”“会议转写”“聊天记录”总结成适合听的内容。
+- 想生成讲解音频、朗读音频、播客独白、双人播客对话稿或 WAV 文件。
+- 出现“音频稿”“讲解音频”“口播稿”“生成 WAV”“朗读稿”“把这篇文章讲给我听”“把这个报告做成音频”“把上面的对话总结成能听的内容”“对话转播客”“聊天记录转音频”等表达。
 
 ## 参考做法
 
@@ -39,7 +40,7 @@ description: "Use when the user wants to turn a Markdown article, analysis repor
 如果用户没有指定，使用默认值直接推进；只有缺失信息会明显影响结果时才提问。
 
 - **听众**：默认是对主题有兴趣、但不一定熟悉细节的普通中文听众。
-- **形式**：默认是单人讲解；可改成播客独白、课程讲稿、短视频口播、财经/科技解读。
+- **形式**：默认是单人讲解；当输入明显是多人对话、用户要求“对话/播客/能听的内容”时，默认改成双人播客式对话稿；也可改成课程讲稿、短视频口播、财经/科技解读。
 - **时长**：默认不强行压缩；如果用户给出目标时长，按约每分钟 250 到 320 个中文字估算篇幅。
 - **风格**：默认清晰、稳重、有一点故事感；可改成更轻松、更专业、更适合小白、更像播客。
 - **输出**：默认给完整讲稿和 WAV 音频；长文同时给大纲、完整稿、TTS 分块和 manifest。
@@ -52,9 +53,14 @@ description: "Use when the user wants to turn a Markdown article, analysis repor
    - 3 到 7 个主线观点；
    - 关键事实、数字、人物、时间和因果关系；
    - 可以省略的目录、链接、图片说明、代码块、表格细节和重复段落。
-3. 对表格和列表不要逐项念完，改成“先讲结论，再点关键差异”。
-4. 对链接、脚注、图片路径、Markdown 语法、代码块，只在影响理解时转成口语解释。
-5. 对“如图所示”“见表格”“代码如下”这类视觉依赖内容，改成听觉描述，或明确省略不影响主线的细节。
+3. 如果输入是对话或聊天记录，先整理：
+   - 用户真正想解决的问题和最新结论；
+   - 已经做过的检查、命令、证据和结果；
+   - 尚未完全解决的风险、下一步和重要提醒；
+   - 对听众没有价值的寒暄、重复确认、工具噪声和长日志。
+4. 对表格和列表不要逐项念完，改成“先讲结论，再点关键差异”。
+5. 对链接、脚注、图片路径、Markdown 语法、代码块，只在影响理解时转成口语解释。
+6. 对“如图所示”“见表格”“代码如下”这类视觉依赖内容，改成听觉描述，或明确省略不影响主线的细节。
 
 ## 改写策略
 
@@ -65,6 +71,54 @@ description: "Use when the user wants to turn a Markdown article, analysis repor
 3. **过渡**：小节之间加自然承接，例如“理解了这一点，再看第二个问题就清楚了”。
 4. **解释**：遇到术语时，用一句白话解释；遇到复杂机制时，用简单类比，但不要为了类比牺牲准确性。
 5. **收束**：最后用 3 到 6 句话复盘最重要的结论，并指出听众下一步应该记住什么。
+
+## 对话总结成可听内容
+
+当用户说“把上面的对话总结成能听的内容”“把这段聊天做成音频”“总结成播客稿”时，不要逐轮复述聊天。先把对话压缩成一条清晰主线：
+
+1. **开场定位**：用 2 到 3 句话说明这段对话围绕什么问题、最后想达成什么。
+2. **过程摘要**：只保留关键转折，例如发现了哪个已有能力、确认了哪个服务状态、决定了哪个优化方向。
+3. **结论优先**：先讲最后结论，再补必要证据，避免听众等到最后才知道重点。
+4. **执行建议**：把下一步整理成可行动的 2 到 5 点，而不是流水账。
+5. **风险提醒**：只讲会影响使用效果的风险，例如触发词不稳、TTS worker 数变化、音色/时长未指定。
+
+默认不要输出“用户说 / 助手说”的逐字剧本。只有用户明确要“还原对话”时才保留轮次。
+
+### 双人播客模式
+
+当用户要求“对话形式”“播客形式”“两个人聊”时，输出双人稿：
+
+```markdown
+# 可听对话稿：{标题}
+
+## 开场
+主持人：...
+嘉宾：...
+
+## 第一段：问题是什么
+主持人：...
+嘉宾：...
+
+## 第二段：我们发现了什么
+主持人：...
+嘉宾：...
+
+## 结尾
+主持人：...
+嘉宾：...
+```
+
+写双人稿时遵守：
+
+- 主持人负责提问、转场、替听众追问“这意味着什么”。
+- 嘉宾负责解释结论、证据和下一步。
+- 每轮发言控制在 1 到 3 句，避免长篇独白伪装成对话。
+- 不要制造争吵、悬念或不存在的事实；对话感来自节奏和追问，不来自夸张。
+- TTS 分角色时，角色名只能作为脚本和 manifest 的元数据，不要送入 TTS 文本；听众应该只听到自然台词，通过男女声或不同音色区分说话人。
+- 如需不同音色分角色，先把角色稿拆成独立文本片段，再分别调用 TTS 后合并；默认推荐男声 `aiden`、女声 `serena`。
+- 不要用 `eric` 作为长句中文男声默认值；实测长句容易出现方言感、长静音、截断和后台 validation 失败。若用户指定 `eric`，先做短句小样确认。
+- 分角色 TTS 每段应尽量短，优先按句号、问号、感叹号和逗号拆成 40 到 50 个中文字以内的小段；生成后必须查询 `X-TTS-Validation-Id` 对应的后台结果，只有 `verdict=passed` 才合并进最终音频。
+- 不要为了语调连续性默认改成长段逐段阻塞验证；实测会明显变慢。若短片段语调不自然，优先重写台词，让每个短片段本身更完整，并通过同一角色连续短片段之间的较短静音改善衔接。
 
 ## 书面语到口语的转换
 
@@ -139,12 +193,12 @@ python3 scripts/render_with_ivan_tts.py \
 
 - Gateway: `http://ivan-ms-7b17.taild500c8.ts.net:8091`
 - 内部 worker: `http://127.0.0.1:8092` on `ssh ivan`，不要直接依赖它。
-- 实测当前 gateway 后面是 2 个 Qwen3-TTS workers；脚本不要硬编码 worker 数，只要求 `workers_ready >= 1`。
+- 实测当前 gateway 后面是 Ray 管理的 3 个 Qwen3-TTS workers；脚本不要硬编码 worker 数，只要求 `workers_ready >= 1`，并把实际并发限制在 `workers_ready` 以内。
 
 可用环境变量：
 
 - `IVAN_TTS_ENDPOINT`：覆盖 gateway endpoint。
-- `NARRATION_TTS_CONCURRENCY`：默认 `2`，用于吃满当前 gateway 后面的两个 Qwen3-TTS workers；需要降低负载时可设为 `1`。
+- `NARRATION_TTS_CONCURRENCY`：默认 `3`，用于吃满当前 gateway 后面的 3 个 Qwen3-TTS workers；脚本会按实际 `workers_ready` 自动下调，需要降低负载时可设为 `1`。
 - `NARRATION_TTS_JOIN_SILENCE_MS`：合并音频时段间静音，默认 `180`。
 - `NARRATION_TTS_MAX_RETRIES`：每段音频质量检查失败后的重试次数，默认 `3`。
 
@@ -156,7 +210,7 @@ audio_output/
 └── narration_full.wav
 ```
 
-脚本按自然语义句群分块。分块是为了绕开单次 TTS token/时长限制，默认只是内部临时文件，不作为交付物保留。需要排错时加 `--keep-chunks`，才会保留 `tts_chunks/` 和 `audio_chunks/`。默认并发为 2，用于吃满当前 gateway 后面的两个 worker；需要降低负载时显式设为 1。
+脚本按自然语义句群分块。分块是为了绕开单次 TTS token/时长限制，默认只是内部临时文件，不作为交付物保留。需要排错时加 `--keep-chunks`，才会保留 `tts_chunks/` 和 `audio_chunks/`。默认并发为 3，用于吃满当前 gateway 后面的 3 个 worker；需要降低负载时显式设为 1。
 
 TTS 前会做通用安全处理：
 
@@ -171,6 +225,8 @@ TTS 前会做通用安全处理：
 - 是否没有丢掉原文的核心结论。
 - 是否删掉了不适合朗读的 Markdown 噪声。
 - 是否听起来像人在讲，而不是在念论文或报告。
+- 如果输入来自对话，是否已经提炼为“结论 + 证据 + 下一步”，而不是聊天流水账。
+- 如果用户要播客/对话感，是否每轮足够短、角色分工清楚、没有捏造冲突。
 - 是否没有捏造原文不存在的事实、数据、案例。
 - 是否段落足够短，适合后续 TTS 分段。
 - 是否把视觉依赖、密集表格、英文缩写和数字处理成听众能听懂的表达。
