@@ -740,6 +740,22 @@
 - `scripts/mx_moni.py` - 妙想模拟组合管理脚本
 - `agents/openai.yaml` - skill 的 UI 元数据
 
+### 92. codex-ssh-remote-fixer
+**功能：** 修复“SSH 能登录远端，但远端 `codex` 通过 SSH 命令跑不起来”的环境问题
+**用途：** 当远端 `codex` 只在交互式 shell 可见、`nvm` 路径没进入非交互 PATH、远端本地代理已运行但代理环境变量未导出、或 `codex`/`curl` 对 OpenAI 一直超时时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用场景、修复目标、使用方式、安全边界、失败边界与 `--exec-check` 配额风险）
+- `scripts/repair_remote_codex_over_ssh.sh` - 对目标主机执行一键诊断与修复的脚本（修 shell 初始化、代理环境、`codex` 包装器，并在没有网络路径时直接报错，避免反复超时）
+
+### 93. pinterest-media-downloader
+**功能：** 下载 Pinterest Pin 中最高可用质量的视频、Live Wallpaper、GIF 风格 MP4 或静态图片
+**用途：** 当用户提供 `pinterest.com/pin/...` 链接，希望保存高清视频、高清图片、Pinterest 素材，或遇到 `yt-dlp` 代理/纯图片 Pin 解析问题时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（触发场景、标准下载工作流、失败处理与验证口径）
+- `scripts/download_pinterest.py` - Pinterest 下载包装脚本，自动探测视频/图片，清理干扰 `yt-dlp` 的代理变量，并对图片 Pin 回退到 `og:image`
+- `references/runbook.md` - 首次实测记录、代理错误原因、视频/图片验证命令
+- `evals/evals.json` - 覆盖视频下载、图片下载和代理错误场景的测试提示
+
 ## 使用方法
 
 1. 克隆此仓库到本地

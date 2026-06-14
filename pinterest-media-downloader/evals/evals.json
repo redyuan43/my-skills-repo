@@ -1,0 +1,23 @@
+{
+  "skill_name": "pinterest-media-downloader",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我下载这个 Pinterest 链接里的高清视频：https://www.pinterest.com/pin/81768549520405929/",
+      "expected_output": "A local MP4 file downloaded with yt-dlp, verified with ffprobe, saved under a Pinterest Downloads folder.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这个 pinterest pin 是一张图，帮我保存最高质量原图到桌面。",
+      "expected_output": "The agent uses the Pinterest downloader script in photo or auto mode, saves the image, and verifies it with file/identify.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Pinterest 下载报 Unsupported proxy type ftp，帮我把 pin 里面的视频下下来。",
+      "expected_output": "The agent recognizes the local proxy issue, uses the script's sanitized yt-dlp subprocess, downloads media, and reports the saved path.",
+      "files": []
+    }
+  ]
+}
