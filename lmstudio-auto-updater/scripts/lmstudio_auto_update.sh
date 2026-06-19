@@ -7,6 +7,7 @@ BIN_LINK="${LMSTUDIO_BIN_LINK:-$HOME/.local/bin/lmstudio}"
 DESKTOP_FILE="${LMSTUDIO_DESKTOP_FILE:-$HOME/.local/share/applications/lmstudio.desktop}"
 EXTRA_ARGS="${LMSTUDIO_EXTRA_ARGS:---no-sandbox}"
 KEEP_VERSIONS=2
+DEFAULT_PRUNE_KEEP=1
 
 usage() {
   cat <<'EOF'
@@ -16,6 +17,7 @@ usage() {
   lmstudio_auto_update.sh update
   lmstudio_auto_update.sh prune [--keep N]
   lmstudio_auto_update.sh rewrite-desktop
+  lmstudio_auto_update.sh clean-legacy [--purge-package]
   lmstudio_auto_update.sh install-user-timer
   lmstudio_auto_update.sh uninstall-user-timer
   lmstudio_auto_update.sh help
@@ -72,6 +74,13 @@ current_path() {
   return 1
 }
 
+latest_installed_appimage() {
+  find "$INSTALL_ROOT" -maxdepth 1 -type f -name 'LM-Studio-*.AppImage' -printf '%f\n' 2>/dev/null \
+    | sort -V \
+    | tail -n 1 \
+    | sed "s#^#${INSTALL_ROOT}/#"
+}
+
 extract_version_from_name() {
   local path base
   path="${1:-}"
@@ -87,7 +96,13 @@ assert_appimage_layout() {
   local path
   path="$(current_path || true)"
   [ -n "$path" ] || die "没有发现可用的 lmstudio 安装"
-  [[ "$path" == *.AppImage ]] || die "当前 lmstudio 不是 AppImage 安装形态: ${path}"
+  if [[ "$path" == *.AppImage ]]; then
+    return 0
+  fi
+  if [ -x "$BIN_LINK" ] && [ -n "$(latest_installed_appimage)" ]; then
+    return 0
+  fi
+  die "当前 lmstudio 不是 AppImage 安装形态: ${path}"
 }
 
 latest_redirect_url() {
@@ -138,30 +153,39 @@ latest_metadata() {
 }
 
 status_cmd() {
-  local path version
+  local path version latest_local
   if ! path="$(current_path)"; then
     log "installed=false"
     printf 'bin_link=%s\n' "$BIN_LINK"
     return 0
   fi
 
+  latest_local="$(latest_installed_appimage || true)"
   version="$(extract_version_from_name "$path" || true)"
+  if [ -z "$version" ] && [ -n "$latest_local" ]; then
+    version="$(extract_version_from_name "$latest_local" || true)"
+  fi
   log "installed=true"
   printf 'bin_link=%s\n' "$BIN_LINK"
   printf 'resolved_path=%s\n' "$path"
+  printf 'latest_installed_appimage=%s\n' "$latest_local"
   printf 'install_root=%s\n' "$INSTALL_ROOT"
   printf 'desktop_file=%s\n' "$DESKTOP_FILE"
   printf 'current_version=%s\n' "$version"
   printf 'detected_arch=%s\n' "$(detect_arch)"
   printf 'launch_extra_args=%s\n' "$EXTRA_ARGS"
-  printf 'layout=%s\n' "$( [[ "$path" == *.AppImage ]] && printf 'appimage' || printf 'other' )"
+  printf 'layout=%s\n' "$( [[ "$path" == *.AppImage ]] && printf 'appimage' || printf 'wrapper' )"
 }
 
 check_cmd() {
-  local path current latest url checksum arch update_available
+  local path current latest url checksum arch update_available latest_local
   arch="$(detect_arch)"
   path="$(current_path || true)"
   current="$(extract_version_from_name "${path:-}" || true)"
+  latest_local="$(latest_installed_appimage || true)"
+  if [ -z "$current" ] && [ -n "$latest_local" ]; then
+    current="$(extract_version_from_name "$latest_local" || true)"
+  fi
   url="$(latest_redirect_url)"
   latest="$(extract_version_from_name "$url" || true)"
   checksum="$(latest_checksum || true)"
@@ -172,6 +196,7 @@ check_cmd() {
 
   printf 'arch=%s\n' "$arch"
   printf 'current_path=%s\n' "$path"
+  printf 'latest_installed_appimage=%s\n' "$latest_local"
   printf 'current_version=%s\n' "$current"
   printf 'latest_url=%s\n' "$url"
   printf 'latest_version=%s\n' "$latest"
@@ -219,7 +244,7 @@ Comment=Discover, download, and run local LLMs
 Exec=${exec_cmd} %U
 TryExec=${BIN_LINK}
 Terminal=false
-Categories=Development;Utility;
+Categories=Development;
 StartupNotify=true
 EOF
 
@@ -230,7 +255,12 @@ sync_desktop_shortcuts() {
   local desktop_dir file
   for desktop_dir in "$HOME/Desktop" "$HOME/桌面"; do
     [ -d "$desktop_dir" ] || continue
+    file="${desktop_dir}/LM Studio.desktop"
+    cp -f "$DESKTOP_FILE" "$file"
+    chmod +x "$file"
+    log "synced_shortcut=${file}"
     while IFS= read -r file; do
+      [ "$file" = "${desktop_dir}/LM Studio.desktop" ] && continue
       cp -f "$DESKTOP_FILE" "$file"
       chmod +x "$file"
       log "synced_shortcut=${file}"
@@ -244,6 +274,59 @@ rewrite_desktop_cmd() {
   log "desktop_rewritten=${DESKTOP_FILE}"
 }
 
+clean_legacy_cmd() {
+  local purge_package=0 legacy_desktop package_status
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --purge-package)
+        purge_package=1
+        shift
+        ;;
+      *)
+        die "未知参数: $1"
+        ;;
+    esac
+  done
+
+  legacy_desktop="$HOME/.local/share/applications/lm-studio.desktop"
+  if [ -f "$legacy_desktop" ]; then
+    if grep -qE '/opt/LM-Studio|TryExec=/opt/LM-Studio|Exec=/opt/LM-Studio' "$legacy_desktop"; then
+      rm -f "$legacy_desktop"
+      log "removed_stale_desktop=${legacy_desktop}"
+    else
+      log "kept_non_opt_desktop=${legacy_desktop}"
+    fi
+  else
+    log "stale_desktop_absent=${legacy_desktop}"
+  fi
+
+  package_status="$(dpkg-query -W -f='${db:Status-Abbrev} ${Version}\n' lm-studio 2>/dev/null || true)"
+  if [ -n "$package_status" ]; then
+    log "legacy_deb_package=${package_status}"
+    if [ "$purge_package" -eq 1 ]; then
+      need_cmd apt-get
+      sudo -n apt-get purge -y lm-studio
+      log "purged_legacy_deb_package=lm-studio"
+    else
+      log "legacy_deb_package_present=true"
+      log "rerun_with=clean-legacy --purge-package"
+    fi
+  else
+    log "legacy_deb_package_present=false"
+  fi
+
+  if [ -e /opt/LM-Studio ]; then
+    log "legacy_opt_path_present=/opt/LM-Studio"
+  else
+    log "legacy_opt_path_present=false"
+  fi
+
+  if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
+    log "desktop_database_updated=true"
+  fi
+}
+
 update_cmd() {
   local current url filename version checksum tmpdir tmpfile target
   assert_appimage_layout
@@ -254,7 +337,9 @@ update_cmd() {
   checksum="$(latest_checksum || true)"
   target="${INSTALL_ROOT}/${filename}"
 
-  if [ -e "$target" ] && [ "$current" = "$target" ]; then
+  if [ -e "$target" ] && { [ "$current" = "$target" ] || [ "$(latest_installed_appimage)" = "$target" ]; }; then
+    write_desktop_file
+    prune_cmd --keep "$DEFAULT_PRUNE_KEEP"
     log "当前已经是最新版本: ${version}"
     return 0
   fi
@@ -270,8 +355,13 @@ update_cmd() {
   verify_sha512 "$tmpfile" "$checksum"
   mv -f "$tmpfile" "$target"
   chmod +x "$target"
-  ln -sfn "$target" "$BIN_LINK"
+  if [[ "$current" == *.AppImage ]]; then
+    ln -sfn "$target" "$BIN_LINK"
+  else
+    log "preserved_wrapper=${BIN_LINK}"
+  fi
   write_desktop_file
+  prune_cmd --keep "$DEFAULT_PRUNE_KEEP"
 
   log "updated_to=${target}"
   log "previous=${current}"
@@ -383,6 +473,10 @@ main() {
     rewrite-desktop)
       shift
       rewrite_desktop_cmd "$@"
+      ;;
+    clean-legacy)
+      shift
+      clean_legacy_cmd "$@"
       ;;
     install-user-timer)
       shift
