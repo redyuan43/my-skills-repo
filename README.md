@@ -756,6 +756,13 @@
 - `references/runbook.md` - 首次实测记录、代理错误原因、视频/图片验证命令
 - `evals/evals.json` - 覆盖视频下载、图片下载和代理错误场景的测试提示
 
+### 94. siyuan-codex-remote-install
+**功能：** 通过 SSH 在远端 Linux/Jetson/AGX 设备上安装或修复 Siyuan 品牌 Codex CLI，覆盖 GitHub release 资产识别、本机下载后 `scp`、用户级 wrapper 和认证迁移规则
+**用途：** 当需要从 `redyuan43/codex` 的 Siyuan release 安装到 `agx` 等远端设备、远端缺少 Node/npm、GitHub release 下载卡住、或需要安全复制 Codex 账户认证文件时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（安装流程、远端下载 fallback、wrapper 规则、交互 shell 验证和认证复制安全要求）
+- `scripts/install_siyuan_codex_remote.sh` - 用户级远端安装脚本，自动下载 release 资产、传输到远端、创建 `siyuan`/`codex` 入口并验证版本
+
 ## 使用方法
 
 1. 克隆此仓库到本地
