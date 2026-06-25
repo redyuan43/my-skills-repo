@@ -756,6 +756,14 @@
 - `references/runbook.md` - 首次实测记录、代理错误原因、视频/图片验证命令
 - `evals/evals.json` - 覆盖视频下载、图片下载和代理错误场景的测试提示
 
+### 94. siyuan-codex-remote-install
+**功能：** 从 `redyuan43/codex` GitHub Release 安装或升级 Siyuan 版 Codex CLI，并支持一键升级 `AMD`、`ai`、`agx`、`nano`、`nano2` 五台设备
+**用途：** 当需要在远端 Linux / Jetson / AGX 主机上安装、修复或“全部升级” Siyuan 版 Codex CLI 时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（单机安装、五机全部升级、Release tarball、本地下载后 scp、入口验证与认证文件安全边界）
+- `scripts/install_siyuan_codex_remote.sh` - 单机或多机安装脚本，支持 `--host`、`--hosts`、`--all`、`--version` 和 Nano 密码参数
+- `scripts/upgrade_all_siyuan_codex.sh` - 五台设备一键升级入口，默认目标为 `AMD ai agx nano nano@nano2`
+
 ## 使用方法
 
 1. 克隆此仓库到本地
