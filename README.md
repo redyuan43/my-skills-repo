@@ -764,6 +764,13 @@
 - `scripts/install_siyuan_codex_remote.sh` - 单机或多机安装脚本，支持 `--host`、`--hosts`、`--all`、`--version` 和 Nano 密码参数
 - `scripts/upgrade_all_siyuan_codex.sh` - 五台设备一键升级入口，默认目标为 `AMD ai agx nano nano@nano2`
 
+### 95. codex-proxy-env-fix
+**功能：** 诊断并修复 Codex CLI 的代理、WebSocket 重连和 MCP 启动网络问题，通过目标机器真实 xray/v2rayN/clash/mihomo 监听端口生成 `~/.codex/.env`
+**用途：** 当 Codex 出现 `Reconnecting 2/5`、`Responses WebSocket timed out`、ChatGPT/OpenAI 直连超时、MCP HTTP 403/timeout，或需要避免照抄错误代理端口时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（真实端口探测、`.codex/.env` 持久化规则、NO_PROXY/MCP 规则和 doctor/exec 验证清单）
+- `scripts/configure_codex_proxy_env.sh` - 代理探测与 `.codex/.env` 写入脚本，默认 dry-run，`--apply` 后备份旧配置并写入上下游代理环境变量
+
 ## 使用方法
 
 1. 克隆此仓库到本地
