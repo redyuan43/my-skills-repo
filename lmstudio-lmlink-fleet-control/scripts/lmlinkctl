@@ -1,0 +1,248 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SELF_NAMES="self local ."
+DEFAULT_TARGETS="${LMLINKCTL_TARGETS:-AMD}"
+LMS="${LMS_PATH:-$HOME/.lmstudio/bin/lms}"
+LMSTUDIO="${LMSTUDIO_PATH:-$HOME/.local/bin/lmstudio}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  lmlinkctl status [target...]
+  lmlinkctl start [target...]
+  lmlinkctl restart [target...]
+  lmlinkctl stop [target...]
+  lmlinkctl all
+  lmlinkctl login [target]
+  lmlinkctl relogin [target]
+
+Targets:
+  self/local/.   current machine
+  AMD            SSH alias, if available from this machine
+
+Environment:
+  LMLINKCTL_TARGETS="AMD other-host"  targets used by "all"
+  LMS_PATH=/path/to/lms
+  LMSTUDIO_PATH=/path/to/lmstudio
+EOF
+}
+
+is_self_target() {
+  local target="${1:-self}"
+  for name in $SELF_NAMES; do
+    [[ "$target" == "$name" ]] && return 0
+  done
+  [[ "$target" == "$(hostname)" ]] && return 0
+  return 1
+}
+
+remote_run() {
+  local target="$1"
+  shift
+  ssh "$target" "~/.local/bin/lmlinkctl $*"
+}
+
+run_for_targets() {
+  local cmd="$1"
+  shift || true
+
+  if (($# == 0)); then
+    "$cmd"_local
+    return
+  fi
+
+  local target
+  for target in "$@"; do
+    if is_self_target "$target"; then
+      "$cmd"_local
+    else
+      printf '\n===== %s: %s =====\n' "$target" "$cmd"
+      remote_run "$target" "$cmd"
+    fi
+  done
+}
+
+print_lms() {
+  if [[ ! -x "$LMS" ]]; then
+    printf 'lms: missing (%s)\n' "$LMS"
+    return 1
+  fi
+  "$@"
+}
+
+unit_state() {
+  local unit="$1"
+  local state
+  state="$(systemctl --user is-active "$unit.service" 2>/dev/null || true)"
+  [[ -n "$state" ]] && printf '%s=%s\n' "$unit" "$state"
+}
+
+status_local() {
+  printf 'host=%s user=%s home=%s\n' "$(hostname)" "$(whoami)" "$HOME"
+  printf 'time=%s\n' "$(date '+%Y-%m-%d %H:%M:%S %Z')"
+
+  printf '\n[auth]\n'
+  if [[ -x "$LMS" ]]; then
+    timeout 15 "$LMS" whoami 2>&1 || true
+  else
+    printf 'missing lms at %s\n' "$LMS"
+  fi
+
+  printf '\n[link]\n'
+  if [[ -x "$LMS" ]]; then
+    timeout 25 "$LMS" link status 2>&1 || true
+  else
+    printf 'missing lms at %s\n' "$LMS"
+  fi
+
+  printf '\n[server]\n'
+  if [[ -x "$LMS" ]]; then
+    timeout 15 "$LMS" server status 2>&1 || true
+  fi
+
+  printf '\n[systemd]\n'
+  unit_state lmstudio-manual
+  unit_state lmstudio-latest
+  unit_state lmstudio-direct-nogpu
+
+  printf '\n[listeners]\n'
+  ss -ltnp 2>/dev/null | grep -Ei '(1234|41343|lm-studio|lmlink|lms)' || true
+
+  printf '\n[processes]\n'
+  ps -eo pid,ppid,stat,etime,cmd \
+    | awk '/lm-studio|LM-Studio|AppImage|lmlink-connector/ && !/awk/ {print}' \
+    || true
+}
+
+stop_local() {
+  systemctl --user stop lmstudio-manual.service 2>/dev/null || true
+  systemctl --user stop lmstudio-latest.service 2>/dev/null || true
+  systemctl --user stop lmstudio-direct-nogpu.service 2>/dev/null || true
+}
+
+start_edge() {
+  local uid display xauthority dbus
+  uid="$(id -u)"
+  display="${DISPLAY:-:1}"
+  xauthority="${XAUTHORITY:-/run/user/$uid/gdm/Xauthority}"
+  dbus="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$uid/bus}"
+
+  systemctl --user reset-failed lmstudio-manual.service 2>/dev/null || true
+  if systemctl --user is-active --quiet lmstudio-manual.service; then
+    printf 'lmstudio-manual.service already active\n'
+    return
+  fi
+
+  systemd-run --user --unit=lmstudio-manual --collect \
+    --setenv=DISPLAY="$display" \
+    --setenv=XAUTHORITY="$xauthority" \
+    --setenv=DBUS_SESSION_BUS_ADDRESS="$dbus" \
+    "$LMSTUDIO" --no-sandbox --disable-gpu
+}
+
+start_default() {
+  if [[ ! -x "$LMSTUDIO" ]]; then
+    printf 'lmstudio wrapper missing: %s\n' "$LMSTUDIO" >&2
+    return 1
+  fi
+  "$LMSTUDIO"
+}
+
+wait_link() {
+  local deadline=$((SECONDS + 90))
+  local output
+  while ((SECONDS < deadline)); do
+    output="$(timeout 20 "$LMS" link status 2>&1 || true)"
+    if grep -q 'Status: Online' <<<"$output"; then
+      printf '%s\n' "$output"
+      return 0
+    fi
+    sleep 3
+  done
+  timeout 25 "$LMS" link status 2>&1 || true
+  return 1
+}
+
+start_local() {
+  printf 'starting LM Studio on %s...\n' "$(hostname)"
+  case "$(hostname)" in
+    edge)
+      start_edge
+      ;;
+    *)
+      start_default
+      ;;
+  esac
+
+  if [[ -x "$LMS" ]]; then
+    printf '\n[waiting for LM Link]\n'
+    wait_link || true
+  fi
+}
+
+restart_local() {
+  stop_local
+  sleep 2
+  start_local
+}
+
+login_local() {
+  if [[ ! -x "$LMS" ]]; then
+    printf 'missing lms at %s\n' "$LMS" >&2
+    return 1
+  fi
+  "$LMS" login
+}
+
+relogin_local() {
+  if [[ ! -x "$LMS" ]]; then
+    printf 'missing lms at %s\n' "$LMS" >&2
+    return 1
+  fi
+  "$LMS" logout || true
+  "$LMS" login
+}
+
+all_local_and_targets() {
+  status_local
+  local target
+  for target in $DEFAULT_TARGETS; do
+    printf '\n===== %s: status =====\n' "$target"
+    remote_run "$target" status || true
+  done
+}
+
+main() {
+  local cmd="${1:-status}"
+  shift || true
+
+  case "$cmd" in
+    status|start|restart|stop)
+      run_for_targets "$cmd" "$@"
+      ;;
+    login|relogin)
+      if (($# > 1)); then
+        printf '%s accepts at most one target\n' "$cmd" >&2
+        return 2
+      fi
+      if (($# == 1)) && ! is_self_target "$1"; then
+        remote_run "$1" "$cmd"
+      else
+        "$cmd"_local
+      fi
+      ;;
+    all)
+      all_local_and_targets
+      ;;
+    help|-h|--help)
+      usage
+      ;;
+    *)
+      usage >&2
+      return 2
+      ;;
+  esac
+}
+
+main "$@"

@@ -771,6 +771,14 @@
 - `SKILL.md` - 技能说明文档（真实端口探测、`.codex/.env` 持久化规则、NO_PROXY/MCP 规则和 doctor/exec 验证清单）
 - `scripts/configure_codex_proxy_env.sh` - 代理探测与 `.codex/.env` 写入脚本，默认 dry-run，`--apply` 后备份旧配置并写入上下游代理环境变量
 
+### 96. lmstudio-lmlink-fleet-control
+**功能：** 用命令行检查、启动、停止、重启和重新登录 Linux 设备上的 LM Studio LM Link，避免每次都依赖 GUI 操作
+**用途：** 当需要快速确认本机或 SSH 目标的 LM Link 是否 Online、生成新的 LM Studio pairing 登录链接、远程启动 AMD/edge 等设备的 LM Studio，或区分账号、GUI 启动、本地 server 与 GPU/Electron 报错噪音时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（适用边界、状态检查、启动/重启、relogin、AMD GPU 报错判断和验证清单）
+- `scripts/lmlinkctl` - 统一入口脚本，支持 `status`、`all`、`start`、`restart`、`stop`、`login`、`relogin` 和 SSH 目标转发
+- `references/field-notes.md` - 本次 edge 与 AMD LM Link 排障经验记录，包括 `lms link status` 证据、systemd 桌面启动方式和 AMD Electron GPU workaround
+
 ## 使用方法
 
 1. 克隆此仓库到本地
