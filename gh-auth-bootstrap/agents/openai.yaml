@@ -1,0 +1,4 @@
+interface:
+  display_name: "GH Auth Bootstrap"
+  short_description: "多设备 GitHub CLI 登录复用与 Git 凭据配置"
+  default_prompt: "Use $gh-auth-bootstrap to configure GitHub CLI and Git HTTPS credential reuse across my trusted devices."
