@@ -632,12 +632,13 @@
 - `SKILL.md` - 技能说明文档（远端设备映射、pairing 链接流程、Tailscale 直连 fallback、`Invalid passkey` 修复与验证清单）
 
 ### 79. codex-fleet-update
-**功能：** 维护多台 SSH 设备上的 Codex CLI 版本一致性，并提供按需触发的 `codex-update` 全设备升级命令
-**用途：** 当某台设备发现 Codex 需要升级、远端 `codex` 只在交互式 bash/nvm 环境里可见、需要检查所有设备版本，或需要通过 SSH 反向代理让远端 Codex 访问 OpenAI 时使用
+**功能：** 从 `redyuan43/codex` 的最新 Siyuan GitHub Release 获取经校验的架构产物，并通过 `codex-update` 保持 SSH 设备上的 `codex`/`siyuan` 版本一致
+**用途：** 当 NX、Nano、Jetson 或 x64 设备版本落后，需要避免 npm latest 误降级，或需要在 Tailscale/DERP 等不稳定 VPN 链路上断点续传升级包时使用
 **文件：**
-- `SKILL.md` - 技能说明文档（按需同步策略、交互式 bash 诊断、代理验证和发布经验）
-- `scripts/codex-update.sh` - 全设备 Codex 版本检查/升级脚本，支持 `--check`、`--hosts`、`--target`
-- `references/field-notes.md` - 本次 nano/nx2/nx1/agx/edge 等设备排障与沉淀规则
+- `SKILL.md` - 技能说明文档（GitHub Release 取版、架构选择、校验、版本化安装和验证）
+- `scripts/codex-update.sh` - Fleet 检查/升级脚本，支持 GitHub Siyuan Release、SHA-256 校验、`rsync` 断点续传、SSH keepalive 和重试
+- `scripts/selftest.sh` - 无副作用的 `--safe` 自检，验证脚本语法、帮助入口和控制端依赖
+- `references/field-notes.md` - npm 旧流程迁移、安装布局、NX/Nano 设备清单与 Tailscale DERP 传输经验
 
 ### 80. markdown-to-pdf-cli
 **功能：** 使用 `npx md-to-pdf` 和系统 Chrome 将本地 Markdown 转成 PDF，并处理相对图片路径与远端 Linux 环境 PATH 问题

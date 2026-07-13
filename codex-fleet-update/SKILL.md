@@ -1,104 +1,109 @@
 ---
 name: codex-fleet-update
-description: Maintain Codex CLI across multiple SSH-accessible Linux devices. Use when Codex works on some machines but not others, when `codex --version` differs across a fleet, when nvm/npm only appears in interactive bash, or when the user wants an on-demand `codex-update` command instead of a timer.
+description: Keep Siyuan Codex aligned across SSH-accessible Linux devices by resolving the latest redyuan43/codex GitHub release, selecting the correct architecture asset, verifying checksums, and atomically updating codex/siyuan launchers. Use when NX, Nano, Jetson, x64, or mixed fleet devices have different Siyuan Codex versions.
 ---
 
-# Codex Fleet Update
+# Siyuan Codex Fleet Update
 
-Use this skill to keep `@openai/codex` aligned across a small SSH fleet without background polling.
+Use this skill to align a small SSH fleet with Siyuan Codex releases from
+`redyuan43/codex`.
 
 ## Core Pattern
 
-Prefer an on-demand reconciler:
-
-1. Query npm once for the target `@openai/codex` version.
-2. SSH to each host.
-3. Run checks inside `bash -ic`, because many devices initialize nvm/npm/Codex only from interactive shell startup.
-4. Install only when the remote version differs.
-5. Verify `codex --version` after installation.
-6. Log per-host results.
-
-Do not add a timer unless the user explicitly wants background polling. Codex releases are not frequent enough to justify regular checks for this use case; the operator usually notices an update and then wants to update the rest of the devices.
-
-## Installed Command
-
-If the local fleet command exists, use it:
+Prefer the installed on-demand reconciler:
 
 ```bash
 codex-update
 ```
 
-Useful modes:
+The reconciler:
+
+1. Resolves the latest GitHub Release from `redyuan43/codex`.
+2. Requires a `siyuan-v*` release tag and derives the target CLI version.
+3. Checks each host through interactive Bash so existing aliases remain visible.
+4. Detects `aarch64` or `x86_64` per host.
+5. Downloads each required executable archive once on the controller.
+6. Verifies the archive against the Release checksum file.
+7. Uses resumable `rsync` uploads with SSH keepalives and retries for VPN links.
+8. Installs into `~/.local/share/siyuan-codex/<version>/`.
+9. Atomically switches both `~/.local/bin/codex` and
+   `~/.local/bin/siyuan`.
+10. Verifies the selected launcher reports the target version.
+
+This workflow intentionally does not use `npm view @openai/codex version` or
+`npm install @openai/codex@latest`. The official npm version can lag or differ
+from the latest Siyuan release and can cause an accidental downgrade.
+
+## Commands
+
+Check every known device without installing:
 
 ```bash
 codex-update --check
-codex-update --hosts "nano nx1 nx2"
-codex-update --target 0.125.0
 ```
 
-The script template lives at `scripts/codex-update.sh`. Install or refresh it with:
+Update only the NX and Nano fleet:
+
+```bash
+codex-update --hosts "nano nano2 nano3 nx1 nx2 nx3 nx4"
+```
+
+Pin a specific Siyuan release:
+
+```bash
+codex-update --target 0.145.0-alpha.4-siyuan.1
+```
+
+`--target` also accepts the full tag:
+
+```bash
+codex-update --target siyuan-v0.145.0-alpha.4-siyuan.1
+```
+
+## Installation
+
+Install or refresh the command on the controller:
 
 ```bash
 install -m 755 scripts/codex-update.sh "$HOME/.local/bin/codex-update"
 ```
 
-To distribute the command to known hosts:
+Requirements on the controller:
+
+- authenticated or public-access `gh`
+- `ssh` and `rsync`
+- `sha256sum`
+
+Remote devices only need SSH access, `bash`, `tar`, `rsync`, and a supported
+Linux architecture (`aarch64` or `x86_64`).
+
+## Safety
+
+风险控制：
+
+- Run `codex-update --check` before a fleet-wide update when the target or host
+  inventory is uncertain.
+- Release archives must pass the published SHA-256 check before upload.
+- The remote launcher changes only after extraction and a successful temporary
+  binary version check.
+- Existing older version directories remain available for rollback.
+- Unsupported architectures and version mismatches fail closed.
+
+The update changes executable links on remote devices, so confirm the intended
+host list before using a broad `--hosts` value.
+
+Run the non-destructive self-test with:
 
 ```bash
-for h in nano nx1 nx2 agx AMD ivan edge spark; do
-  ssh -o BatchMode=yes -o ConnectTimeout=10 "$h" 'mkdir -p ~/.local/bin'
-  scp -q -o BatchMode=yes -o ConnectTimeout=10 "$HOME/.local/bin/codex-update" "$h":~/.local/bin/codex-update
-  ssh -o BatchMode=yes -o ConnectTimeout=10 "$h" 'chmod +x ~/.local/bin/codex-update'
-done
+scripts/selftest.sh --safe
 ```
 
-## Diagnostics
+## Verification
 
-When `ssh host 'codex --version'` fails but an interactive session works, compare these:
+- `codex-update --check --hosts "nano nano2 nano3 nx1 nx2 nx3 nx4"` exits 0.
+- Every device reports the same GitHub-derived target.
+- `readlink -f ~/.local/bin/codex` points into the selected version directory.
+- `codex --version` and `siyuan --version` report the same target.
 
-```bash
-ssh host 'command -v codex || true; echo "$PATH"'
-ssh -tt host 'bash -ic "command -v codex; codex --version; command -v npm; npm --version"'
-```
-
-If only the second command finds Codex, the fix is not reinstalling blindly; use `bash -ic` for fleet automation so `.bashrc`/nvm initialization is loaded.
-
-## Proxy Notes
-
-For devices that need the local VPN/proxy to reach OpenAI, use SSH reverse forwarding plus a remote shell env file:
-
-```sshconfig
-Host nano
-  RemoteForward 127.0.0.1:17890 127.0.0.1:10808
-```
-
-Remote shell snippet:
-
-```bash
-export HTTP_PROXY="http://127.0.0.1:17890/"
-export HTTPS_PROXY="http://127.0.0.1:17890/"
-export ALL_PROXY="socks5://127.0.0.1:17890"
-export http_proxy="$HTTP_PROXY"
-export https_proxy="$HTTPS_PROXY"
-export all_proxy="$ALL_PROXY"
-export NO_PROXY="localhost,127.0.0.0/8,::1"
-export no_proxy="$NO_PROXY"
-```
-
-Validate OpenAI reachability with:
-
-```bash
-curl -sS -o /dev/null -w "openai_http=%{http_code} remote_ip=%{remote_ip}\n" --max-time 15 https://api.openai.com/v1/models
-```
-
-`401` is a successful connectivity signal for an unauthenticated probe.
-
-## Verification Checklist
-
-- `codex-update --check` completes with zero failed hosts.
-- Every host reports the same target version.
-- Hosts using nvm show Codex under the expected nvm path in `bash -ic`.
-- Proxy-bound hosts return `openai_http=401` from the OpenAI probe.
-- The command is installed at `~/.local/bin/codex-update` on each device if the user wants local trigger parity.
-
-See `references/field-notes.md` for the incident notes that shaped this workflow.
+See `references/field-notes.md` for the migration from the obsolete npm-based
+workflow.
