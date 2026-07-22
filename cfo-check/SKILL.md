@@ -9,7 +9,8 @@ description: Use when the user wants CFO-style company fundamental analysis, A-s
 
 用 CFO/买方研究视角做企业基本面分析：先拿可追溯数据，再做口径校验、经营质量判断、估值和风险拆解。结论要区分事实、假设和推断；涉及金额、比率、估值和敏感假设时，用脚本或表格计算，不靠心算。
 
-本 skill 来自 `MichaelSun/cfo-check` 的核心工作流，并在本仓库中与 `data-science` 及 `mx-*` skills 打通。
+本 skill 来自 `MichaelSun/cfo-check` 的核心工作流，并在本仓库中与 `data-science` 及 `mx-*` skills 打通。方法论快照和有意采用的组件见
+`references/michaelsun-cfo-check-provenance.md`。
 
 ## 工作流
 
@@ -24,7 +25,8 @@ description: Use when the user wants CFO-style company fundamental analysis, A-s
 3. 用 `MX_APIKEY`、`POLYGON_API_KEY`、`FINNHUB_API_KEY`、`FRED_API_KEY`、`TUSHARE_TOKEN` 等环境变量或本机私有配置读取密钥；不要把真实 key 写入报告、README 或可提交文件。
 4. 每个关键数据点记录来源、抓取日期、币种、单位和口径；A 股百分比字段要区分“4.06 = 4.06%”这类口径。
 5. 对核心结论做反证检查：收入质量、毛利率/费用率趋势、现金流含金量、ROIC-WACC、资本开支、SBC/回购/分红、资产负债表风险、治理与资本配置。
-6. 输出默认使用中文，保留必要英文财务术语，如 ROIC、WACC、NOPLAT、MoS、FCF。
+6. 深度研究按 `data-science` 中的 financial-analysis 脚本运行数据采集、交叉校验、ROIC-WACC、资本配置、会计异常和安全边际压力测试；再按需调用 Buffett 和批判性审查参考框架。
+7. 输出默认使用中文，保留必要英文财务术语，如 ROIC、WACC、NOPLAT、MoS、FCF。
 
 ## 数据/API 快速路由
 
@@ -34,6 +36,7 @@ description: Use when the user wants CFO-style company fundamental analysis, A-s
 - 美股价格、财务和 Polygon：`$data-science` 的 `scripts/polygon-data/polygon_data.py`。
 - 一般财务抓取和 Markdown 输出：`$data-science` 的 `scripts/financial-data-acquisition/fetch_financials.py`。
 - 自选股和模拟组合属于外部状态变更；只有用户明确要求时才用 `$mx-zixuan` 或 `$mx-moni`。
+- 深度估值、资本配置和交叉校验：`$data-science` 的 `scripts/financial-analysis/`。
 
 ## 报告骨架
 
@@ -52,4 +55,5 @@ description: Use when the user wants CFO-style company fundamental analysis, A-s
 - 不给无依据的买卖建议；如果涉及交易动作，明确区分分析、模拟交易和真实交易。
 - 东方财富妙想 API 会把查询文本发送到 `mkapi2.dfcfs.com`，调用前确认任务确实需要外部数据。
 - 对关键数据至少做一次交叉检查：同源重试、公告/年报核对、或用另一个数据源 sanity check。
+- “推理追踪”只能记录数据来源、假设、公式和可复现命令摘要；不要输出隐藏的模型推理过程。
 - 交付前执行 `scripts/selftest.sh` 检查 skill 结构；真实研究任务还要按 `references/gate_checklist.md` 做报告级校验。

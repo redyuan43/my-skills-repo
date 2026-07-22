@@ -17,6 +17,7 @@ check_file "SKILL.md"
 check_file "agents/openai.yaml"
 check_file "references/api-data-sources.md"
 check_file "references/gate_checklist.md"
+check_file "references/michaelsun-cfo-check-provenance.md"
 check_file "references/optimizer_memory.md"
 check_file "references/rejected_edits.md"
 check_file "eval/val/items.json"
@@ -40,6 +41,9 @@ grep -q "MX_APIKEY" "$ROOT/SKILL.md" || fail "SKILL.md missing MX_APIKEY"
 grep -q "POLYGON_API_KEY" "$ROOT/SKILL.md" || fail "SKILL.md missing POLYGON_API_KEY"
 grep -q "mkapi2.dfcfs.com" "$ROOT/SKILL.md" || fail "SKILL.md missing MX endpoint warning"
 grep -q "明确要求" "$ROOT/SKILL.md" || fail "SKILL.md missing explicit authorization guard"
+grep -q "87f27bb8be1300e5e7ad53a4c79a95184373e4cf" \
+  "$ROOT/references/michaelsun-cfo-check-provenance.md" \
+  || fail "missing upstream methodology revision"
 
 if command -v rg >/dev/null 2>&1; then
   if rg -n "(sk-[A-Za-z0-9_-]{20,}|mkt_[A-Za-z0-9]{12,})" "$ROOT" >/tmp/cfo-check-secret-scan.txt; then
