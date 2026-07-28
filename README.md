@@ -780,6 +780,15 @@
 - `scripts/lmlinkctl` - 统一入口脚本，支持 `status`、`all`、`start`、`restart`、`stop`、`login`、`relogin` 和 SSH 目标转发
 - `references/field-notes.md` - 本次 edge 与 AMD LM Link 排障经验记录，包括 `lms link status` 证据、systemd 桌面启动方式和 AMD Electron GPU workaround
 
+### 97. fix-tailscale-derp-with-peer-relay
+**功能：** 诊断严格 NAT、CGNAT 和高延迟 DERP 导致的 Tailscale 慢连接，并安全部署、验证和回滚透明的 Peer Relay
+**用途：** 当单个客户端访问目标节点的 SSH、HTTP 或实时 WebSocket 很慢，而其他节点正常，且需要保持原 MagicDNS 域名和端口不变时使用
+**文件：**
+- `SKILL.md` - 只读基线、根因分层、Relay 选址、最小授权、应用验收和回滚流程
+- `scripts/diagnose_tailscale_path.sh` - 收集 Tailscale 路径、netcheck 和 SSH 最终配置的只读诊断脚本
+- `scripts/selftest.sh` - 不访问网络的安全语法与帮助路径自测
+- `references/peer-relay-runbook.md` - Relay 端点、主机/云双层防火墙、tailnet grant、数据面验证和回滚操作手册
+
 ## 使用方法
 
 1. 克隆此仓库到本地
