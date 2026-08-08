@@ -787,6 +787,16 @@
 - `references/ios-native-ssh-notes.md` - UTM 与 iPadOS 节点边界、Tailscale 数据面和 Windows OpenSSH 注意事项
 - `scripts/push_ashell_ssh_files.py` - 受 `--apply` 保护的 USB 注入脚本，将身份密钥和 SSH 配置写入 a-Shell Documents 容器
 
+### 98. dgx-spark-opal-nvme-lock
+**功能：** 在不格式化现有数据的前提下，检查、启用并验证 NVIDIA DGX Spark 系统 NVMe 的 TCG Opal 硬件锁
+**用途：** 当需要在 Spark 返厂、交接或拆盘前保护静态数据，处理 Block SID、UEFI TCG Storage Security、开机密码、首次解锁后的 PXE 延迟，或区分清除密码与 Device Reset/PSID Revert 等破坏性操作时使用
+**文件：**
+- `SKILL.md` - 技能说明文档（安全边界、确认门、UEFI 一次性窗口、密码处理和完成标准）
+- `agents/openai.yaml` - Codex UI 元数据与默认触发提示
+- `scripts/check_opal_state.sh` - 严格只读的根盘、NVMe 安全能力和 Opal 状态检查入口
+- `scripts/selftest.sh` - 无副作用静态自测，支持 `--safe`
+- `references/dgx-spark-uefi-opal-runbook.md` - 只读检查、UEFI 设置、首次启动、状态判读和恢复边界的完整现场手册
+
 ## 使用方法
 
 1. 克隆此仓库到本地

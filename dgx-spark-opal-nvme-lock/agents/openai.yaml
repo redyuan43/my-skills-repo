@@ -1,0 +1,4 @@
+interface:
+  display_name: "DGX Spark Opal NVMe Lock"
+  short_description: "安全启用和验证 DGX Spark 系统盘的 TCG Opal 硬件锁"
+  default_prompt: "Use $dgx-spark-opal-nvme-lock to inspect, enable, validate, or safely recover the DGX Spark NVMe TCG Opal hardware lock without confusing password management with sanitize or PSID reset."
