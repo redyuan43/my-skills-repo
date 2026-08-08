@@ -779,6 +779,13 @@
 - `SKILL.md` - 技能说明文档（适用边界、状态检查、启动/重启、relogin、AMD GPU 报错判断和验证清单）
 - `scripts/lmlinkctl` - 统一入口脚本，支持 `status`、`all`、`start`、`restart`、`stop`、`login`、`relogin` 和 SSH 目标转发
 - `references/field-notes.md` - 本次 edge 与 AMD LM Link 排障经验记录，包括 `lms link status` 证据、systemd 桌面启动方式和 AMD Electron GPU workaround
+### 97. ipad-native-ssh-tailscale
+**功能：** 用 a-Shell 和 iPadOS Tailscale 把 iPad 配置为原生 SSH 工作台，支持专用密钥、主机别名、USB/CoreDevice 文件注入和真实连接验收
+**用途：** 当用户希望在 iPad 上获得类似 Termux 的 SSH 开发体验、不需要完整 Linux 虚拟机、需要给 Tailscale 设备群配置免密访问，或出现“iPad 节点在线但终端 SSH 超时”时使用
+**文件：**
+- `SKILL.md` - 原生方案选择、密钥分发、a-Shell URL 控制与验证流程
+- `references/ios-native-ssh-notes.md` - UTM 与 iPadOS 节点边界、Tailscale 数据面和 Windows OpenSSH 注意事项
+- `scripts/push_ashell_ssh_files.py` - 受 `--apply` 保护的 USB 注入脚本，将身份密钥和 SSH 配置写入 a-Shell Documents 容器
 
 ## 使用方法
 
