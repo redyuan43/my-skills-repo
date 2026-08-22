@@ -1,0 +1,4 @@
+interface:
+  display_name: "Server Release Deployment"
+  short_description: "发布、验证与回滚后端服务"
+  default_prompt: "使用 $server-release-deployment 准备并执行这项服务端发布。"

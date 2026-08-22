@@ -797,6 +797,23 @@
 - `scripts/selftest.sh` - 无副作用静态自测，支持 `--safe`
 - `references/dgx-spark-uefi-opal-runbook.md` - 只读检查、UEFI 设置、首次启动、状态判读和恢复边界的完整现场手册
 
+### 99. server-release-deployment
+**功能：** 为后端、边缘节点和自托管服务提供版本化发布、验收与回滚的通用工作流
+**用途：** 当需要把同一服务版本部署到一个或多个独立目标，且需要明确权威来源、状态数据隔离、灰度或全量发布、健康检查和回滚边界时使用
+**文件：**
+- `SKILL.md` - 通用发布约束与标准流程
+- `agents/openai.yaml` - Codex UI 元数据与默认调用提示
+- `references/release-playbook.md` - 发布、验收、故障处理和最终汇报操作手册
+- `references/project-release-profile.md` - 项目发布参数写入 `AGENTS.md` 或发布文档的模板
+
+### 100. siyuan-audio-edge-release
+**功能：** 为 SIYUAN NOTE Audio 服务提供 Nano1、Nano2、Nano3 的项目发布配置
+**用途：** 当处理 SIYUAN Audio API、绑定、便笺同步、任务处理或 Nano 边缘节点部署时，配合通用服务端发布流程使用
+**文件：**
+- `SKILL.md` - Audio 仓库、节点、测试和部署命令约束
+- `agents/openai.yaml` - Codex UI 元数据
+- `references/release-operations.md` - Audio 节点发布、状态检查、回滚和新节点接入参考
+
 ## 使用方法
 
 1. 克隆此仓库到本地
