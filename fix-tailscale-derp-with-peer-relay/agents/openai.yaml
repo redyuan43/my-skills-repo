@@ -1,0 +1,4 @@
+interface:
+  display_name: "修复 Tailscale DERP 慢链路"
+  short_description: "诊断慢速 DERP 并部署可验证的 Peer Relay"
+  default_prompt: "使用 $fix-tailscale-derp-with-peer-relay 诊断目标节点为何走 DERP，并安全部署和验证 Peer Relay。"
